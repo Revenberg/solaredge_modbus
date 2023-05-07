@@ -4,12 +4,7 @@ from __future__ import annotations
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
-from .rs485eth import Instrument
-
 from . import hub
-from .const import hub, DOMAIN
-
-#import serial
 
 import logging
 _LOGGER = logging.getLogger(__name__)
@@ -27,7 +22,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     _LOGGER.debug( "!!!!!!!!!!!!!!!!!!!!!!" )
     _LOGGER.debug(  entry.data )
 
-    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = hub.Hub(hass, entry.data["title"], entry.data["device"], entry.data["host"], entry.data["post"] )
+    hass.data.setdefault(hub.DOMAIN, {})[entry.entry_id] = hub.Hub(hass, entry.data["title"], entry.data["device"], entry.data["host"], entry.data["post"] )
 
     # This creates each HA object for each platform your device requires.
     # It's done by calling the `async_setup_entry` function in each platform module.
@@ -43,6 +38,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # details
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     if unload_ok:
-        hass.data[DOMAIN].pop(entry.entry_id)
+        hass.data[hub.DOMAIN].pop(entry.entry_id)
 
     return unload_ok

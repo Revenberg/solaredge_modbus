@@ -13,7 +13,10 @@ import datetime
 from .rs485eth import Instrument
 
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity import Entity
 import logging
+ICON = "mdi:power-plug"
+
 _LOGGER = logging.getLogger(__name__)
 _LOGGER.setLevel(logging.DEBUG)
 
@@ -102,18 +105,8 @@ class Hub:
 
     def connection(self):
         """Test connectivity is OK."""
-        instrument = Instrument(self._host, self._port, 1, debug=False)
+        self._instrument = Instrument(self._host, self._port, 1, debug=False)
         
-        BAUDRATE = 9600
-        self._instrument = serial.Serial(
-                  self._device,
-                  BAUDRATE,
-                  timeout=10,
-                  bytesize=serial.SEVENBITS,
-                  parity=serial.PARITY_EVEN,
-                  stopbits=serial.STOPBITS_ONE
-          )
-
 class Roller:
     """Dummy roller (device for HA) for Hello World example."""
 
