@@ -2439,12 +2439,12 @@ def _bits_to_bytestring(valuelist):
     """
     if not isinstance(valuelist, list):
         raise TypeError(
-            f"The input should be a list. " + "Given: {valuelist!r}"
+            f"The input should be a list. Given: {valuelist!r}"
         )
     for value in valuelist:
         if value not in [0, 1, False, True]:
             raise ValueError(
-                f"Wrong value in list of bits. " + "Given: {value!r}"
+                f"Wrong value in list of bits. Given: {value!r}"
             )
 
     list_position = 0
@@ -3331,17 +3331,17 @@ def _check_string(
 
     """
     # Type checking
-    if not isinstance(description, str):
+    if not type(description) is str:
         raise TypeError(
             f"The description should be a string. Given: {description!r}"
         )
 
-    if not isinstance(inputstring, str):
+    if not type(inputstring) is str:
         raise TypeError(
             f"The {description} should be a string. Given: {inputstring!r}"
         )
 
-    if not isinstance(maxlength, (int, type(None))):
+    if (not(type(maxlength) is int) or (type(maxlength) is None)):
         raise TypeError(
             f"The maxlength must be an integer or None. Given: {maxlength!r}"
         )
