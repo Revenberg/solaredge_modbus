@@ -177,23 +177,11 @@ class Instrument:
     def __repr__(self):
         """Give string representation of the :class:`.Instrument` object."""
         template = (
-            "{}.{}<id=0x{:x}, address={}, mode={}, close_port_after_each_call={}, "
-            + "precalculate_read_size={}, clear_buffers_before_each_transaction={}, "
-            + "handle_local_echo={}, debug={}, serial={}>"
+            f"{self.__module__}.{self.__class__.__name__}<id=0x{id(self):x}, address={self.address}, mode={self.mode}, close_port_after_each_call={self.close_port_after_each_call}, "
+            + f"precalculate_read_size={self.precalculate_read_size}, clear_buffers_before_each_transaction={self.clear_buffers_before_each_transaction}, "
+            + f"handle_local_echo={self.handle_local_echo}, debug={self.debug}>"
         )
-        return template.format(
-            self.__module__,
-            self.__class__.__name__,
-            id(self),
-            self.address,
-            self.mode,
-            self.close_port_after_each_call,
-            self.precalculate_read_size,
-            self.clear_buffers_before_each_transaction,
-            self.handle_local_echo,
-            self.debug,
-#            self.serial,
-        )
+        return template
 
     # ################################# #
     #  Methods for talking to the slave #
@@ -815,7 +803,7 @@ class Instrument:
         """
         if not isinstance(values, list):
             raise TypeError(
-                'The "values parameter" must be a list. Given: {0!r}'.format(values)
+                f'The "values parameter" must be a list. Given: {values!r}'
             )
         _check_int(
             len(values),
@@ -921,12 +909,10 @@ class Instrument:
         if payloadformat not in _ALL_PAYLOADFORMATS:
             if not isinstance(payloadformat, str):
                 raise TypeError(
-                    "The payload format should be a string. Given: {!r}".format(
-                        payloadformat
-                    )
+                    f"The payload format should be a string. Given: {payloadformat!r}"
                 )
             raise ValueError(
-                "Wrong payload format variable. Given: {!r}".format(payloadformat)
+                f"Wrong payload format variable. Given: {payloadformat!r}"
             )
 
         number_of_register_bytes = number_of_registers * _NUMBER_OF_BYTES_PER_REGISTER
@@ -935,7 +921,7 @@ class Instrument:
         if functioncode not in ALLOWED_FUNCTIONCODES[payloadformat]:
             raise ValueError(
                 "Wrong functioncode for payloadformat "
-                + "{!r}. Given: {!r}.".format(payloadformat, functioncode)
+                + f"{payloadformat!r}. Given: {functioncode!r}."
             )
 
         # Check combinations: signed
@@ -943,15 +929,14 @@ class Instrument:
             if payloadformat not in [_PAYLOADFORMAT_REGISTER, _PAYLOADFORMAT_LONG]:
                 raise ValueError(
                     'The "signed" parameter can not be used for this payload format. '
-                    + "Given format: {!r}.".format(payloadformat)
-                )
+                    + f"Given format: {payloadformat!r}.")
 
         # Check combinations: numberOfDecimals
         if numberOfDecimals > 0:
             if payloadformat != _PAYLOADFORMAT_REGISTER:
                 raise ValueError(
                     'The "numberOfDecimals" parameter can not be used for this payload format. '
-                    + "Given format: {0!r}.".format(payloadformat)
+                    + f"Given format: {payloadformat!r}."
                 )
 
         # Check combinations: byteorder
@@ -959,7 +944,7 @@ class Instrument:
             if payloadformat not in [_PAYLOADFORMAT_FLOAT, _PAYLOADFORMAT_LONG]:
                 raise ValueError(
                     'The "byteorder" parameter can not be used for this payload format. '
-                    + "Given format: {0!r}.".format(payloadformat)
+                    + f"Given format: {payloadformat!r}."
                 )
 
         # Check combinations: number of bits
@@ -967,37 +952,35 @@ class Instrument:
             if number_of_bits != 1:
                 raise ValueError(
                     "For BIT payload format the number of bits should be 1. "
-                    + "Given: {0!r}.".format(number_of_bits)
+                    + f"Given: {number_of_bits!r}."
                 )
         elif payloadformat == _PAYLOADFORMAT_BITS:
             if number_of_bits < 1:
                 raise ValueError(
                     "For BITS payload format the number of bits should be at least 1. "
-                    + "Given: {0!r}.".format(number_of_bits)
+                    + f"Given: {number_of_bits!r}."
                 )
         elif number_of_bits:
             raise ValueError(
                 "The number_of_bits parameter is wrong for payload format "
-                + "{0!r}. Given: {0!r}.".format(payloadformat, number_of_bits)
+                + f"{payloadformat!r}. Given: {number_of_bits!r}."
             )
 
         # Check combinations: Number of registers
         if functioncode in [1, 2, 5, 15] and number_of_registers:
             raise ValueError(
                 "The number_of_registers is not valid for this function code. "
-                + "number_of_registers: {0!r}, functioncode {1}.".format(
-                    number_of_registers, functioncode
-                )
+                + f"number_of_registers: {number_of_registers!r}, functioncode {functioncode}."
             )
         elif functioncode in [3, 4, 16] and not number_of_registers:
             raise ValueError(
                 "The number_of_registers must be > 0 for functioncode "
-                + "{}.".format(functioncode)
+                + f"{functioncode}."
             )
         elif functioncode == 6 and number_of_registers != 1:
             raise ValueError(
                 "The number_of_registers must be 1 for functioncode 6. "
-                + "Given: {}.".format(number_of_registers)
+                + f"Given: {number_of_registers}."
             )
         if (
             functioncode == 16
@@ -1006,7 +989,7 @@ class Instrument:
         ):
             raise ValueError(
                 "Wrong number_of_registers when writing to a "
-                + "single register. Given {0!r}.".format(number_of_registers)
+                + f"single register. Given {number_of_registers!r}."
             )
             # Note: For function code 16 there is checking also in the content
             # conversion functions.
@@ -1015,12 +998,12 @@ class Instrument:
         if functioncode in [5, 6, 15, 16] and value is None:
             raise ValueError(
                 "The input value must be given for this function code. "
-                + "Given {0!r} and {1}.".format(value, functioncode)
+                + f"Given {value!r} and {functioncode!r}."
             )
         elif functioncode in [1, 2, 3, 4] and value is not None:
             raise ValueError(
                 "The input value should not be given for this function code. "
-                + "Given {0!r} and {1}.".format(value, functioncode)
+                + f"Given {value!r} and {functioncode!r}."
             )
 
         # Check combinations: Value for numerical
@@ -1046,15 +1029,13 @@ class Instrument:
             if not isinstance(value, list):
                 raise TypeError(
                     "The value parameter for payloadformat REGISTERS must be a list. "
-                    + "Given {0!r}.".format(value)
+                    + f"Given {value!r}."
                 )
 
             if len(value) != number_of_registers:
                 raise ValueError(
                     "The list length does not match number of registers. "
-                    + "List: {0!r},  Number of registers: {1!r}.".format(
-                        value, number_of_registers
-                    )
+                    + f"List: {value!r},  Number of registers: {number_of_registers!r}."
                 )
 
         # Check combinations: Value for bit
@@ -1071,15 +1052,13 @@ class Instrument:
             if not isinstance(value, list):
                 raise TypeError(
                     "The value parameter for payloadformat BITS must be a list. "
-                    + "Given {0!r}.".format(value)
+                    + f"Given {value!r}."
                 )
 
             if len(value) != number_of_bits:
                 raise ValueError(
                     "The list length does not match number of bits. "
-                    + "List: {0!r},  Number of registers: {1!r}.".format(
-                        value, number_of_registers
-                    )
+                    + f"List: {value!r},  Number of registers: {number_of_registers!r}."
                 )
 
         # Create payload
@@ -1222,14 +1201,10 @@ class Instrument:
             )  # Convert types to make it Python3 compatible
 
         else:
-            template = (
+            text = (
                 "No sleep required before write. "
-                + "Time since previous read: {:.2f} ms, minimum silent period: {:.2f} ms."
-            )
-            text = template.format(
-                time_since_read * _SECONDS_TO_MILLISECONDS,
-                minimum_silent_period * _SECONDS_TO_MILLISECONDS,
-            )
+                + f"Time since previous read: {time_since_read * _SECONDS_TO_MILLISECONDS:.2f} ms, minimum silent period: {minimum_silent_period * _SECONDS_TO_MILLISECONDS:.2f} ms."
+            )            
         # Write request
         latest_write_time = _now()
 #        self.serial.write(request)
@@ -1246,54 +1221,9 @@ class Instrument:
 ## Close the socket connection, no more data transmission
         sock.close()
 
-        # Read and discard local echo
-#        if self.handle_local_echo:
-#            local_echo_to_discard = self.serial.read(len(request))
-#            if self.debug:
-#                template = "Discarding this local echo: {!r} ({} bytes)."
-#                text = template.format(
-#                    local_echo_to_discard, len(local_echo_to_discard)
-#                )
-#                self._print_debug(text)
-#            if local_echo_to_discard != request:
-#                template = (
-#                    "Local echo handling is enabled, but the local echo does "
-#                    + "not match the sent request. "
-#                    + "Request: {!r} ({} bytes), local echo: {!r} ({} bytes)."
-#                )
-#                text = template.format(
-#                    request,
-#                    len(request),
-#                    local_echo_to_discard,
-#                    len(local_echo_to_discard),
-#                )
-#                raise LocalEchoError(text)
-        # Read response
-#        answer = self.serial.read(number_of_bytes_to_read)
-#        _latest_read_times[self.serial.port] = _now()
-
-#        if self.close_port_after_each_call:
-#            self._print_debug("Closing port {}".format(self.serial.port))
-#            self.serial.close()
-
         if sys.version_info[0] > 2:
             # Convert types to make it Python3 compatible
             answer = str(answer, encoding="latin1")
-
-        #if self.debug:
-        #    template = (
-        #        "Response from instrument: {!r} ({}) ({} bytes), "
-        #        + "roundtrip time: {:.1f} ms. Timeout for reading: {:.1f} ms.\n"
-        #    )
-        #    text = template.format(
-        #        answer,
-        #        _hexlify(answer),
-        #        len(answer),
-        #        (_latest_read_times.get(self.serial.port, 0) - latest_write_time)
-        #        * _SECONDS_TO_MILLISECONDS,
-        #        self.serial.timeout * _SECONDS_TO_MILLISECONDS,
-        #    )
-        #    self._print_debug(text)
 
         if not answer:
             raise NoResponseError("No communication with the instrument (no answer)")
@@ -1575,15 +1505,11 @@ def _extract_payload(response, slaveaddress, mode, functioncode):
     if mode == MODE_ASCII:
         if len(response) < MINIMAL_RESPONSE_LENGTH_ASCII:
             raise InvalidResponseError(
-                "Too short Modbus ASCII response (minimum length {} bytes). Response: {!r}".format(
-                    MINIMAL_RESPONSE_LENGTH_ASCII, response
-                )
+                f"Too short Modbus ASCII response (minimum length {MINIMAL_RESPONSE_LENGTH_ASCII} bytes). Response: {response!r}"
             )
     elif len(response) < MINIMAL_RESPONSE_LENGTH_RTU:
         raise InvalidResponseError(
-            "Too short Modbus RTU response (minimum length {} bytes). Response: {!r}".format(
-                MINIMAL_RESPONSE_LENGTH_RTU, response
-            )
+            f"Too short Modbus RTU response (minimum length {MINIMAL_RESPONSE_LENGTH_RTU} bytes). Response: {response!r}"
         )
 
     if mode == MODE_ASCII:
@@ -1591,16 +1517,12 @@ def _extract_payload(response, slaveaddress, mode, functioncode):
         if response[_BYTEPOSITION_FOR_ASCII_HEADER] != _ASCII_HEADER:
             raise InvalidResponseError(
                 "Did not find header "
-                + "({!r}) as start of ASCII response. The plain response is: {!r}".format(
-                    _ASCII_HEADER, response
-                )
+                + f"({_ASCII_HEADER!r}) as start of ASCII response. The plain response is: {response!r}"
             )
         elif response[-len(_ASCII_FOOTER) :] != _ASCII_FOOTER:
             raise InvalidResponseError(
                 "Did not find footer "
-                + "({!r}) as end of ASCII response. The plain response is: {!r}".format(
-                    _ASCII_FOOTER, response
-                )
+                + f"({_ASCII_FOOTER!r}) as end of ASCII response. The plain response is: {response!r}"
             )
 
         # Strip ASCII header and footer
@@ -1608,11 +1530,11 @@ def _extract_payload(response, slaveaddress, mode, functioncode):
 
         if len(response) % 2 != 0:
             template = (
-                "Stripped ASCII frames should have an even number of bytes, but is {} bytes. "
-                + "The stripped response is: {!r} (plain response: {!r})"
+                "Stripped ASCII frames should have an even number of bytes, but is {len(response)} bytes. "
+                + "The stripped response is: {response!r} (plain response: {plainresponse!r})"
             )
             raise InvalidResponseError(
-                template.format(len(response), response, plainresponse)
+                template
             )
 
         # Convert the ASCII (stripped) response string to RTU-like response string
@@ -1631,12 +1553,9 @@ def _extract_payload(response, slaveaddress, mode, functioncode):
     calculated_checksum = calculate_checksum(response_without_checksum)
 
     if received_checksum != calculated_checksum:
-        template = (
-            "Checksum error in {} mode: {!r} instead of {!r} . The response "
-            + "is: {!r} (plain response: {!r})"
-        )
-        text = template.format(
-            mode, received_checksum, calculated_checksum, response, plainresponse
+        text = (
+            f"Checksum error in {mode} mode: {received_checksum!r} instead of {calculated_checksum!r} . The response "
+            + f"is: {response!r} (plain response: {plainresponse!r})"
         )
         raise InvalidResponseError(text)
 
@@ -1645,9 +1564,7 @@ def _extract_payload(response, slaveaddress, mode, functioncode):
 
     if responseaddress != slaveaddress:
         raise InvalidResponseError(
-            "Wrong return slave address: {} instead of {}. The response is: {!r}".format(
-                responseaddress, slaveaddress, response
-            )
+            f"Wrong return slave address: {responseaddress} instead of {slaveaddress}. The response is: {response!r}"
         )
 
     # Check if slave indicates error
@@ -1657,9 +1574,7 @@ def _extract_payload(response, slaveaddress, mode, functioncode):
     received_functioncode = ord(response[_BYTEPOSITION_FOR_FUNCTIONCODE])
     if received_functioncode != functioncode:
         raise InvalidResponseError(
-            "Wrong functioncode: {} instead of {}. The response is: {!r}".format(
-                received_functioncode, functioncode, response
-            )
+            f"Wrong functioncode: {received_functioncode} instead of {functioncode}. The response is: {response!r}"
         )
 
     # Read data payload
@@ -1736,9 +1651,7 @@ def _predict_response_size(mode, functioncode, payload_to_slave):
 
     else:
         raise ValueError(
-            "Wrong functioncode: {}. The payload is: {!r}".format(
-                functioncode, payload_to_slave
-            )
+            f"Wrong functioncode: {functioncode}. The payload is: {payload_to_slave!r}"
         )
 
     # Calculate number of bytes to read
@@ -2067,9 +1980,7 @@ def _float_to_bytestring(value, number_of_registers=2, byteorder=BYTEORDER_BIG):
         lengthtarget = 8
     else:
         raise ValueError(
-            "Wrong number of registers! Given value is {0!r}".format(
-                number_of_registers
-            )
+            f"Wrong number of registers! Given value is {number_of_registers!r}"
         )
 
     outstring = _pack(formatcode, value)
@@ -2118,17 +2029,12 @@ def _bytestring_to_float(bytestring, number_of_registers=2, byteorder=BYTEORDER_
         formatcode += "d"  # Double (8 bytes)
     else:
         raise ValueError(
-            "Wrong number of registers! Given value is {0!r}".format(
-                number_of_registers
-            )
+            f"Wrong number of registers! Given value is {number_of_registers!r}"
         )
 
     if len(bytestring) != number_of_bytes:
         raise ValueError(
-            "Wrong length of the byte string! Given value is "
-            + "{0!r}, and number_of_registers is {1!r}.".format(
-                bytestring, number_of_registers
-            )
+            f"Wrong length of the byte string! Given value is {bytestring!r}, and number_of_registers is {number_of_registers!r}."
         )
 
     if byteorder in [BYTEORDER_BIG_SWAP, BYTEORDER_LITTLE_SWAP]:
@@ -2228,7 +2134,7 @@ def _valuelist_to_bytestring(valuelist, number_of_registers):
 
     if not isinstance(valuelist, list):
         raise TypeError(
-            "The valuelist parameter must be a list. Given {0!r}.".format(valuelist)
+            f"The valuelist parameter must be a list. Given {valuelist!r}."
         )
 
     for value in valuelist:
@@ -2325,8 +2231,8 @@ def _pack(formatstring, value):
         errortext = (
             "The value to send is probably out of range, as the num-to-bytestring "
         )
-        errortext += "conversion failed. Value: {0!r} Struct format code is: {1}"
-        raise ValueError(errortext.format(value, formatstring))
+        errortext += f"conversion failed. Value: {value!r} Struct format code is: {formatstring}"
+        raise ValueError(errortext)
 
     if sys.version_info[0] > 2:
         return str(
@@ -2368,8 +2274,8 @@ def _unpack(formatstring, packed):
         errortext = (
             "The received bytestring is probably wrong, as the bytestring-to-num "
         )
-        errortext += "conversion failed. Bytestring: {0!r} Struct format code is: {1}"
-        raise InvalidResponseError(errortext.format(packed, formatstring))
+        errortext += f"conversion failed. Bytestring: {packed!r} Struct format code is: {formatstring}"
+        raise InvalidResponseError(errortext)
 
     return value
 
@@ -2388,9 +2294,7 @@ def _swap(bytestring):
     length = len(bytestring)
     if length % 2:
         raise ValueError(
-            "The length of the bytestring should be even. Given {!r}.".format(
-                bytestring
-            )
+            f"The length of the bytestring should be even. Given {bytestring!r}."
         )
     templist = list(bytestring)
     templist[1:length:2], templist[:length:2] = (
@@ -2426,7 +2330,7 @@ def _hexencode(bytestring, insert_spaces=False):
 
     byte_representions = []
     for char in bytestring:
-        byte_representions.append("{0:02X}".format(ord(char)))
+        byte_representions.append(f"{ord(char):02X}")
     return separator.join(byte_representions).strip()
 
 
@@ -2457,7 +2361,7 @@ def _hexdecode(hexstring):
 
     if len(hexstring) % 2 != 0:
         raise ValueError(
-            "The input hexstring must be of even length. Given: {!r}".format(hexstring)
+            f"The input hexstring must be of even length. Given: {hexstring!r}"
         )
 
     if sys.version_info[0] > 2:
@@ -2465,9 +2369,7 @@ def _hexdecode(hexstring):
         try:
             return str(binascii.unhexlify(converted_bytes), encoding="latin1")
         except binascii.Error as err:
-            new_error_message = "Hexdecode reported an error: {!s}. Input hexstring: {}".format(
-                err.args[0], hexstring
-            )
+            new_error_message = f"Hexdecode reported an error: {err.args[0]!s}. Input hexstring: {hexstring}"
             raise TypeError(new_error_message)
 
     else:
@@ -2476,7 +2378,7 @@ def _hexdecode(hexstring):
         except TypeError:
             # TODO When Python3 only, show info from first exception
             raise TypeError(
-                "Hexdecode reported an error. Input hexstring: {}".format(hexstring)
+                f"Hexdecode reported an error. Input hexstring: {hexstring}"
             )
 
 
@@ -2547,12 +2449,12 @@ def _bits_to_bytestring(valuelist):
     """
     if not isinstance(valuelist, list):
         raise TypeError(
-            "The input should be a list. " + "Given: {!r}".format(valuelist)
+            f"The input should be a list. " + "Given: {valuelist!r}"
         )
     for value in valuelist:
         if value not in [0, 1, False, True]:
             raise ValueError(
-                "Wrong value in list of bits. " + "Given: {!r}".format(value)
+                f"Wrong value in list of bits. " + "Given: {value!r}"
             )
 
     list_position = 0
@@ -2591,10 +2493,7 @@ def _bytestring_to_bits(bytestring, number_of_bits):
     expected_length = _calculate_number_of_bytes_for_bits(number_of_bits)
     if len(bytestring) != expected_length:
         raise ValueError(
-            "Wrong length of bytestring. Expected is "
-            + "{} bytes (for {} bits), actual is {} bytes.".format(
-                expected_length, number_of_bits, len(bytestring)
-            )
+            f"Wrong length of bytestring. Expected is {expected_length} bytes (for {number_of_bits} bits), actual is {len(bytestring)} bytes."
         )
     total_list = []
     for character in bytestring:
@@ -2644,9 +2543,7 @@ def _twos_complement(x, bits=16):
     if x > upperlimit or x < lowerlimit:
         raise ValueError(
             "The input value is out of range. Given value is "
-            + "{0}, but allowed range is {1} to {2} when using {3} bits.".format(
-                x, lowerlimit, upperlimit, bits
-            )
+            + f"{x}, but allowed range is {lowerlimit} to {upperlimit} when using {bits} bits."
         )
 
     # Calculate two'2 complement
@@ -2687,9 +2584,7 @@ def _from_twos_complement(x, bits=16):
     if x > upperlimit or x < lowerlimit:
         raise ValueError(
             "The input value is out of range. Given value is "
-            + "{0}, but allowed range is {1} to {2} when using {3} bits.".format(
-                x, lowerlimit, upperlimit, bits
-            )
+            + f"{x}, but allowed range is {lowerlimit} to {upperlimit} when using {bits} bits."
         )
 
     # Calculate inverse(?) of two'2 complement
@@ -3028,7 +2923,7 @@ Built with this code::
     for i, m in enumerate(table):
         if not i%11:
             output += "\n"
-        output += "{:5.0f}, ".format(m)
+        output += f"{m:5.0f}, "
     print output
 """
 
@@ -3099,13 +2994,11 @@ def _check_mode(mode):
 
     """
     if not isinstance(mode, str):
-        raise TypeError("The {0} should be a string. Given: {1!r}".format("mode", mode))
+        raise TypeError(f"The mode should be a string. Given: {mode!r}")
 
     if mode not in [MODE_RTU, MODE_ASCII]:
         raise ValueError(
-            "Unreconized Modbus mode given. Must be 'rtu' or 'ascii' but {0!r} was given.".format(
-                mode
-            )
+            f"Unreconized Modbus mode given. Must be 'rtu' or 'ascii' but {mode!r} was given."
         )
 
 
@@ -3134,9 +3027,7 @@ def _check_functioncode(functioncode, list_of_allowed_values=None):
 
     if not isinstance(list_of_allowed_values, list):
         raise TypeError(
-            "The list_of_allowed_values should be a list. Given: {0!r}".format(
-                list_of_allowed_values
-            )
+            f"The list_of_allowed_values should be a list. Given: {list_of_allowed_values!r}"
         )
 
     for value in list_of_allowed_values:
@@ -3149,9 +3040,7 @@ def _check_functioncode(functioncode, list_of_allowed_values=None):
 
     if functioncode not in list_of_allowed_values:
         raise ValueError(
-            "Wrong function code: {0}, allowed values are {1!r}".format(
-                functioncode, list_of_allowed_values
-            )
+            f"Wrong function code: {functioncode}, allowed values are {list_of_allowed_values!r}"
         )
 
 
@@ -3231,9 +3120,7 @@ def _check_response_payload(
         if len(registerdata) != expected_number_of_bytes:
             raise InvalidResponseError(
                 "The data length is wrong for payloadformat BIT/BITS."
-                + " Expected: {} Actual: {}.".format(
-                    expected_number_of_bytes, len(registerdata)
-                )
+                + f" Expected: {expected_number_of_bytes} Actual: {len(registerdata)}."
             )
 
     # Response for read registers
@@ -3243,9 +3130,7 @@ def _check_response_payload(
         if len(registerdata) != number_of_register_bytes:
             raise InvalidResponseError(
                 "The register data length is wrong. "
-                + "Registerdata: {!r} bytes. Expected: {!r}.".format(
-                    len(registerdata), number_of_register_bytes
-                )
+                + f"Registerdata: {len(registerdata)!r} bytes. Expected: {number_of_register_bytes!r}."
             )
 
 
@@ -3324,16 +3209,10 @@ def _check_response_bytecount(payload):
     counted_number_of_databytes = len(payload) - NUMBER_OF_BYTES_TO_SKIP
 
     if given_number_of_databytes != counted_number_of_databytes:
-        errortemplate = (
+        errortext = (
             "Wrong given number of bytes in the response: "
-            + "{0}, but counted is {1} as data payload length is {2}."
-            + " The data payload is: {3!r}"
-        )
-        errortext = errortemplate.format(
-            given_number_of_databytes,
-            counted_number_of_databytes,
-            len(payload),
-            payload,
+            + f"{given_number_of_databytes}, but counted is {counted_number_of_databytes} as data payload length is {len(payload)}."
+            + f" The data payload is: {payload!r}"
         )
         raise InvalidResponseError(errortext)
 
@@ -3364,9 +3243,7 @@ def _check_response_registeraddress(payload, registeraddress):
     if received_startaddress != registeraddress:
         raise InvalidResponseError(
             "Wrong given write start adress: "
-            + "{0}, but commanded is {1}. The data payload is: {2!r}".format(
-                received_startaddress, registeraddress, payload
-            )
+            + f"{received_startaddress}, but commanded is {registeraddress}. The data payload is: {payload!r}"
         )
 
 
@@ -3405,9 +3282,7 @@ def _check_response_number_of_registers(payload, number_of_registers):
     if received_number_of_written_registers != number_of_registers:
         raise InvalidResponseError(
             "Wrong number of registers to write in the response: "
-            + "{0}, but commanded is {1}. The data payload is: {2!r}".format(
-                received_number_of_written_registers, number_of_registers, payload
-            )
+            + "{received_number_of_written_registers}, but commanded is {number_of_registers}. The data payload is: {payload!r}"
         )
 
 
@@ -3436,11 +3311,8 @@ def _check_response_writedata(payload, writedata):
     if received_writedata != writedata:
         raise InvalidResponseError(
             "Wrong write data in the response: "
-            + "{0!r}, but commanded is {1!r}. The data payload is: {2!r}".format(
-                received_writedata, writedata, payload
-            )
+            + f"{received_writedata!r}, but commanded is {writedata!r}. The data payload is: {payload!r}"
         )
-
 
 def _check_string(
     inputstring,
@@ -3471,30 +3343,28 @@ def _check_string(
     # Type checking
     if not isinstance(description, str):
         raise TypeError(
-            "The description should be a string. Given: {0!r}".format(description)
+            f"The description should be a string. Given: {description!r}"
         )
 
     if not isinstance(inputstring, str):
         raise TypeError(
-            "The {0} should be a string. Given: {1!r}".format(description, inputstring)
+            f"The {description} should be a string. Given: {inputstring!r}"
         )
 
     if not isinstance(maxlength, (int, type(None))):
         raise TypeError(
-            "The maxlength must be an integer or None. Given: {0!r}".format(maxlength)
+            f"The maxlength must be an integer or None. Given: {maxlength!r}"
         )
     try:
         issubclass(exception_type, Exception)
     except TypeError:
         raise TypeError(
             "The exception_type must be an exception class. "
-            + "It not even a class. Given: {0!r}".format(type(exception_type))
+            + f"It not even a class. Given: {type(exception_type)!r}"
         )
     if not issubclass(exception_type, Exception):
         raise TypeError(
-            "The exception_type must be an exception class. Given: {0!r}".format(
-                type(exception_type)
-            )
+            f"The exception_type must be an exception class. Given: {type(exception_type)!r}"
         )
 
     # Check values
@@ -3502,29 +3372,23 @@ def _check_string(
 
     if len(inputstring) < minlength:
         raise exception_type(
-            "The {0} is too short: {1}, but minimum value is {2}. Given: {3!r}".format(
-                description, len(inputstring), minlength, inputstring
-            )
+            "The {description} is too short: {len(inputstring)}, but minimum value is {minlength}. Given: {inputstring!r}"
         )
 
     if maxlength is not None:
         if maxlength < 0:
             raise ValueError(
-                "The maxlength must be positive. Given: {0}".format(maxlength)
+                f"The maxlength must be positive. Given: {maxlength}"
             )
 
         if maxlength < minlength:
             raise ValueError(
-                "The maxlength must not be smaller than minlength. Given: {0} and {1}".format(
-                    maxlength, minlength
-                )
+                f"The maxlength must not be smaller than minlength. Given: {maxlength} and {minlength}"
             )
 
         if len(inputstring) > maxlength:
             raise exception_type(
-                "The {0} is too long: {1}, but maximum value is {2}. Given: {3!r}".format(
-                    description, len(inputstring), maxlength, inputstring
-                )
+                f"The {description} is too long: {len(inputstring)}, but maximum value is {maxlength}. Given: {inputstring!r}"
             )
 
     if force_ascii and sys.version > "3":
@@ -3532,8 +3396,7 @@ def _check_string(
             inputstring.encode("ascii")
         except UnicodeEncodeError:
             raise ValueError(
-                "The {0} must be ASCII. Given: {1!r}".format(description, inputstring)
-            )
+                f"The {description} must be ASCII. Given: {inputstring!r}")
 
 
 def _check_int(inputvalue, minvalue=None, maxvalue=None, description="inputvalue"):
@@ -3554,22 +3417,22 @@ def _check_int(inputvalue, minvalue=None, maxvalue=None, description="inputvalue
     """
     if not isinstance(description, str):
         raise TypeError(
-            "The description should be a string. Given: {0!r}".format(description)
+            f"The description should be a string. Given: {description!r}"
         )
 
     if not isinstance(inputvalue, (int, long)):
         raise TypeError(
-            "The {0} must be an integer. Given: {1!r}".format(description, inputvalue)
+            f"The {description} must be an integer. Given: {inputvalue!r}"
         )
 
     if not isinstance(minvalue, (int, long, type(None))):
         raise TypeError(
-            "The minvalue must be an integer or None. Given: {0!r}".format(minvalue)
+            f"The minvalue must be an integer or None. Given: {minvalue!r}"
         )
 
     if not isinstance(maxvalue, (int, long, type(None))):
         raise TypeError(
-            "The maxvalue must be an integer or None. Given: {0!r}".format(maxvalue)
+            f"The maxvalue must be an integer or None. Given: {maxvalue!r}"
         )
 
     _check_numerical(inputvalue, minvalue, maxvalue, description)
@@ -3596,22 +3459,22 @@ def _check_numerical(
     # Type checking
     if not isinstance(description, str):
         raise TypeError(
-            "The description should be a string. Given: {0!r}".format(description)
+            f"The description should be a string. Given: {description!r}"
         )
 
     if not isinstance(inputvalue, (int, long, float)):
         raise TypeError(
-            "The {0} must be numerical. Given: {1!r}".format(description, inputvalue)
+            f"The {description} must be numerical. Given: {inputvalue!r}"
         )
 
     if not isinstance(minvalue, (int, float, long, type(None))):
         raise TypeError(
-            "The minvalue must be numeric or None. Given: {0!r}".format(minvalue)
+            f"The minvalue must be numeric or None. Given: {minvalue!r}"
         )
 
     if not isinstance(maxvalue, (int, float, long, type(None))):
         raise TypeError(
-            "The maxvalue must be numeric or None. Given: {0!r}".format(maxvalue)
+            f"The maxvalue must be numeric or None. Given: {maxvalue!r}"
         )
 
     # Consistency checking
@@ -3619,24 +3482,19 @@ def _check_numerical(
         if maxvalue < minvalue:
             raise ValueError(
                 "The maxvalue must not be smaller than minvalue. "
-                + "Given: {0} and {1}, respectively.".format(maxvalue, minvalue)
+                + f"Given: {maxvalue} and {minvalue}, respectively."
             )
-
     # Value checking
     if minvalue is not None:
         if inputvalue < minvalue:
             raise ValueError(
-                "The {0} is too small: {1}, but minimum value is {2}.".format(
-                    description, inputvalue, minvalue
-                )
+                f"The {description} is too small: {inputvalue}, but minimum value is {minvalue}."
             )
 
     if maxvalue is not None:
         if inputvalue > maxvalue:
             raise ValueError(
-                "The {0} is too large: {1}, but maximum value is {2}.".format(
-                    description, inputvalue, maxvalue
-                )
+                f"The {description} is too large: {inputvalue}, but maximum value is {maxvalue}."
             )
 
 
@@ -3654,7 +3512,7 @@ def _check_bool(inputvalue, description="inputvalue"):
     _check_string(description, minlength=1, description="description string")
     if not isinstance(inputvalue, bool):
         raise TypeError(
-            "The {0} must be boolean. Given: {1!r}".format(description, inputvalue)
+            f"The {description} must be boolean. Given: {inputvalue!r}"
         )
 
 
@@ -3677,180 +3535,6 @@ def _print_out(inputstring):
 
     sys.stdout.write(inputstring + "\n")
     sys.stdout.flush()
-
-
-# def _interpretRawMessage(inputstr):
-#     r"""Generate a human readable description of a Modbus bytestring.
-
-#     Args:
-#         inputstr (str): The bytestring that should be interpreted.
-
-#     Returns:
-#         A descriptive string.
-
-#     For example, the string ``'\n\x03\x10\x01\x00\x01\xd0q'`` should give something like::
-
-#         T ODO: update
-
-#         Modbus bytestring decoder
-#         Input string (length 8 characters): '\n\x03\x10\x01\x00\x01\xd0q'
-#         Probably modbus RTU mode.
-#         Slave address: 10 (dec). Function code: 3 (dec).
-#         Valid message. Extracted payload: '\x10\x01\x00\x01'
-
-#         Pos   Character Hex  Dec  Probable interpretation
-#         -------------------------------------------------
-#           0:  '\n'      0A    10  Slave address
-#           1:  '\x03'    03     3  Function code
-#           2:  '\x10'    10    16  Payload
-#           3:  '\x01'    01     1  Payload
-#           4:  '\x00'    00     0  Payload
-#           5:  '\x01'    01     1  Payload
-#           6:  '\xd0'    D0   208  Checksum, CRC LSB
-#           7:  'q'       71   113  Checksum, CRC MSB
-
-#     """
-#     raise NotImplementedError()
-#     output = ""
-#     output += "Modbus bytestring decoder\n"
-#     output += "Input string (length {} characters): {!r} \n".format(
-#         len(inputstr), inputstr
-#     )
-
-#     # Detect modbus type
-#     if inputstr.startswith(_ASCII_HEADER) and inputstr.endswith(_ASCII_FOOTER):
-#         mode = MODE_ASCII
-#     else:
-#         mode = MODE_RTU
-#     output += "Probably Modbus {} mode.\n".format(mode.upper())
-
-#     # Extract slave address and function code
-#     try:
-#         if mode == MODE_ASCII:
-#             slaveaddress = int(inputstr[1:3])
-#             functioncode = int(inputstr[3:5])
-#         else:
-#             slaveaddress = ord(inputstr[0])
-#             functioncode = ord(inputstr[1])
-#         output += "Slave address: {} (dec). Function code: {} (dec).\n".format(
-#             slaveaddress, functioncode
-#         )
-#     except Exception:
-#         output += "\nCould not extract slave address and function code. \n\n"
-
-#     # Check message validity
-#     try:
-#         extractedpayload = _extract_payload(inputstr, slaveaddress, mode, functioncode)
-#         output += "Valid message. Extracted payload: {!r}\n".format(extractedpayload)
-#     except (ValueError, TypeError) as err:
-#         output += "\nThe message does not seem to be valid Modbus {}. ".format(mode.upper())
-#         output += "Error message: \n{}. \n\n".format(err.messages)
-#     except NameError as err:
-#         output += (
-#             "\nNo message validity checking. \n\n"
-#         )  # Slave address or function code not available
-
-#     # Generate table describing the message
-#     if mode == MODE_RTU:
-#         output += "\nPos   Character Hex  Dec  Probable interpretation \n"
-#         output += "------------------------------------------------- \n"
-#         for i, character in enumerate(inputstr):
-#             if i == 0:
-#                 description = "Slave address"
-#             elif i == 1:
-#                 description = "Function code"
-#             elif i == len(inputstr) - 2:
-#                 description = "Checksum, CRC LSB"
-#             elif i == len(inputstr) - 1:
-#                 description = "Checksum, CRC MSB"
-#             else:
-#                 description = "Payload"
-#             output += "{0:3.0f}:  {1!r:<8}  {2:02X}  {2: 4.0f}  {3:<10} \n".format(
-#                 i, character, ord(character), description
-#             )
-
-#     elif mode == MODE_ASCII:
-#         output += "\nPos   Character(s) Converted  Hex  Dec  Probable interpretation \n"
-#         output += "--------------------------------------------------------------- \n"
-
-#         i = 0
-#         while i < len(inputstr):
-
-#             if inputstr[i] in [":", "\r", "\n"]:
-#                 if inputstr[i] == ":":
-#                     description = "Start character"
-#                 else:
-#                     description = "Stop character"
-
-#                 output += "{0:3.0f}:  {1!r:<8}                          {2} \n".format(
-#                     i, inputstr[i], description
-#                 )
-#                 i += 1
-
-#             else:
-#                 if i == 1:
-#                     description = "Slave address"
-#                 elif i == 3:
-#                     description = "Function code"
-#                 elif i == len(inputstr) - 4:
-#                     description = "Checksum (LRC)"
-#                 else:
-#                     description = "Payload"
-
-#                 try:
-#                     hexvalue = _hexdecode(inputstr[i:(i + 2)])
-#                     output += "{0:3.0f}:  {1!r:<8}     {2!r}     {3:02X}  {3: 4.0f}  {4} \n".
-#                               format(
-#                         i, inputstr[i:(i + 2)], hexvalue, ord(hexvalue), description
-#                     )
-#                 except Exception:
-#                     output += "{0:3.0f}:  {1!r:<8}     ?           ?     ?  {2} \n".format(
-#                         i, inputstr[i:(i + 2)], description
-#                     )
-#                 i += 2
-
-#     # Generate description for the payload
-#     output += "\n\n"
-#     try:
-#         output += _interpretPayload(functioncode, extractedpayload)
-#     except Exception:
-#         output += (
-#             "\nCould not interpret the payload. \n\n"
-#         )  # Payload or function code not available
-
-#     return output
-
-
-# def _interpretPayload(functioncode, payload):
-#     r"""Generate a human readable description of a Modbus payload.
-
-#     Args:
-#       * functioncode (int): Function code
-#       * payload (str): The payload that should be interpreted. It should be a
-#         byte string.
-
-#     Returns:
-#         A descriptive string.
-
-#     For example, the payload ``'\x10\x01\x00\x01'`` for functioncode 3 should give
-#         something like::
-
-#             T ODO: Update
-
-#     """
-#     raise NotImplementedError()
-#     output = ""
-#     output += "Modbus payload decoder\n"
-#     output += "Input payload (length {} characters): {!r} \n".format(
-#         len(payload), payload
-#     )
-#     output += "Function code: {} (dec).\n".format(functioncode)
-
-#     if len(payload) == 4:
-#         FourbyteMessageFirstHalfValue = _twobyte_string_to_num(payload[0:2])
-#         FourbyteMessageSecondHalfValue = _twobyte_string_to_num(payload[2:4])
-
-#     return output
 
 
 def _get_diagnostic_string():
