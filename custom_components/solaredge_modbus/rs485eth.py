@@ -969,76 +969,79 @@ class Instrument:
 
         # Check combinations: Number of registers
 
-        if functioncode in [1, 2, 5, 15] and number_of_registers:
-            raise ValueError(
-                "The number_of_registers is not valid for this function code. "
-                + f"number_of_registers: {number_of_registers!r}, functioncode {functioncode}."
-            )
-        if functioncode in [3, 4, 16] and not number_of_registers:
-            raise ValueError(
-                "The number_of_registers must be > 0 for functioncode "
-                + f"{functioncode}."
-            )
-        if functioncode == 6 and number_of_registers != 1:
-            raise ValueError(
-                "The number_of_registers must be 1 for functioncode 6. "
-                + f"Given: {number_of_registers}."
-            )
-        if (
-            functioncode == 16
-            and payloadformat == _PAYLOADFORMAT_REGISTER
-            and number_of_registers != 1
-        ):
-            raise ValueError(
-                "Wrong number_of_registers when writing to a "
-                + f"single register. Given {number_of_registers!r}."
-            )
-            # Note: For function code 16 there is checking also in the content
-            # conversion functions.
+        match functioncode:
+            case 1, 2, 5, 15:
+                if number_of_registers:
+                    raise ValueError(
+                        "The number_of_registers is not valid for this function code. "
+                        + f"number_of_registers: {number_of_registers!r}, functioncode {functioncode}."
+                    )
+            case 3, 4, 16:
+                if not number_of_registers:
+                    raise ValueError(
+                        "The number_of_registers must be > 0 for functioncode "
+                        + f"{functioncode}."
+                    )
+            case 6:
+                if number_of_registers != 1:
+                    raise ValueError(
+                        "The number_of_registers must be 1 for functioncode 6. "
+                        + f"Given: {number_of_registers}."
+                    )
+            case 16:
+                if payloadformat == _PAYLOADFORMAT_REGISTER and number_of_registers != 1:
+                    raise ValueError(
+                        "Wrong number_of_registers when writing to a "
+                        + f"single register. Given {number_of_registers!r}."
+                    )
+                    # Note: For function code 16 there is checking also in the content
+                    # conversion functions.
+            case 5, 6, 15, 16:
+                if value is None:
+                    raise ValueError(
+                        "The input value must be given for this function code. "
+                        + f"Given {value!r} and {functioncode!r}."
+                    )
+            case 1, 2, 3, 4:
+                if value is not None:
+                    raise ValueError(
+                        "The input value should not be given for this function code. "
+                        + f"Given {value!r} and {functioncode!r}."
+                    )
+            case 16:
+                # Check combinations: Value for numerical
+                if  payloadformat in [
+                    _PAYLOADFORMAT_REGISTER,
+                    _PAYLOADFORMAT_FLOAT,
+                    _PAYLOADFORMAT_LONG,
+                ]:
+                    _check_numerical(value, description="input value")
+            case 6:
+                if payloadformat == _PAYLOADFORMAT_REGISTER:
+                    _check_numerical(value, description="input value")
 
-        # Check combinations: Value
-        if functioncode in [5, 6, 15, 16] and value is None:
-            raise ValueError(
-                "The input value must be given for this function code. "
-                + f"Given {value!r} and {functioncode!r}."
-            )
-        if functioncode in [1, 2, 3, 4] and value is not None:
-            raise ValueError(
-                "The input value should not be given for this function code. "
-                + f"Given {value!r} and {functioncode!r}."
-            )
+            case 16:
+                # Check combinations: Value for string
+                if payloadformat == _PAYLOADFORMAT_STRING:
+                    _check_string(
+                        value, "input string", minlength=1, maxlength=number_of_register_bytes
+                    )
+                    # Note: The string might be padded later, so the length might be shorter
+                    # than number_of_register_bytes.
 
-        # Check combinations: Value for numerical
-        if functioncode == 16 and payloadformat in [
-            _PAYLOADFORMAT_REGISTER,
-            _PAYLOADFORMAT_FLOAT,
-            _PAYLOADFORMAT_LONG,
-        ]:
-            _check_numerical(value, description="input value")
-        if functioncode == 6 and payloadformat == _PAYLOADFORMAT_REGISTER:
-            _check_numerical(value, description="input value")
+                # Check combinations: Value for registers
+                if payloadformat == _PAYLOADFORMAT_REGISTERS:
+                    if not isinstance(value, list):
+                        raise TypeError(
+                            "The value parameter for payloadformat REGISTERS must be a list. "
+                            + f"Given {value!r}."
+                        )
 
-        # Check combinations: Value for string
-        if functioncode == 16 and payloadformat == _PAYLOADFORMAT_STRING:
-            _check_string(
-                value, "input string", minlength=1, maxlength=number_of_register_bytes
-            )
-            # Note: The string might be padded later, so the length might be shorter
-            # than number_of_register_bytes.
-
-        # Check combinations: Value for registers
-        if functioncode == 16 and payloadformat == _PAYLOADFORMAT_REGISTERS:
-            if not isinstance(value, list):
-                raise TypeError(
-                    "The value parameter for payloadformat REGISTERS must be a list. "
-                    + f"Given {value!r}."
-                )
-
-            if len(value) != number_of_registers:
-                raise ValueError(
-                    "The list length does not match number of registers. "
-                    + f"List: {value!r},  Number of registers: {number_of_registers!r}."
-                )
+                if len(value) != number_of_registers:
+                    raise ValueError(
+                        "The list length does not match number of registers. "
+                        + f"List: {value!r},  Number of registers: {number_of_registers!r}."
+                    )
 
         # Check combinations: Value for bit
         if functioncode in [5, 15] and payloadformat == _PAYLOADFORMAT_BIT:
