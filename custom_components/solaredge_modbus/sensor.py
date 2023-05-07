@@ -1,18 +1,20 @@
+"""Solaredge modbus ."""
 #import datetime
 import asyncio
-import traceback
+#import traceback
 
 from datetime import timedelta
 import logging
 
 #from homeassistant.const import CONF_SCAN_INTERVAL
-
+from .const import DOMAIN
 from homeassistant.helpers.entity import Entity
+
 
 #from . import DOMAIN as SOLAREDGE_DOMAIN
 
-from .const import DOMAIN, CONF_SCAN_INTERVAL
-
+from .const import CONF_SCAN_INTERVAL
+#DOMAIN, 
 #from homeassistant.helpers.entity import generate_entity_id
 
 _LOGGER = logging.getLogger(__name__)
@@ -31,7 +33,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
         return
 
     _LOGGER.debug("fetching modbus client")
-    instrument = hass.data.get(SOLAREDGE_DOMAIN)
+    instrument = hass.data.get(DOMAIN)
     scan_interval = discovery_info[CONF_SCAN_INTERVAL]
 
     async_add_entities([SolarEdgeModbusSensor(instrument, scan_interval)], True)
