@@ -1,15 +1,15 @@
-import datetime
+#import datetime
 import asyncio
 import traceback
 
 from datetime import timedelta
 import logging
 
-from homeassistant.const import CONF_SCAN_INTERVAL
+#from homeassistant.const import CONF_SCAN_INTERVAL
 
 from homeassistant.helpers.entity import Entity
 
-from . import DOMAIN as SOLAREDGE_DOMAIN
+#from . import DOMAIN as SOLAREDGE_DOMAIN
 
 from .const import DOMAIN, CONF_SCAN_INTERVAL
 
@@ -26,7 +26,7 @@ meter1_values = {}
 
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     """Async_setup_platform."""
-    
+
     if discovery_info is None:
         return
 
@@ -39,10 +39,10 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
 
 class SolarEdgeModbusSensor(Entity):
     """SolarEdgeModbusSensor."""
-    
+
     def __init__(self, instrument, scan_interval):
         """Init."""
-        
+
         _LOGGER.debug("creating modbus sensor")
         #self.entity_id = generate_entity_id("sensor.{}", "SolarEdgeModbusSensor")
 
@@ -53,13 +53,13 @@ class SolarEdgeModbusSensor(Entity):
 
     def getValueLong(self, addr, numberOfDecimals=0, functioncode=0, signed=False):
         """GetValueLong."""
-        
+
         rc = self._instrument.read_long(addr, functioncode=functioncode, signed=signed)
         return rc
 
     def getValueRegister(self, addr, numberOfDecimals=0, functioncode=0, signed=False):
         """GetValueRegister."""
-        
+
         rc = self._instrument.read_register(addr, numberOfDecimals=numberOfDecimals, functioncode=functioncode, signed=signed)
         return rc
 
@@ -153,7 +153,7 @@ class SolarEdgeModbusSensor(Entity):
             except Exception as e:
                 self.status = 7
                 _LOGGER.error(f'exception: {e}')
-                print(traceback.format_exc())
+                #print(traceback.format_exc())
                 values['_state'] = self._state
                 self._device_state_attributes = values
 
