@@ -315,7 +315,7 @@ class Instrument:
         """
         if not isinstance(values, list):
             raise TypeError(
-                'The "values parameter" must be a list. Given: {0!r}'.format(values)
+                f'The "values parameter" must be a list. Given: {values}'
             )
         # Note: The content of the list is checked at content conversion.
         _check_int(
