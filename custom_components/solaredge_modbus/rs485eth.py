@@ -1132,11 +1132,7 @@ class Instrument:
                     self.mode, functioncode, payload_to_slave
                 )
             except Exception:
-                if self.debug:
-                    template = (
-                        "Could not precalculate response size for Modbus {} mode. "
-                        + "Will read {} bytes. Request: {!r}"
-                    )
+                pass
                     
         # Communicate
         response = self._communicate(request, number_of_bytes_to_read)
