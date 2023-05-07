@@ -829,6 +829,7 @@ class Instrument:
         number_of_registers=0,
         number_of_bits=0,
         payloadformat=None,
+        number_of_register_bytes
     ):
         """Check_functioncode."""
         if functioncode in [1, 2, 5, 15] and number_of_registers:
@@ -1071,12 +1072,13 @@ class Instrument:
             )
 
         # Check combinations: Number of registers
-        self._check_functioncode_generic(        
-        functioncode,
-        value,
-        number_of_registers,
-        number_of_bits,
-        payloadformat
+        self._check_functioncode_generic(
+            functioncode,
+            value,
+            number_of_registers,
+            number_of_bits,
+            payloadformat,
+            number_of_register_bytes
         )
 
         # Create payload
