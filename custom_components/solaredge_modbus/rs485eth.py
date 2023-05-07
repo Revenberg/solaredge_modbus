@@ -3341,7 +3341,7 @@ def _check_string(
             f"The {description} should be a string. Given: {inputstring!r}"
         )
 
-    if (not(type(maxlength) is int) or (type(maxlength) is None)):
+    if (not(type(maxlength) is int) or (type(maxlength) is type(None))):
         raise TypeError(
             f"The maxlength must be an integer or None. Given: {maxlength!r}"
         )
@@ -3447,22 +3447,22 @@ def _check_numerical(
 
     """
     # Type checking
-    if not isinstance(description, str):
+    if not type(description) is str:
         raise TypeError(
             f"The description should be a string. Given: {description!r}"
         )
 
-    if not isinstance(inputvalue, (int, long, float)):
+    if not (type(inputvalue) is int or type(inputvalue) is long or type(inputvalue) is  float):
         raise TypeError(
             f"The {description} must be numerical. Given: {inputvalue!r}"
         )
 
-    if not isinstance(minvalue, (int, float, long, type(None))):
+    if not (type(minvalue) is int or type(minvalue) is float or type(minvalue) is long or type(minvalue) is type(None)):
         raise TypeError(
             f"The minvalue must be numeric or None. Given: {minvalue!r}"
         )
 
-    if not isinstance(maxvalue, (int, float, long, type(None))):
+    if not (type(maxvalue) is int or type(maxvalue) is float or type(maxvalue) is long or type(maxvalue) is type(None)):
         raise TypeError(
             f"The maxvalue must be numeric or None. Given: {maxvalue!r}"
         )
