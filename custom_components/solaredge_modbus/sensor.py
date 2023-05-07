@@ -1,4 +1,4 @@
-"""Solaredge modbus ."""
+"""Solaredge modbus."""
 #import datetime
 import asyncio
 #import traceback
@@ -10,11 +10,10 @@ import logging
 from .const import DOMAIN
 from homeassistant.helpers.entity import Entity
 
-
 #from . import DOMAIN as SOLAREDGE_DOMAIN
 
 from .const import CONF_SCAN_INTERVAL
-#DOMAIN, 
+#DOMAIN,
 #from homeassistant.helpers.entity import generate_entity_id
 
 _LOGGER = logging.getLogger(__name__)

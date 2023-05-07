@@ -1,5 +1,5 @@
 """Init Solaredge modbus."""
-from .rs485eth import Instrument
+from .rs485eth import Instrument 
 # as rs485eth
 # import Instrument
 
@@ -40,7 +40,7 @@ async def async_setup(hass, config):
     _LOGGER.debug(host)
     _LOGGER.debug(port)
 
-    instrument = rs485eth.Instrument(host, port, 1, debug=False) # port name, slave address
+    instrument = Instrument(host, port, 1, debug=False) # port name, slave address
     hass.data[DOMAIN] = instrument
 
     _LOGGER.debug("creating modbus client done")

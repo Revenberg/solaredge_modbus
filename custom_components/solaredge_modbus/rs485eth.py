@@ -1,5 +1,4 @@
 """MinimalModbus: A Python driver for Modbus RTU/ASCII via ETH."""
-# -*- coding: utf-8 -*-
 #
 #   Copyright 2020 Sander Revenberg
 #
@@ -19,7 +18,6 @@
 __license__ = "Apache License, Version 2.0"
 __status__ = "Production"
 __version__ = "1.0.0"
-
 
 import os
 import struct
@@ -176,10 +174,8 @@ class Instrument:
 
         """
 
-        self._print_debug("Create eth address {} and port {}".format(address, port))
         self.eth_address = address
         self.eth_port = port
-
 
     def __repr__(self):
         """Give string representation of the :class:`.Instrument` object."""
@@ -201,10 +197,6 @@ class Instrument:
             self.debug,
 #            self.serial,
         )
-
-    def _print_debug(self, text):
-        if self.debug:
-            _print_out("MinimalModbus debug mode. " + text)
 
     # ################################# #
     #  Methods for talking to the slave #
@@ -1196,10 +1188,7 @@ class Instrument:
                         "Could not precalculate response size for Modbus {} mode. "
                         + "Will read {} bytes. Request: {!r}"
                     )
-                    self._print_debug(
-                        template.format(self.mode, number_of_bytes_to_read, request)
-                    )
-
+                    
         # Communicate
         response = self._communicate(request, number_of_bytes_to_read)
         # Extract payload
@@ -1257,12 +1246,6 @@ class Instrument:
         _check_string(request, minlength=1, description="request")
         _check_int(number_of_bytes_to_read)
 
-        self._print_debug(
-            "Will write to instrument (expecting {} bytes back): {!r} ({})".format(
-                number_of_bytes_to_read, request, _hexlify(request)
-            )
-        )
-
         if sys.version_info[0] > 2:
             request = bytes(
                 request, encoding="latin1"
@@ -1277,7 +1260,6 @@ class Instrument:
                 time_since_read * _SECONDS_TO_MILLISECONDS,
                 minimum_silent_period * _SECONDS_TO_MILLISECONDS,
             )
-            self._print_debug(text)
         # Write request
         latest_write_time = _now()
 #        self.serial.write(request)
@@ -1346,7 +1328,6 @@ class Instrument:
         if not answer:
             raise NoResponseError("No communication with the instrument (no answer)")
 
-        self._print_debug(answer)
         return answer
 
     # For backward compatibility
