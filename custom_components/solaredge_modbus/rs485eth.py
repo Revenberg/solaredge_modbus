@@ -968,17 +968,18 @@ class Instrument:
             )
 
         # Check combinations: Number of registers
+
         if functioncode in [1, 2, 5, 15] and number_of_registers:
             raise ValueError(
                 "The number_of_registers is not valid for this function code. "
                 + f"number_of_registers: {number_of_registers!r}, functioncode {functioncode}."
             )
-        elif functioncode in [3, 4, 16] and not number_of_registers:
+        if functioncode in [3, 4, 16] and not number_of_registers:
             raise ValueError(
                 "The number_of_registers must be > 0 for functioncode "
                 + f"{functioncode}."
             )
-        elif functioncode == 6 and number_of_registers != 1:
+        if functioncode == 6 and number_of_registers != 1:
             raise ValueError(
                 "The number_of_registers must be 1 for functioncode 6. "
                 + f"Given: {number_of_registers}."
@@ -1001,7 +1002,7 @@ class Instrument:
                 "The input value must be given for this function code. "
                 + f"Given {value!r} and {functioncode!r}."
             )
-        elif functioncode in [1, 2, 3, 4] and value is not None:
+        if functioncode in [1, 2, 3, 4] and value is not None:
             raise ValueError(
                 "The input value should not be given for this function code. "
                 + f"Given {value!r} and {functioncode!r}."
@@ -3341,7 +3342,7 @@ def _check_string(
             f"The {description} should be a string. Given: {inputstring!r}"
         )
 
-    if (not(type(maxlength) is int) or (maxlength is None)):
+    if not(type(maxlength) is int or maxlength is None):
         raise TypeError(
             f"The maxlength must be an integer or None. Given: {maxlength!r}"
         )
@@ -3405,7 +3406,7 @@ def _check_int(inputvalue, minvalue=None, maxvalue=None, description="inputvalue
     function internally.
 
     """
-    if not type(description) is str:
+    if type(description) is not str:
         raise TypeError(
             f"The description should be a string. Given: {description!r}"
         )
@@ -3447,7 +3448,7 @@ def _check_numerical(
 
     """
     # Type checking
-    if not (type(description) is str):
+    if type(description) is not str:
         raise TypeError(
             f"The description should be a string. Given: {description!r}"
         )
