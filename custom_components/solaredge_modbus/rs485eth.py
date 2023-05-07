@@ -829,7 +829,7 @@ class Instrument:
         number_of_registers=0,
         number_of_bits=0,
         payloadformat=None,
-        number_of_register_bytes=0
+        number_of_register_bytes=1
     ):
         """Check_functioncode."""
         if functioncode in [1, 2, 5, 15] and number_of_registers:
