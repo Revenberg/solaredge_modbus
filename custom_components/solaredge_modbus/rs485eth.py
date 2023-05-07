@@ -1,3 +1,4 @@
+"""MinimalModbus: A Python driver for Modbus RTU/ASCII via ETH."""
 # -*- coding: utf-8 -*-
 #
 #   Copyright 2020 Sander Revenberg
@@ -14,7 +15,6 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
-"""MinimalModbus: A Python driver for Modbus RTU/ASCII via ETH."""
 
 __license__ = "Apache License, Version 2.0"
 __status__ = "Production"

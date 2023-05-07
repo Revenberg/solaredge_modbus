@@ -1,5 +1,6 @@
 """Init Solaredge modbus."""
-from .rs485eth as rs485eth
+from .rs485eth import Instrument
+# as rs485eth
 # import Instrument
 
 import logging
