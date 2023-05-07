@@ -8,7 +8,7 @@ from __future__ import annotations
 # This dummy hub always returns 5 rollers.
 import asyncio
 import random
-import serial
+#import serial
 import datetime
 from .rs485eth import Instrument
 
@@ -106,7 +106,7 @@ class Hub:
     def connection(self):
         """Test connectivity is OK."""
         self._instrument = Instrument(self._host, self._port, 1, debug=False)
-        
+
 class Roller:
     """Dummy roller (device for HA) for Hello World example."""
 
