@@ -1,5 +1,5 @@
 {
-    "domain": "solaredge",
+    "domain": "solaredge_modbus",
     "name": "solaredge modbus",
     "codeowners": ["@sander"],
     "config_flow": true,
@@ -9,7 +9,7 @@
     "iot_class": "cloud_polling",
     "issue_tracker": "https://github.com/Revenberg/solaredge_modbus/issues",
     "requirements": [
-        "pyModbusTCP >= 0.1.8",
+        "pyModbusTCP>=0.1.8",
         "pymodbus"
     ],
     "ssdp": [],
