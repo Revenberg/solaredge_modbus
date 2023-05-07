@@ -94,14 +94,11 @@ class Instrument:
     Uses the Modbus RTU or ASCII protocols (via RS485 or RS232).
 
     Args:
-        * port (str): The serial port name, for example ``/dev/ttyUSB0`` (Linux),
-          ``/dev/tty.usbserial`` (OS X) or ``COM4`` (Windows).
-        * slaveaddress (int): Slave address in the range 1 to 247 (use decimal numbers,
-          not hex). Address 0 is for broadcast, and 248-255 are reserved.
-        * mode (str): Mode selection. Can be MODE_RTU or MODE_ASCII.
-        * close_port_after_each_call (bool): If the serial port should be closed after
-          each call to the instrument.
-        * debug (bool): Set this to :const:`True` to print the communication details
+        port (str): The serial port name, for example ``/dev/ttyUSB0`` (Linux), ``/dev/tty.usbserial`` (OS X) or ``COM4`` (Windows).
+        slaveaddress (int): Slave address in the range 1 to 247 (use decimal numbers, not hex). Address 0 is for broadcast, and 248-255 are reserved.
+        mode (str): Mode selection. Can be MODE_RTU or MODE_ASCII.
+        close_port_after_each_call (bool): If the serial port should be closed after each call to the instrument.
+        debug (bool): Set this to :const:`True` to print the communication details
 
     """
 
@@ -208,8 +205,8 @@ class Instrument:
         This is for a bit that has its individual address in the instrument.
 
         Args:
-            * registeraddress (int): The slave register address (use decimal numbers, not hex).
-            * functioncode (int): Modbus function code. Can be 1 or 2.
+            registeraddress (int): The slave register address (use decimal numbers, not hex).
+            functioncode (int): Modbus function code. Can be 1 or 2.
 
         Returns:
             The bit value 0 or 1 (int).
@@ -242,9 +239,9 @@ class Instrument:
         This is for a bit that has its individual address in the instrument.
 
         Args:
-            * registeraddress (int): The slave register address (use decimal numbers, not hex).
-            * value (int or bool): 0 or 1, or True or False
-            * functioncode (int): Modbus function code. Can be 5 or 15.
+            registeraddress (int): The slave register address (use decimal numbers, not hex).
+            value (int or bool): 0 or 1, or True or False
+            functioncode (int): Modbus function code. Can be 5 or 15.
 
         Returns:
             None
@@ -270,10 +267,9 @@ class Instrument:
         This is for bits that have individual addresses in the instrument.
 
         Args:
-            * registeraddress (int): The slave register start address  (use decimal
-              numbers, not hex).
-            * number_of_bits (int): Number of bits to read
-            * functioncode (int): Modbus function code. Can be 1 or 2.
+            registeraddress (int): The slave register start address  (use decimal numbers, not hex).
+            number_of_bits (int): Number of bits to read
+            functioncode (int): Modbus function code. Can be 1 or 2.
 
         Returns:
             A list of bit values 0 or 1 (int). The first value in the list is for
@@ -306,10 +302,8 @@ class Instrument:
         Uses Modbus functioncode 15.
 
         Args:
-            * registeraddress (int): The slave register start address (use decimal
-              numbers, not hex).
-            * values (list of int or bool): 0 or 1, or True or False. The first
-              value in the list is for the bit at the given address.
+            registeraddress (int): The slave register start address (use decimal numbers, not hex).
+            values (list of int or bool): 0 or 1, or True or False. The first value in the list is for the bit at the given address.
 
         Returns:
             None
@@ -348,10 +342,10 @@ class Instrument:
         ("Unsigned INT16").
 
         Args:
-            * registeraddress (int): The slave register address (use decimal numbers, not hex).
-            * numberOfDecimals (int): The number of decimals for content conversion.
-            * functioncode (int): Modbus function code. Can be 3 or 4.
-            * signed (bool): Whether the data should be interpreted as unsigned or signed.
+            registeraddress (int): The slave register address (use decimal numbers, not hex).
+            numberOfDecimals (int): The number of decimals for content conversion.
+            functioncode (int): Modbus function code. Can be 3 or 4.
+            signed (bool): Whether the data should be interpreted as unsigned or signed.
 
         .. note:: The parameter numberOfDecimals was named numberOfDecimals
                   before MinimalModbus 1.0
@@ -418,13 +412,11 @@ class Instrument:
         65535 ("Unsigned INT16").
 
         Args:
-            * registeraddress (int): The slave register address  (use decimal
-              numbers, not hex).
-            * value (int or float): The value to store in the slave register (might be
-              scaled before sending).
-            * numberOfDecimals (int): The number of decimals for content conversion.
-            * functioncode (int): Modbus function code. Can be 6 or 16.
-            * signed (bool): Whether the data should be interpreted as unsigned or signed.
+            registeraddress (int): The slave register address  (use decimal numbers, not hex).
+            value (int or float): The value to store in the slave register (might be scaled before sending).
+            numberOfDecimals (int): The number of decimals for content conversion.
+            functioncode (int): Modbus function code. Can be 6 or 16.
+            signed (bool): Whether the data should be interpreted as unsigned or signed.
 
         .. note:: The parameter numberOfDecimals was named numberOfDecimals
                   before MinimalModbus 1.0
@@ -484,12 +476,10 @@ class Instrument:
         registers in the slave.
 
         Args:
-            * registeraddress (int): The slave register start address (use decimal numbers,
-              not hex).
-            * functioncode (int): Modbus function code. Can be 3 or 4.
-            * signed (bool): Whether the data should be interpreted as unsigned or signed.
-            * byteorder (int): How multi-register data should be interpreted.
-              Defaults to BYTEORDER_BIG.
+            registeraddress (int): The slave register start address (use decimal numbers, not hex).
+            functioncode (int): Modbus function code. Can be 3 or 4.
+            signed (bool): Whether the data should be interpreted as unsigned or signed.
+            byteorder (int): How multi-register data should be interpreted. Defaults to BYTEORDER_BIG.
 
         ============== ================== ================ ==========================
         ``signed``     Data type in slave Alternative name Range
@@ -529,12 +519,10 @@ class Instrument:
         and on alternative names, see :meth:`.read_long`.
 
         Args:
-            * registeraddress (int): The slave register start address  (use decimal
-              numbers, not hex).
-            * value (int or long): The value to store in the slave.
-            * signed (bool): Whether the data should be interpreted as unsigned or signed.
-            * byteorder (int): How multi-register data should be interpreted.
-              Defaults to BYTEORDER_BIG.
+            registeraddress (int): The slave register start address  (use decimal numbers, not hex).
+            value (int or long): The value to store in the slave.
+            signed (bool): Whether the data should be interpreted as unsigned or signed.
+            byteorder (int): How multi-register data should be interpreted. Defaults to BYTEORDER_BIG.
 
         Returns:
             None
@@ -583,13 +571,10 @@ class Instrument:
         it makes sense for your instrument. If not, change the ``byteorder`` argument.
 
         Args:
-            * registeraddress (int): The slave register start address (use decimal
-              numbers, not hex).
-            * functioncode (int): Modbus function code. Can be 3 or 4.
-            * number_of_registers (int): The number of registers allocated for the float.
-              Can be 2 or 4.
-            * byteorder (int): How multi-register data should be interpreted.
-              Defaults to BYTEORDER_BIG.
+            registeraddress (int): The slave register start address (use decimal numbers, not hex).
+            functioncode (int): Modbus function code. Can be 3 or 4.
+            number_of_registers (int): The number of registers allocated for the float. Can be 2 or 4.
+            byteorder (int): How multi-register data should be interpreted. Defaults to BYTEORDER_BIG.
 
         .. note:: The parameter number_of_registers was named numberOfRegisters
                   before MinimalModbus 1.0
@@ -637,13 +622,10 @@ class Instrument:
         see :meth:`.read_float`.
 
         Args:
-            * registeraddress (int): The slave register start address (use decimal
-              numbers, not hex).
-            * value (float or int): The value to store in the slave
-            * number_of_registers (int): The number of registers allocated for the float.
-              Can be 2 or 4.
-            * byteorder (int): How multi-register data should be interpreted.
-              Defaults to BYTEORDER_BIG.
+            registeraddress (int): The slave register start address (use decimal numbers, not hex).
+            value (float or int): The value to store in the slave
+            number_of_registers (int): The number of registers allocated for the float. Can be 2 or 4.
+            byteorder (int): How multi-register data should be interpreted. Defaults to BYTEORDER_BIG.
 
         .. note:: The parameter number_of_registers was named numberOfRegisters
                   before MinimalModbus 1.0
@@ -682,10 +664,9 @@ class Instrument:
         International characters (Unicode/UTF-8) are not supported.
 
         Args:
-            * registeraddress (int): The slave register start address (use decimal
-              numbers, not hex).
-            * number_of_registers (int): The number of registers allocated for the string.
-            * functioncode (int): Modbus function code. Can be 3 or 4.
+            registeraddress (int): The slave register start address (use decimal numbers, not hex).
+            number_of_registers (int): The number of registers allocated for the string.
+            functioncode (int): Modbus function code. Can be 3 or 4.
 
         .. note:: The parameter number_of_registers was named numberOfRegisters
                   before MinimalModbus 1.0
@@ -724,10 +705,9 @@ class Instrument:
         International characters (Unicode/UTF-8) are not supported.
 
         Args:
-            * registeraddress (int): The slave register start address  (use decimal
-              numbers, not hex).
-            * textstring (str): The string to store in the slave, must be ASCII.
-            * number_of_registers (int): The number of registers allocated for the string.
+            registeraddress (int): The slave register start address  (use decimal numbers, not hex).
+            textstring (str): The string to store in the slave, must be ASCII.
+            number_of_registers (int): The number of registers allocated for the string.
 
         .. note:: The parameter number_of_registers was named numberOfRegisters
                   before MinimalModbus 1.0
@@ -771,10 +751,9 @@ class Instrument:
         65535 ("Unsigned INT16").
 
         Args:
-            * registeraddress (int): The slave register start address (use decimal
-              numbers, not hex).
-            * number_of_registers (int): The number of registers to read, max 125 registers.
-            * functioncode (int): Modbus function code. Can be 3 or 4.
+            registeraddress (int): The slave register start address (use decimal numbers, not hex).
+            number_of_registers (int): The number of registers to read, max 125 registers.
+            functioncode (int): Modbus function code. Can be 3 or 4.
 
         .. note:: The parameter number_of_registers was named numberOfRegisters
                   before MinimalModbus 1.0
@@ -817,11 +796,8 @@ class Instrument:
         the ``values`` list.
 
         Args:
-            * registeraddress (int): The slave register start address (use decimal
-              numbers, not hex).
-            * values (list of int): The values to store in the slave registers,
-              max 123 values. The first value in the list is for the register
-              at the given address.
+            registeraddress (int): The slave register start address (use decimal numbers, not hex).
+            values (list of int): The values to store in the slave registers, max 123 values. The first value in the list is for the register at the given address.
 
         .. note:: The parameter number_of_registers was named numberOfRegisters
                   before MinimalModbus 1.0
@@ -876,19 +852,15 @@ class Instrument:
         """Perform generic command for reading and writing registers and bits.
 
         Args:
-            * functioncode (int): Modbus function code.
-            * registeraddress (int): The register address  (use decimal numbers, not hex).
-            * value (numerical or string or None or list of int): The value to store
-              in the register. Depends on payloadformat.
-            * numberOfDecimals (int): The number of decimals for content conversion.
-              Only for a single register.
-            * number_of_registers (int): The number of registers to read/write.
-              Only certain values allowed, depends on payloadformat.
-            * number_of_bits (int):T he number of registers to read/write.
-            * signed (bool): Whether the data should be interpreted as unsigned or
-              signed. Only for a single register or for payloadformat='long'.
-            * byteorder (int): How multi-register data should be interpreted.
-            * payloadformat (None or string): Any of the _PAYLOADFORMAT_* values
+            functioncode (int): Modbus function code.
+            registeraddress (int): The register address  (use decimal numbers, not hex).
+            value (numerical or string or None or list of int): The value to store in the register. Depends on payloadformat.
+            numberOfDecimals (int): The number of decimals for content conversion. Only for a single register.
+            number_of_registers (int): The number of registers to read/write. Only certain values allowed, depends on payloadformat.
+            number_of_bits (int):T he number of registers to read/write.
+            signed (bool): Whether the data should be interpreted as unsigned or signed. Only for a single register or for payloadformat='long'.
+            byteorder (int): How multi-register data should be interpreted.
+            payloadformat (None or string): Any of the _PAYLOADFORMAT_* values
 
         If a value of 77.0 is stored internally in the slave register as 770,
         then use ``numberOfDecimals=1`` which will divide the received data
@@ -1147,10 +1119,8 @@ class Instrument:
         """Perform the command having the *functioncode*.
 
         Args:
-            * functioncode (int): The function code for the command to be performed.
-              Can for example be 'Write register' = 16.
-            * payload_to_slave (str): Data to be transmitted to the slave (will be
-              embedded in slaveaddress, CRC etc)
+            functioncode (int): The function code for the command to be performed. Can for example be 'Write register' = 16.
+            payload_to_slave (str): Data to be transmitted to the slave (will be embedded in slaveaddress, CRC etc)
 
         Returns:
             The extracted data payload from the slave (a string). It has been
@@ -1512,11 +1482,10 @@ def _embed_payload(slaveaddress, mode, functioncode, payloaddata):
     """Build a request from the slaveaddress, the function code and the payload data.
 
     Args:
-        * slaveaddress (int): The address of the slave.
-        * mode (str): The modbus protcol mode (MODE_RTU or MODE_ASCII)
-        * functioncode (int): The function code for the command to be performed.
-          Can for example be 16 (Write register).
-        * payloaddata (str): The byte string to be sent to the slave.
+        slaveaddress (int): The address of the slave.
+        mode (str): The modbus protcol mode (MODE_RTU or MODE_ASCII)
+        functioncode (int): The function code for the command to be performed. Can for example be 16 (Write register).
+        payloaddata (str): The byte string to be sent to the slave.
 
     Returns:
         The built (raw) request string for sending to the slave (including CRC etc).
@@ -1562,11 +1531,10 @@ def _extract_payload(response, slaveaddress, mode, functioncode):
     """Extract the payload data part from the slave's response.
 
     Args:
-        * response (str): The raw response byte string from the slave.
-          This is different for RTU and ASCII.
-        * slaveaddress (int): The adress of the slave. Used here for error checking only.
-        * mode (str): The modbus protcol mode (MODE_RTU or MODE_ASCII)
-        * functioncode (int): Used here for error checking only.
+        response (str): The raw response byte string from the slave. This is different for RTU and ASCII.
+        slaveaddress (int): The adress of the slave. Used here for error checking only.
+        mode (str): The modbus protcol mode (MODE_RTU or MODE_ASCII)
+        functioncode (int): Used here for error checking only.
 
     Returns:
         The payload part of the *response* string. Conversion from Modbus ASCII
@@ -1715,10 +1683,9 @@ def _predict_response_size(mode, functioncode, payload_to_slave):
     """Calculate the number of bytes that should be received from the slave.
 
     Args:
-     * mode (str): The modbus protcol mode (MODE_RTU or MODE_ASCII)
-     * functioncode (int): Modbus function code.
-     * payload_to_slave (str): The raw request that is to be sent to the slave
-       (not hex encoded string)
+      mode (str): The modbus protcol mode (MODE_RTU or MODE_ASCII)
+      functioncode (int): Modbus function code.
+      payload_to_slave (str): The raw request that is to be sent to the slave (not hex encoded string)
 
     Returns:
         The preducted number of bytes (int) in the response.
@@ -1845,11 +1812,10 @@ def _num_to_twobyte_string(value, numberOfDecimals=0, lsb_first=False, signed=Fa
     r"""Convert a numerical value to a two-byte string, possibly scaling it.
 
     Args:
-        * value (float or int): The numerical value to be converted.
-        * numberOfDecimals (int): Number of decimals, 0 or more, for scaling.
-        * lsb_first (bool): Whether the least significant byte should be first in
-          the resulting string.
-        * signed (bool): Whether negative values should be accepted.
+        value (float or int): The numerical value to be converted.
+        numberOfDecimals (int): Number of decimals, 0 or more, for scaling.
+        lsb_first (bool): Whether the least significant byte should be first in the resulting string.
+        signed (bool): Whether negative values should be accepted.
 
     Returns:
         A two-byte string.
@@ -1914,10 +1880,9 @@ def _twobyte_string_to_num(bytestring, numberOfDecimals=0, signed=False):
     r"""Convert a two-byte string to a numerical value, possibly scaling it.
 
     Args:
-        * bytestring (str): A string of length 2.
-        * numberOfDecimals (int): The number of decimals. Defaults to 0.
-        * signed (bol): Whether large positive values should be interpreted as
-          negative values.
+        bytestring (str): A string of length 2.
+        numberOfDecimals (int): The number of decimals. Defaults to 0.
+        signed (bol): Whether large positive values should be interpreted as negative values.
 
     Returns:
         The numerical value (int or float) calculated from the ``bytestring``.
@@ -1972,11 +1937,10 @@ def _long_to_bytestring(
     in the slave.
 
     Args:
-        * value (int): The numerical value to be converted.
-        * signed (bool): Whether large positive values should be interpreted as
-          negative values.
-        * number_of_registers (int): Should be 2. For error checking only.
-        * byteorder (int): How multi-register data should be interpreted.
+        value (int): The numerical value to be converted.
+        signed (bool): Whether large positive values should be interpreted as negative values.
+        number_of_registers (int): Should be 2. For error checking only.
+        byteorder (int): How multi-register data should be interpreted.
 
     Returns:
         A bytestring (4 bytes).
@@ -2020,11 +1984,10 @@ def _bytestring_to_long(
     in the slave.
 
     Args:
-        * bytestring (str): A string of length 4.
-        * signed (bol): Whether large positive values should be interpreted as
-          negative values.
-        * number_of_registers (int): Should be 2. For error checking only.
-        * byteorder (int): How multi-register data should be interpreted.
+        bytestring (str): A string of length 4.
+        signed (bol): Whether large positive values should be interpreted as negative values.
+        number_of_registers (int): Should be 2. For error checking only.
+        byteorder (int): How multi-register data should be interpreted.
 
     Returns:
         The numerical value (int).
@@ -2073,9 +2036,9 @@ def _float_to_bytestring(value, number_of_registers=2, byteorder=BYTEORDER_BIG):
     This will give a byte string ``'\x3f\x80\x00\x00'`` (big endian).
 
     Args:
-        * value (float or int): The numerical value to be converted.
-        * number_of_registers (int): Can be 2 or 4.
-        * byteorder (int): How multi-register data should be interpreted.
+        value (float or int): The numerical value to be converted.
+        number_of_registers (int): Can be 2 or 4.
+        byteorder (int): How multi-register data should be interpreted.
 
     Returns:
         A bytestring (4 or 8 bytes).
@@ -2125,9 +2088,9 @@ def _bytestring_to_float(bytestring, number_of_registers=2, byteorder=BYTEORDER_
     and on alternative names, see :func:`minimalmodbus._float_to_bytestring`.
 
     Args:
-        * bytestring (str): A string of length 4 or 8.
-        * number_of_registers (int): Can be 2 or 4.
-        * byteorder (int): How multi-register data should be interpreted.
+        bytestring (str): A string of length 4 or 8.
+        number_of_registers (int): Can be 2 or 4.
+        byteorder (int): How multi-register data should be interpreted.
 
     Returns:
         A float.
@@ -2184,9 +2147,8 @@ def _textstring_to_bytestring(inputstring, number_of_registers=16):
     spaces in the end.
 
     Args:
-        * inputstring (str): The string to be stored in the slave.
-          Max 2*number_of_registers characters.
-        * number_of_registers (int): The number of registers allocated for the string.
+        inputstring (str): The string to be stored in the slave. Max 2*number_of_registers characters.
+        number_of_registers (int): The number of registers allocated for the string.
 
     Returns:
         A bytestring (str).
@@ -2218,8 +2180,8 @@ def _bytestring_to_textstring(bytestring, number_of_registers=16):
     Not much of conversion is done, mostly error checking.
 
     Args:
-        * bytestring (str): The string from the slave. Length = 2*number_of_registers
-        * number_of_registers (int): The number of registers allocated for the string.
+        bytestring (str): The string from the slave. Length = 2*number_of_registers
+        number_of_registers (int): The number of registers allocated for the string.
 
     Returns:
         A the text string (str).
@@ -2249,10 +2211,8 @@ def _valuelist_to_bytestring(valuelist, number_of_registers):
     Each element is 'unsigned INT16'.
 
     Args:
-        * valuelist (list of int): The input list. The elements should be in the
-          range 0 to 65535.
-        * number_of_registers (int): The number of registers. For error checking.
-          Should equal the number of elements in valuelist.
+        valuelist (list of int): The input list. The elements should be in the range 0 to 65535.
+        number_of_registers (int): The number of registers. For error checking. Should equal the number of elements in valuelist.
 
     Returns:
         A bytestring (str). Length = 2*number_of_registers
@@ -2302,8 +2262,8 @@ def _bytestring_to_valuelist(bytestring, number_of_registers):
     The bytestring is interpreted as 'unsigned INT16'.
 
     Args:
-        * bytestring (str): The string from the slave. Length = 2*number_of_registers
-        * number_of_registers (int): The number of registers. For error checking.
+        bytestring (str): The string from the slave. Length = 2*number_of_registers
+        number_of_registers (int): The number of registers. For error checking.
 
     Returns:
         A list of integers.
@@ -2344,9 +2304,8 @@ def _pack(formatstring, value):
     Uses the built-in :mod:`struct` Python module.
 
     Args:
-        * formatstring (str): String for the packing. See the :mod:`struct` module
-          for details.
-        * value (depends on formatstring): The value to be packed
+        formatstring (str): String for the packing. See the :mod:`struct` module for details.
+        value (depends on formatstring): The value to be packed
 
     Returns:
         A bytestring (str).
@@ -2382,9 +2341,8 @@ def _unpack(formatstring, packed):
     Uses the built-in :mod:`struct` Python module.
 
     Args:
-        * formatstring (str): String for the packing. See the :mod:`struct` module
-          for details.
-        * packed (str): The bytestring to be unpacked.
+        formatstring (str): String for the packing. See the :mod:`struct` module for details.
+        packed (str): The bytestring to be unpacked.
 
     Returns:
         A value. The type depends on the formatstring.
@@ -2422,7 +2380,7 @@ def _swap(bytestring):
     This corresponds to a "byte swap".
 
     Args:
-        * bytestring (str): input. The length should be an even number.
+        bytestring (str): input. The length should be an even number.
 
     Return the string with characters swapped.
 
@@ -2448,9 +2406,8 @@ def _hexencode(bytestring, insert_spaces=False):
     For example 'J' will return '4A', and ``'\x04'`` will return '04'.
 
     Args:
-        * bytestring (str): Can be for example ``'A\x01B\x45'``.
-        * insert_spaces (bool): Insert space characters between pair of characters
-          to increase readability.
+        bytestring (str): Can be for example ``'A\x01B\x45'``.
+        insert_spaces (bool): Insert space characters between pair of characters to increase readability.
 
     Returns:
         A string of twice the length, with characters in the range '0' to '9' and
@@ -2480,8 +2437,8 @@ def _hexdecode(hexstring):
     length 1).
 
     Args:
-        * hexstring (str): Can be for example 'A3' or 'A3B4'. Must be of even length.
-        * Allowed characters are '0' to '9', 'a' to 'f' and 'A' to 'F' (not space).
+        hexstring (str): Can be for example 'A3' or 'A3B4'. Must be of even length.
+        Allowed characters are '0' to '9', 'a' to 'f' and 'A' to 'F' (not space).
 
     Returns:
         A string of half the length, with characters corresponding to all 0-255
@@ -2538,7 +2495,7 @@ def _calculate_number_of_bytes_for_bits(number_of_bits):
     """Calculate number of full bytes required to house a number of bits.
 
     Args:
-        * number_of_bits (str): Number of bits
+        number_of_bits (str): Number of bits
 
     Error checking should have been done before.
 
@@ -2560,7 +2517,7 @@ def _bit_to_bytestring(value):
     This is basically a storage of numerical constants.
 
     Args:
-        * value (int): can be 0 or 1
+        value (int): can be 0 or 1
 
     Returns:
         The bit pattern (string).
@@ -2583,7 +2540,7 @@ def _bits_to_bytestring(valuelist):
     This is used for functioncode 15.
 
     Args:
-        * valuelist (list of int): 0 or 1
+        valuelist (list of int): 0 or 1
 
     Returns a bytestring.
 
@@ -2625,8 +2582,8 @@ def _bytestring_to_bits(bytestring, number_of_bits):
     zeros toward MSB.
 
     Args:
-        * bytestring (str): input string
-        * number_of_bits (int): Number of bits to extract
+        bytestring (str): input string
+        number_of_bits (int): Number of bits to extract
 
     Returns a list of values (0 or 1). The length of the list is equal to number_of_bits.
 
@@ -2660,8 +2617,8 @@ def _twos_complement(x, bits=16):
     See https://en.wikipedia.org/wiki/Two%27s_complement
 
     Args:
-        * x (int): input integer.
-        * bits (int): number of bits, must be > 0.
+        x (int): input integer.
+        bits (int): number of bits, must be > 0.
 
     Returns:
         An int, that represents the two's complement of the input.
@@ -2702,8 +2659,8 @@ def _from_twos_complement(x, bits=16):
     """Calculate the inverse(?) of a two's complement of an integer.
 
     Args:
-        * x (int): input integer.
-        * bits (int): number of bits, must be > 0.
+        x (int): input integer.
+        bits (int): number of bits, must be > 0.
 
     Returns:
         An int, that represents the inverse(?) of two's complement of the input.
@@ -2751,8 +2708,8 @@ def _set_bit_on(x, bit_num):
     """Set bit 'bit_num' to True.
 
     Args:
-        * x (int): The value before.
-        * bit_num (int): The bit number that should be set to True.
+        x (int): The value before.
+        bit_num (int): The bit number that should be set to True.
 
     Returns:
         The value after setting the bit. This is an integer.
@@ -2771,8 +2728,8 @@ def _check_bit(x, bit_num):
     """Check if bit 'bit_num' is set the input integer.
 
     Args:
-        * x (int): The input value.
-        * bit_num (int): The bit number to be checked
+        x (int): The input value.
+        bit_num (int): The bit number to be checked
 
     Returns:
         True or False
@@ -3158,9 +3115,8 @@ def _check_functioncode(functioncode, list_of_allowed_values=None):
     Also verifies that 1 <= function code <= 127.
 
     Args:
-        * functioncode (int): The function code
-        * list_of_allowed_values (list of int): Allowed values. Use *None* to bypass
-          this part of the checking.
+        functioncode (int): The function code
+        list_of_allowed_values (list of int): Allowed values. Use *None* to bypass this part of the checking.
 
     Raises:
         TypeError, ValueError
@@ -3297,7 +3253,7 @@ def _check_response_slaveerrorcode(response):
     """Check if the slave indicates an error.
 
     Args:
-        * response (string): Response from the slave
+        response (string): Response from the slave
 
     The response is in RTU format, but the checksum might be one or two bytes
     depending on whether it was sent in RTU or ASCII mode.
@@ -3388,9 +3344,8 @@ def _check_response_registeraddress(payload, registeraddress):
     The first two bytes in the payload holds the address value.
 
     Args:
-        * payload (string): The payload
-        * registeraddress (int): What the register address actually shoud be
-          (use decimal numbers, not hex).
+        payload (string): The payload
+        registeraddress (int): What the register address actually shoud be (use decimal numbers, not hex).
 
     Raises:
         TypeError, ValueError, InvalidResponseError
@@ -3421,8 +3376,8 @@ def _check_response_number_of_registers(payload, number_of_registers):
     The bytes 2 and 3 (zero based counting) in the payload holds the value.
 
     Args:
-        * payload (string): The payload
-        * number_of_registers (int): Number of registers that have been written
+        payload (string): The payload
+        number_of_registers (int): Number of registers that have been written
 
     Raises:
         TypeError, ValueError, InvalidResponseError
@@ -3462,9 +3417,8 @@ def _check_response_writedata(payload, writedata):
     The bytes 2 and 3 (zero based counting) in the payload holds the write data.
 
     Args:
-        * payload (string): The payload
-        * writedata (string): The data that should have been  written.
-          Length should be 2 bytes.
+        payload (string): The payload
+        writedata (string): The data that should have been  written. Length should be 2 bytes.
 
     Raises:
         TypeError, ValueError, InvalidResponseError
@@ -3499,12 +3453,12 @@ def _check_string(
     """Check that the given string is valid.
 
     Args:
-        * inputstring (string): The string to be checked
-        * description (string): Used in error messages for the checked inputstring
-        * minlength (int): Minimum length of the string
-        * maxlength (int or None): Maximum length of the string
-        * force_ascii (bool): Enforce that the string is ASCII
-        * exception_type (Exception): The type of exception to raise for length errors
+        inputstring (string): The string to be checked
+        description (string): Used in error messages for the checked inputstring
+        minlength (int): Minimum length of the string
+        maxlength (int or None): Maximum length of the string
+        force_ascii (bool): Enforce that the string is ASCII
+        exception_type (Exception): The type of exception to raise for length errors
 
     The force_ascii argument is valid only for Python3, as all strings are ASCII in Python2.
 
@@ -3586,10 +3540,10 @@ def _check_int(inputvalue, minvalue=None, maxvalue=None, description="inputvalue
     """Check that the given integer is valid.
 
     Args:
-        * inputvalue (int or long): The integer to be checked
-        * minvalue (int or long, or None): Minimum value of the integer
-        * maxvalue (int or long, or None): Maximum value of the integer
-        * description (string): Used in error messages for the checked inputvalue
+        inputvalue (int or long): The integer to be checked
+        minvalue (int or long, or None): Minimum value of the integer
+        maxvalue (int or long, or None): Maximum value of the integer
+        description (string): Used in error messages for the checked inputvalue
 
     Raises:
         TypeError, ValueError
@@ -3627,10 +3581,10 @@ def _check_numerical(
     """Check that the given numerical value is valid.
 
     Args:
-        * inputvalue (numerical): The value to be checked.
-        * minvalue (numerical): Minimum value  Use None to skip this part of the test.
-        * maxvalue (numerical): Maximum value. Use None to skip this part of the test.
-        * description (string): Used in error messages for the checked inputvalue
+        inputvalue (numerical): The value to be checked.
+        minvalue (numerical): Minimum value  Use None to skip this part of the test.
+        maxvalue (numerical): Maximum value. Use None to skip this part of the test.
+        description (string): Used in error messages for the checked inputvalue
 
     Raises:
         TypeError, ValueError
@@ -3690,8 +3644,8 @@ def _check_bool(inputvalue, description="inputvalue"):
     """Check that the given inputvalue is a boolean.
 
     Args:
-        * inputvalue (boolean): The value to be checked.
-        * description (string): Used in error messages for the checked inputvalue.
+        inputvalue (boolean): The value to be checked.
+        description (string): Used in error messages for the checked inputvalue.
 
     Raises:
         TypeError, ValueError
