@@ -24,6 +24,7 @@ import struct
 import sys
 import time
 import socket
+import contextlib
 
 if sys.version > "3":
     import binascii
@@ -1127,13 +1128,11 @@ class Instrument:
         # Calculate number of bytes to read
         number_of_bytes_to_read = DEFAULT_NUMBER_OF_BYTES_TO_READ
         if self.precalculate_read_size:
-            try:
+            with contextlib.suppress(Exception):
                 number_of_bytes_to_read = _predict_response_size(
                     self.mode, functioncode, payload_to_slave
                 )
-            except Exception:
-                pass
-                    
+
         # Communicate
         response = self._communicate(request, number_of_bytes_to_read)
         # Extract payload
@@ -1196,13 +1195,8 @@ class Instrument:
                 request, encoding="latin1"
             )  # Convert types to make it Python3 compatible
 
-        else:
-            text = (
-                "No sleep required before write. "
-                + f"Time since previous read: {time_since_read * _SECONDS_TO_MILLISECONDS:.2f} ms, minimum silent period: {minimum_silent_period * _SECONDS_TO_MILLISECONDS:.2f} ms."
-            )            
         # Write request
-        latest_write_time = _now()
+#        latest_write_time = _now()
 #        self.serial.write(request)
 
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -3545,8 +3539,8 @@ def _get_diagnostic_string():
     text += "Minimalmodbus status: " + __status__ + "\n"
     text += "File name (with relative path): " + __file__ + "\n"
     text += "Full file path: " + os.path.abspath(__file__) + "\n\n"
-    text += "pySerial version: " + serial.VERSION + "\n"
-    text += "pySerial full file path: " + os.path.abspath(serial.__file__) + "\n\n"
+    #text += "pySerial version: " + serial.VERSION + "\n"
+    #text += "pySerial full file path: " + os.path.abspath(serial.__file__) + "\n\n"
     text += "Platform: " + sys.platform + "\n"
     text += "Filesystem encoding: " + repr(sys.getfilesystemencoding()) + "\n"
     text += "Byteorder: " + sys.byteorder + "\n"
