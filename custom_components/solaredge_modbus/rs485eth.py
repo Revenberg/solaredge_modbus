@@ -1071,7 +1071,7 @@ class Instrument:
             )
 
         # Check combinations: Number of registers
-        _check_functioncode_generic(        
+        self._check_functioncode_generic(        
         functioncode,
         value,
         number_of_registers,
