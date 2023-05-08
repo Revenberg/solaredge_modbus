@@ -12,7 +12,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.const import CONF_DEVICE
 from .const import DOMAIN
 
-from .hub import Hub
+#from .hub import Hub
 #import serial
 import os
 
