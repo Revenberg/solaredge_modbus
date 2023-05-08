@@ -11,7 +11,8 @@
         "step": {
             "user": {
                 "data": {
-                    "host": "USB s0 name device name",
+                    "host": "SolarEdge Modbus host",
+                    "port": "SolarEdge Modbus port",
                     "password": "[%key:common::config_flow::data::password%]",
                     "username": "[%key:common::config_flow::data::username%]"
                 },

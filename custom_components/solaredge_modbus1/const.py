@@ -2,7 +2,7 @@
 
 # This is the internal name of the integration, it should also match the directory
 # name for the integration.
-DOMAIN = "solaredge_modbus"
+DOMAIN = "solaredge"
 
 CONF_PATH = "s0Path"
 
