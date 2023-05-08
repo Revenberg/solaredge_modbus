@@ -29,7 +29,7 @@ _LOGGER = logging.getLogger(__name__)
 # quite work as documented and always gave me the "Lokalise key references" string
 # (in square brackets), rather than the actual translated value. I did not attempt to
 # figure this out or look further into it.
-DATA_SCHEMA = vol.Schema({("host"): str})
+DATA_SCHEMA = vol.Schema({("host"): str, ("port"): str})
 
 def get_serial_by_id(dev_path: str) -> str:
     """Return a /dev/serial/by-id match for given device if available."""
