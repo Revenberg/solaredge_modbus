@@ -1,6 +1,6 @@
 {
-  "domain": "solaredge_modbus",
-  "name": "solaredge modbus",
+  "domain": "solaredge",
+  "name": "solaredge_modbus",
   "codeowners": ["@sander"],
   "config_flow": true,
   "dependencies": [],

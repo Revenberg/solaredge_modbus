@@ -1,5 +1,5 @@
 {
-    "name": "solaredge modbus",
+    "name": "solaredge_modbus",
     "filename": "solaredge_modbus.zip",
     "hide_default_branch": true,
     "homeassistant": "2023.3.0",
