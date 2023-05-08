@@ -1,4 +1,4 @@
-""".solarEdge_modbus"""
+"""solarEdge_modbus."""
 from __future__ import annotations
 import logging
 from typing import Any
