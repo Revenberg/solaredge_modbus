@@ -4,8 +4,6 @@
 # name for the integration.
 DOMAIN = "solaredge_modbus"
 
-CONF_PATH = "s0Path"
-
-CONF_MANUAL_PATH = "Enter Manually"
+CONF_MANUAL_PATH = "8899"
 
 CONF_SCAN_INTERVAL = 60
