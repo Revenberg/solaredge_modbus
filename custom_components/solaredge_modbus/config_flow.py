@@ -1,4 +1,4 @@
-"""s0 5 channels."""
+""".solarEdge_modbus"""
 from __future__ import annotations
 import logging
 from typing import Any
@@ -13,7 +13,7 @@ from homeassistant.const import CONF_DEVICE
 from .const import DOMAIN
 
 from .hub import Hub
-import serial
+#import serial
 import os
 
 _LOGGER = logging.getLogger(__name__)
@@ -131,162 +131,6 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="user", data_schema=DATA_SCHEMA, errors=errors
         )
-
-
-#    async def async_step_setup_serial(
-#        self, user_input: dict[str, Any] | None = None
-#    ):# -> data_entry_flow.FlowResult:
-#        """Step when setting up serial configuration."""
-#        errors: dict[str, str] = {}
-#        _LOGGER.debug( user_input )
-#        if user_input is not None:
-#          if user_input[CONF_DEVICE] is not None:
-#            _LOGGER.debug( "!!!!!!!!!!!!!!!!!" )
-#            _LOGGER.debug( user_input )
-##            name = user_input[ CONF_NAME ]
-##            _LOGGER.debug( name )
-#            user_selection = user_input[CONF_DEVICE]
-#            _LOGGER.debug( user_selection )
-#            if user_selection == CONF_MANUAL_PATH:
-#                return await self.async_step_setup_serial_manual_path()
-#
-#            dev_path = await self.hass.async_add_executor_job(
-#                get_serial_by_id, user_selection
-#            )
-#            user_input.update( self.data )
-#            _LOGGER.debug( user_input )
-#            data = await validate_input_device(self.hass, user_input )
-#
-#            Hub(self.hass, data["title"], data[ CONF_DEVICE ])
-#            _LOGGER.debug( data )
-##            try:
-##              result = await hub.connection()
-#              #  data = await self.async_validate_rfx(device=dev_path)
-##                data: dict[str, Any] = {
-##                 'title': self.data['title'],
-# #           CONF_PORT: port,
-##                 CONF_DEVICE: dev_path,
-##            CONF_AUTOMATIC_ADD: False,
-# #           CONF_DEVICES: {},
-##                }
-##                self.hass.data[ 'title' ] = self.data[ "title" ]
-##                self.hass.data[ CONF_DEVICE] = dev_path
-##                _LOGGER.debug( data )
-#
-##            except CannotConnect:
-##                errors["base"] = "cannot_connect"
-#
-#            if not errors:
-#                _LOGGER.debug( data )
-#                _LOGGER.debug( data['device'] )
-##                devices: dict[str, dict[str, Any] | None] = {}
-##                devices['port1'] = [ 'portje 1' ]
-##                data['devices'] = devices
-##                data[ 'title' ] = self.data[ 'title' ]
-##                self.data = data
-#                _LOGGER.debug( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" )
-#                _LOGGER.debug( data )
-#                _LOGGER.debug( dev_path )
-#
-##                self.hass.data[config_entry.entry_id] = hub
-#
-#                return self.async_create_entry(title=self.data[ "title" ], data=data)
-#        _LOGGER.debug( serial.tools.list_ports.comports )
-#        ports = await self.hass.async_add_executor_job(serial.tools.list_ports.comports)
-#        list_of_ports = {}
-#        for port in ports:
-#            _LOGGER.debug( port )
-#            if port.manufacturer == "Arduino LLC":
-#              list_of_ports[
-#                  port.device
-#              ] = f"{port} " + (
-#                  f" - {port.manufacturer}" if port.manufacturer else ""
-#              )
-#        list_of_ports[CONF_MANUAL_PATH] = CONF_MANUAL_PATH
-#
-#        schema = vol.Schema({vol.Required(CONF_DEVICE): vol.In(list_of_ports)})
-#        return self.async_show_form(
-##            step_id="setup_serial",
-#            step_id="setup_serial",
-#            data_schema=schema,
-#            errors=errors,
-#        )
-#
-
-#    async def async_step_setup_serial_manual_path(
-#        self, user_input: dict[str, Any] | None = None
-#    ): # -> data_entry_flow.FlowResult:
-#        """Select path manually."""
-#        errors: dict[str, str] = {}
-#
-#        if user_input is not None:
-#            device = user_input[CONF_DEVICE]
-#            try:
-##                data = await self.async_validate_rfx(device=device)
-#                data: dict[str, Any] = {
-#                 'title': self.data['title'],
-# #           CONF_PORT: port,
-#                 CONF_DEVICE: device,
-##            CONF_AUTOMATIC_ADD: False,
-# #           CONF_DEVICES: {},
-#                }
-#                _LOGGER.debug(data)
-#            except CannotConnect:
-#                errors["base"] = "cannot_connect"
-#
-#            if not errors:
-#                _LOGGER.debug(data)
-#                return self.async_create_entry(title="", data=data)
-#
-#        schema = vol.Schema({vol.Required(CONF_DEVICE): str})
-#        return self.async_show_form(
-#            step_id="setup_serial_manual_path",
-#            data_schema=schema,
-#            errors=errors,
-#        )
-
-#    async def async_validate_rfx(
-#        self,
-#        device: str | None = None,
-#    ) -> dict[str, Any]:
-#        """Create data for rfxtrx entry."""
- #       success = await self.hass.async_add_executor_job(
- #           _test_transport, device
- #       )
- #       if not success:
- #           raise CannotConnect
-
-#        data: dict[str, Any] = {
- #           CONF_HOST: host,
- #           CONF_PORT: port,
-#            CONF_DEVICE: device,
-#            CONF_AUTOMATIC_ADD: False,
- #           CONF_DEVICES: {},
-#        }
-#        return data
-
-#def _test_transport(device: str | None) -> bool:
-#    """Construct a rfx object based on config."""
-#    if host is not None:
-#       _LOGGER.debug(host)
-#    if port is not None:
-#       _LOGGER.debug(post)
-#        try:
-#            conn = rfxtrxmod.PyNetworkTransport((host, port))
-#        except OSError:
-#            return False
-#        conn.close()
-#    else:
-#        try:
-#            conn = rfxtrxmod.PySerialTransport(device)
-#        except serial.serialutil.SerialException:
-#            return False
-#        if conn.serial is None:
-#           return False
-
-#        conn.close()
-
-#    return True
 
 class CannotConnect(exceptions.HomeAssistantError):
     """Error to indicate we cannot connect."""
