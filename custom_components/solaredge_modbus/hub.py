@@ -10,6 +10,7 @@ import asyncio
 import random
 import serial
 import datetime
+from .rs485eth import Instrument
 
 from homeassistant.core import HomeAssistant
 import logging
@@ -19,26 +20,22 @@ _LOGGER.setLevel(logging.DEBUG)
 class Hub:
     """Hub for s0 5 channel."""
 
-    manufacturer = "SOS 5-channel s0"
-    _device = ""
+    manufacturer = "Solar"
     _instrument = None
     _lastupdate = 0
     _values = []
-    def __init__(self, hass: HomeAssistant, name: str, device: str) -> None:
+    def __init__(self, hass: HomeAssistant, host: str, port: str) -> None:
         """Init dummy hub."""
-        self._name = name
+        self.host = host
+        self.port = port
         self._hass = hass
-        self._device = device
+        self._instrument = Instrument(host, port, 1, debug=False) # port name, slave address
         self._id = random.randint(1, 10000)
-        _LOGGER.debug(self._device )
-        _LOGGER.debug( self.get_device() )
+        _LOGGER.debug(self._host )
+        _LOGGER.debug(self._port )
         self.connection()
         self.rollers = [
-            Roller(f"{self._id}_1", 1, f"{self._name} Port 1", self),
-            Roller(f"{self._id}_2", 2, f"{self._name} Port 2", self),
-            Roller(f"{self._id}_3", 3, f"{self._name} Port 3", self),
-            Roller(f"{self._id}_4", 4, f"{self._name} Port 4", self),
-            Roller(f"{self._id}_5", 5, f"{self._name} Port 5", self),
+            Roller(f"{self._id}", f"{self._instrument}", self),
         ]
         self.online = True
 
@@ -113,20 +110,19 @@ class Roller:
     """Dummy roller (device for HA) for Hello World example."""
 
     hub = None
-    _hubid = 0
-    def __init__(self, rollerid: str, hubid: int, name: str, myhub: Hub) -> None:
+    _instrument = 0
+    def __init__(self, rollerid: str, instrument: Instrument, myhub: Hub) -> None:
         """Init dummy roller."""
 #        _LOGGER.debug("!@!@!@!@ Roller")
         self._id = rollerid
-        self._hubid = hubid
+        self._instrument = instrument
         self.hub = myhub
-#        _LOGGER.debug( hubid )
-        myhub.get_device()
+#        myhub.get_device()
 #        _LOGGER.debug( "-----------" )
 #        _LOGGER.debug( myhub.get_device() )
 #        _LOGGER.debug( "-----------" )
 #        _LOGGER.debug( self.hub.get_device() )
-        self.name = name
+#        self.name = name
         self._callbacks = set()
         self._loop = asyncio.get_event_loop()
         self._target_position = 100
@@ -137,7 +133,7 @@ class Roller:
 
         # Some static information about this device
         self.firmware_version = "0.0.1"
-        self.model = "s0 port"
+        self.model = "Solar"
 
     def get_device(self) -> str:
         """Return dev from hub for roller."""
