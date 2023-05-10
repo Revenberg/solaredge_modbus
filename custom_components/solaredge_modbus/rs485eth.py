@@ -174,8 +174,7 @@ class Instrument:
 
         self.eth_address = address
         self.eth_port = port
-        self.name = address + ":" + str(port)
-
+        
     def __repr__(self):
         """Give string representation of the :class:`.Instrument` object."""
         template = (
