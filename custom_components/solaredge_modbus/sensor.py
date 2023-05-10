@@ -182,4 +182,6 @@ class SolarEdgeModbusSensor(Entity):
     @property
     def unique_id(self):
         """Unique Id."""
+        _LOGGER.debug("unique_id")
+        _LOGGER.debug(self._instrument.name)
         return "SolarEdge"
