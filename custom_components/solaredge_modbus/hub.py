@@ -35,9 +35,9 @@ class Hub:
         _LOGGER.debug( port )
         self._instrument = Instrument(host, port, 1, debug=False) # port name, slave address
         self._id = random.randint(1, 10000)
-        self.connection()
+        #self.connection()
         self.rollers = [
-            Roller(f"{self._id}", f"{self._instrument}", self),
+            Roller(f"{self._id}", f"{host}:{port}", f"{self._instrument}", self),
         ]
         self.online = True
 
@@ -113,7 +113,7 @@ class Roller:
 
     hub = None
     _instrument = 0
-    def __init__(self, rollerid: str, instrument: Instrument, myhub: Hub) -> None:
+    def __init__(self, rollerid: str, name: str, instrument: Instrument, myhub: Hub) -> None:
         """Init dummy roller."""
 #        _LOGGER.debug("!@!@!@!@ Roller")
         self._id = rollerid
@@ -124,7 +124,7 @@ class Roller:
 #        _LOGGER.debug( myhub.get_device() )
 #        _LOGGER.debug( "-----------" )
 #        _LOGGER.debug( self.hub.get_device() )
-#        self.name = name
+        self.name = name
         self._callbacks = set()
         self._loop = asyncio.get_event_loop()
         self._target_position = 100
