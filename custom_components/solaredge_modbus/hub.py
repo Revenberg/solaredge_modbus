@@ -29,6 +29,8 @@ class Hub:
         _LOGGER.debug( "Init" )
         self.host = host
         self.port = port
+        _LOGGER.debug( host )
+        _LOGGER.debug( host )
         _LOGGER.debug(self.host )
         _LOGGER.debug(self.port )
         self._instrument = Instrument(host, port, 1, debug=False) # port name, slave address
