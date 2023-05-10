@@ -24,17 +24,15 @@ class Hub:
     _instrument = None
     _lastupdate = 0
     _values = []
-    _host = ""
-    _port = 0
     def __init__(self, host: str, port: str) -> None:
         """Init dummy hub."""
         _LOGGER.debug( "Init" )
         self.host = host
         self.port = port
+        
+        _LOGGER.debug( "host" )
         _LOGGER.debug( host )
         _LOGGER.debug( port )
-        _LOGGER.debug(self._host )
-        _LOGGER.debug(self._port )
         self._instrument = Instrument(host, port, 1, debug=False) # port name, slave address
         self._id = random.randint(1, 10000)
         self.connection()
