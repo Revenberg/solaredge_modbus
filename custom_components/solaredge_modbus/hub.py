@@ -29,7 +29,7 @@ class Hub:
         _LOGGER.debug( "Init" )
         self.host = host
         self.port = port
-        
+
         _LOGGER.debug( "host" )
         _LOGGER.debug( host )
         _LOGGER.debug( port )
