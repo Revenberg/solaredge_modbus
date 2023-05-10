@@ -18,7 +18,7 @@ _LOGGER = logging.getLogger(__name__)
 _LOGGER.setLevel(logging.DEBUG)
 
 class Hub:
-    """Hub for s0 5 channel."""
+    """Solar Eddge."""
 
     manufacturer = "Solar"
     _instrument = None
@@ -26,13 +26,14 @@ class Hub:
     _values = []
     def __init__(self, hass: HomeAssistant, host: str, port: str) -> None:
         """Init dummy hub."""
+        _LOGGER.debug( "Init" )
         self.host = host
         self.port = port
         self._hass = hass
-        self._instrument = Instrument(host, port, 1, debug=False) # port name, slave address
-        self._id = random.randint(1, 10000)
         _LOGGER.debug(self._host )
         _LOGGER.debug(self._port )
+        self._instrument = Instrument(host, port, 1, debug=False) # port name, slave address
+        self._id = random.randint(1, 10000)
         self.connection()
         self.rollers = [
             Roller(f"{self._id}", f"{self._instrument}", self),
