@@ -11,8 +11,10 @@ import logging
 from homeassistant.const import CONF_SCAN_INTERVAL
 
 from homeassistant.helpers.entity import Entity
+from homeassistant import config_entries
 
-from . import DOMAIN as SOLAREDGE_DOMAIN
+from . import DOMAIN
+from . import CONF_SCAN_INTERVAL
 
 #from homeassistant.helpers.entity import generate_entity_id
 
@@ -25,20 +27,30 @@ SCAN_INTERVAL = timedelta(seconds=60)
 values = {}
 meter1_values = {}
 
-async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
-    """Async_setup_platform."""
-    _LOGGER.debug("fetching modbus client")
-    _LOGGER.debug( discovery_info )
-    _LOGGER.debug( config )
-
-    if discovery_info is None:
-        return
+async def async_setup_entry(hass: core.HomeAssistant, config_entry: config_entries.ConfigEntry, async_add_entities):
+    """Add sensors for passed config_entry in HA."""
+    _LOGGER.debug("async_setup_entry")
+    hub = hass.data[DOMAIN][config_entry.entry_id]
 
     _LOGGER.debug("fetching modbus client")
-    instrument = hass.data.get(SOLAREDGE_DOMAIN)
-    scan_interval = discovery_info[CONF_SCAN_INTERVAL]
 
-    async_add_entities([SolarEdgeModbusSensor(instrument, scan_interval)], True)
+#    _LOGGER.debug("fetching modbus client")
+#    instrument = hass.data.get(DOMAIN)
+#    scan_interval = discovery_info[CONF_SCAN_INTERVAL]
+
+    device = hass.data.get( CONF_DEVICE )
+    _LOGGER.debug(  device  )
+    title =  hass.data.get( 'title' )
+    _LOGGER.debug(  title  )
+    _LOGGER.debug("---------------------------------------------------")
+    _LOGGER.debug(hub._instrument)
+    _LOGGER.debug("---------------------------------------------------")
+
+    timedelta(seconds=60)
+
+#    async_add_entities([energySensor1(hub._instrument, scan_interval)], True)
+    async_add_entities([SolarEdgeModbusSensor( hub._instrument, 60)], True)
+
 
 
 class SolarEdgeModbusSensor(Entity):
