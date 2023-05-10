@@ -1,7 +1,7 @@
 """Sensor SolarEdge."""
 #import datetime
 import asyncio
-import traceback
+#import traceback
 
 #from time import sleep
 
@@ -78,7 +78,7 @@ class SolarEdgeModbusSensor(Entity):
         """Async_added_to_hass."""
         _LOGGER.debug("added to hass, starting loop")
         loop = self.hass.loop
-        #task = 
+        #task =
         loop.create_task(self.modbus_loop())
 
     async def modbus_loop(self):
