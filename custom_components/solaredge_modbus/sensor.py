@@ -27,6 +27,10 @@ meter1_values = {}
 
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     """Async_setup_platform."""
+    _LOGGER.debug("fetching modbus client")
+    _LOGGER.debug( discovery_info )
+    _LOGGER.debug( config )
+
     if discovery_info is None:
         return
 
