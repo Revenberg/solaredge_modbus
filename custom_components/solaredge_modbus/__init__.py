@@ -30,6 +30,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     # This creates each HA object for each platform your device requires.
     # It's done by calling the `async_setup_entry` function in each platform module.
+    _LOGGER.debug(  entry.data )
+    _LOGGER.debug(  entry )
+    _LOGGER.debug(  PLATFORMS )
+
     hass.config_entries.async_setup_platforms(entry, PLATFORMS)
 
 #    _LOGGER.debug( "!!!!!!!!!!!!!!!!!!!!!!" )
