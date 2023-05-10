@@ -12,7 +12,7 @@ import serial
 import datetime
 from .rs485eth import Instrument
 
-from homeassistant.core import HomeAssistant
+#from homeassistant.core import HomeAssistant
 import logging
 _LOGGER = logging.getLogger(__name__)
 _LOGGER.setLevel(logging.DEBUG)
