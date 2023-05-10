@@ -1,11 +1,11 @@
-'''Sensor SolarEdge.'''
-import datetime
+"""Sensor SolarEdge."""
+#import datetime
 import asyncio
 import traceback
 
 #from time import sleep
 
-#from datetime import timedelta
+from datetime import timedelta
 import logging
 
 from homeassistant.const import CONF_SCAN_INTERVAL
@@ -26,7 +26,7 @@ values = {}
 meter1_values = {}
 
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
-    '''Async_setup_platform.'''
+    """Async_setup_platform."""
     if discovery_info is None:
         return
 
@@ -38,9 +38,10 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
 
 
 class SolarEdgeModbusSensor(Entity):
-    '''SolarEdgeModbusSensor.'''
+    """Solar EdgeModbus Sensor."""
+
     def __init__(self, instrument, scan_interval):
-        '''Init.'''
+        """Init."""
         _LOGGER.debug("creating modbus sensor")
         #self.entity_id = generate_entity_id("sensor.{}", "SolarEdgeModbusSensor")
 
@@ -50,17 +51,17 @@ class SolarEdgeModbusSensor(Entity):
         self._device_state_attributes = {}
 
     def getValueLong(self, addr, numberOfDecimals=0, functioncode=0, signed=False):
-        '''GetValueLong.'''
+        """GetValueLong."""
         rc = self._instrument.read_long(addr, functioncode=functioncode, signed=signed)
         return rc
 
     def getValueRegister(self, addr, numberOfDecimals=0, functioncode=0, signed=False):
-        '''GetValueRegister.'''
+        """GetValueRegister."""
         rc = self._instrument.read_register(addr, numberOfDecimals=numberOfDecimals, functioncode=functioncode, signed=signed)
         return rc
 
     def round(self, floatval):
-        '''Round.'''
+        """Round."""
         return round(floatval, 2)
 
     @property
@@ -74,13 +75,14 @@ class SolarEdgeModbusSensor(Entity):
         return self._state
 
     async def async_added_to_hass(self):
-        '''Async_added_to_hass.'''
+        """Async_added_to_hass."""
         _LOGGER.debug("added to hass, starting loop")
         loop = self.hass.loop
-        task = loop.create_task(self.modbus_loop())
+        #task = 
+        loop.create_task(self.modbus_loop())
 
     async def modbus_loop(self):
-        '''Modbus_loop.'''
+        """Modbus_loop."""
         _LOGGER.debug("modbus_loop")
         while True:
             try:
@@ -147,7 +149,7 @@ class SolarEdgeModbusSensor(Entity):
             except Exception as e:
                 self.status = 7
                 _LOGGER.error(f'exception: {e}')
-                print(traceback.format_exc())
+                #print(traceback.format_exc())
                 values['_state'] = self._state
                 self._device_state_attributes = values
 
@@ -179,4 +181,5 @@ class SolarEdgeModbusSensor(Entity):
 
     @property
     def unique_id(self):
+        """Unique Id."""
         return "SolarEdge"
