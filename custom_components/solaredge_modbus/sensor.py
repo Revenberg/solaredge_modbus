@@ -38,7 +38,7 @@ async def async_setup_entry(hass: core.HomeAssistant, config_entry: config_entri
 #    instrument = hass.data.get(DOMAIN)
 #    scan_interval = discovery_info[CONF_SCAN_INTERVAL]
 
-    device = hass.data.get( CONF_DEVICE )
+#    device = hass.data.get( CONF_DEVICE )
     _LOGGER.debug(  device  )
     title =  hass.data.get( 'title' )
     _LOGGER.debug(  title  )
