@@ -10,7 +10,7 @@
   "issue_tracker": "https://github.com/Revenberg/solaredge_modbus/issues",
   "requirements": [],
   "ssdp": [],
-  "version": "0.0.2",
+  "version": "0.0.3",
   "zeroconf": []
 }
 
