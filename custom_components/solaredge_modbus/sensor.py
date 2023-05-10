@@ -17,7 +17,7 @@ from . import DOMAIN as SOLAREDGE_DOMAIN
 #from homeassistant.helpers.entity import generate_entity_id
 
 _LOGGER = logging.getLogger(__name__)
-_LOGGER.setLevel(logging.WARN)
+_LOGGER.setLevel(logging.DEBUG)
 
 ICON = "mdi:power-plug"
 SCAN_INTERVAL = timedelta(seconds=60)
