@@ -25,8 +25,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # with your actual devices.
     _LOGGER.debug( "!!!!!!!!!!!!!!!!!!!!!!" )
     _LOGGER.debug(  entry.data )
-    entry.name = entry.data["host"] + ":" + entry.data["port"]
-
+    
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = hub.Hub(entry.data["host"], entry.data["port"] )
 
     # This creates each HA object for each platform your device requires.
