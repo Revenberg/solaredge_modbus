@@ -24,12 +24,11 @@ class Hub:
     _instrument = None
     _lastupdate = 0
     _values = []
-    def __init__(self, hass: HomeAssistant, host: str, port: str) -> None:
+    def __init__(self, host: str, port: str) -> None:
         """Init dummy hub."""
         _LOGGER.debug( "Init" )
         self.host = host
         self.port = port
-        self._hass = hass
         _LOGGER.debug(self._host )
         _LOGGER.debug(self._port )
         self._instrument = Instrument(host, port, 1, debug=False) # port name, slave address
