@@ -188,6 +188,6 @@ class SolarEdgeModbusSensor(Entity):
         _LOGGER.debug(self._instrument.eth_address)
         _LOGGER.debug(self._instrument.eth_port)
 
-        _LOGGER.debug(f"{self._instrument.eth_address}:{self._instrument.eth_port}")
-        return f"{self._instrument.eth_address}:{self._instrument.eth_port}"
-#        return "SolarEdge"
+#        _LOGGER.debug(f"{self._instrument.eth_address}:{self._instrument.eth_port}")
+#        return f"{self._instrument.eth_address}:{self._instrument.eth_port}"
+        return "SolarEdge"
