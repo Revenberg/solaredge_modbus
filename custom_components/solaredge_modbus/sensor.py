@@ -51,8 +51,6 @@ async def async_setup_entry(hass: core.HomeAssistant, config_entry: config_entri
 #    async_add_entities([energySensor1(hub._instrument, scan_interval)], True)
     async_add_entities([SolarEdgeModbusSensor( hub._instrument, 60)], True)
 
-
-
 class SolarEdgeModbusSensor(Entity):
     """Solar EdgeModbus Sensor."""
 

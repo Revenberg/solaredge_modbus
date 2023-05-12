@@ -36,6 +36,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     _LOGGER.debug(  "hass.config_entries.async_forward_entry_setup ")
 
+
     hass.config_entries.async_forward_entry_setup(entry, PLATFORMS)
 
 #    _LOGGER.debug( "!!!!!!!!!!!!!!!!!!!!!!" )
