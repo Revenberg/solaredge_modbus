@@ -8,10 +8,10 @@ import asyncio
 from datetime import timedelta
 import logging
 
-from homeassistant.const import CONF_SCAN_INTERVAL
+#from homeassistant.const import CONF_SCAN_INTERVAL
 
 from homeassistant.helpers.entity import Entity
-from homeassistant import config_entries
+from homeassistant import config_entries, core
 
 from . import DOMAIN
 from . import CONF_SCAN_INTERVAL
@@ -39,7 +39,7 @@ async def async_setup_entry(hass: core.HomeAssistant, config_entry: config_entri
 #    scan_interval = discovery_info[CONF_SCAN_INTERVAL]
 
 #    device = hass.data.get( CONF_DEVICE )
-    _LOGGER.debug(  device  )
+#    _LOGGER.debug(  device  )
     title =  hass.data.get( 'title' )
     _LOGGER.debug(  title  )
     _LOGGER.debug("---------------------------------------------------")
