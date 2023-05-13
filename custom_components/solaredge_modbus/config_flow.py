@@ -1,3 +1,4 @@
+"""Config flow."""
 import ipaddress
 import re
 
@@ -37,10 +38,9 @@ def host_valid(host):
 @callback
 def SolarEdge_modbus_entries(hass: HomeAssistant):
     """Return the hosts already configured."""
-    return set(
+    return {
         entry.data[CONF_HOST] for entry in hass.config_entries.async_entries(DOMAIN)
-    )
-
+    }
 
 class SolarEdgeModbusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """SolarEdge Modbus configflow."""

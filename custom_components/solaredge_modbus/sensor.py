@@ -77,6 +77,7 @@ class SolarEdgeModbusSensor(SensorEntity):
 
     @property
     def unique_id(self) -> Optional[str]:
+        """Unique id."""
         return f"{self._platform_name}_{self.entity_description.key}"
 
     @property

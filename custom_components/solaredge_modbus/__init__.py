@@ -161,16 +161,16 @@ class SolarEdgeModbusHub:
             return self._client.read_holding_registers(address, count, **kwargs)
 
     def read_modbus_data(self):
-        """Read modbus data"""
+        """Read modbus data."""
         try:
             return self.read_modbus_holding_registers()
-        except ConnectionException as ex:
+        except ConnectionException:
             _LOGGER.error("Reading data failed! SolarEdge is offline.")
 
             return True
 
     def read_modbus_holding_registers(self):
-
+        """Read_modbus_holding_registers."""
         inverter_data = self.read_holding_registers(unit=1, address=0x0, count=38)
 
         if inverter_data.isError():
