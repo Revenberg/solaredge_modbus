@@ -42,7 +42,7 @@ def solaredge_modbus_entries(hass: HomeAssistant):
         entry.data[CONF_HOST] for entry in hass.config_entries.async_entries(DOMAIN)
     }
 
-class solaredgeModbusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+class SolarEdgeModbusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """solaredge Modbus configflow."""
 
     VERSION = 1
