@@ -36,21 +36,22 @@ def host_valid(host):
 
 
 @callback
-def SolarEdge_modbus_entries(hass: HomeAssistant):
+def solaredge_modbus_entries(hass: HomeAssistant):
     """Return the hosts already configured."""
-    return {
+    return set(
         entry.data[CONF_HOST] for entry in hass.config_entries.async_entries(DOMAIN)
-    }
+    )
 
-class SolarEdgeModbusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """SolarEdge Modbus configflow."""
+
+class solaredgeModbusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+    """solaredge Modbus configflow."""
 
     VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
 
     def _host_in_configuration_exists(self, host) -> bool:
         """Return True if host exists in configuration."""
-        if host in SolarEdge_modbus_entries(self.hass):
+        if host in solaredge_modbus_entries(self.hass):
             return True
         return False
 
