@@ -2,10 +2,11 @@ from homeassistant.const import CONF_NAME
 from homeassistant.core import callback
 from homeassistant.components.sensor import SensorEntity
 import logging
-from typing import Optional, Dict, Any
+from typing import Optional
+#, Dict, Any
 
 
-import homeassistant.util.dt as dt_util
+#import homeassistant.util.dt as dt_util
 
 from .const import ATTR_MANUFACTURER, DOMAIN, SENSOR_TYPES, IamMeterModbusSensorEntityDescription
 

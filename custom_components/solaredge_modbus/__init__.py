@@ -164,7 +164,7 @@ class SOLAREDGEModbusHub:
 
         try:
             return self.read_modbus_holding_registers()
-        except ConnectionException as ex:
+        except ConnectionException:
             _LOGGER.error("Reading data failed! SolarEdge is offline.")
 
             return True
