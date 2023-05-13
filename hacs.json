@@ -1,8 +1,7 @@
 {
-    "name": "solaredge_modbus",
-    "filename": "solaredge_modbus.zip",
-    "hide_default_branch": true,
-    "homeassistant": "2023.3.0",
+    "name": "SolarEdge Modbus",
     "render_readme": true,
-    "zip_release": true
+    "domains": [
+        "sensor"
+    ]
 }

@@ -24,7 +24,7 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
-SolarEdge_MODBUS_SCHEMA = vol.Schema(
+SOLAREDGE_MODBUS_SCHEMA = vol.Schema(
     {
         vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
         vol.Required(CONF_HOST): cv.string,
@@ -36,7 +36,7 @@ SolarEdge_MODBUS_SCHEMA = vol.Schema(
 )
 
 CONFIG_SCHEMA = vol.Schema(
-    {DOMAIN: vol.Schema({cv.slug: SolarEdge_MODBUS_SCHEMA})}, extra=vol.ALLOW_EXTRA
+    {DOMAIN: vol.Schema({cv.slug: SOLAREDGE_MODBUS_SCHEMA})}, extra=vol.ALLOW_EXTRA
 )
 
 PLATFORMS = ["sensor"]
@@ -57,7 +57,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     _LOGGER.debug("Setup %s.%s", DOMAIN, name)
 
-    hub = SolarEdgeModbusHub(hass, name, host, port, scan_interval)
+    hub = SOLAREDGEModbusHub(hass, name, host, port, scan_interval)
     """Register the hub."""
     hass.data[DOMAIN][name] = {"hub": hub}
 
@@ -84,7 +84,7 @@ async def async_unload_entry(hass, entry):
     return True
 
 
-class SolarEdgeModbusHub:
+class SOLAREDGEModbusHub:
     """Thread safe wrapper class for pymodbus."""
 
     def __init__(
@@ -106,7 +106,7 @@ class SolarEdgeModbusHub:
         self.data = {}
 
     @callback
-    def async_add_SolarEdge_modbus_sensor(self, update_callback):
+    def async_add_solaredge_modbus_sensor(self, update_callback):
         """Listen for data updates."""
         # This is the first sensor, set up interval.
         if not self._sensors:
@@ -118,7 +118,7 @@ class SolarEdgeModbusHub:
         self._sensors.append(update_callback)
 
     @callback
-    def async_remove_SolarEdge_modbus_sensor(self, update_callback):
+    def async_remove_solaredge_modbus_sensor(self, update_callback):
         """Remove data update."""
         self._sensors.remove(update_callback)
 
@@ -161,16 +161,16 @@ class SolarEdgeModbusHub:
             return self._client.read_holding_registers(address, count, **kwargs)
 
     def read_modbus_data(self):
-        """Read modbus data."""
+ 	
         try:
             return self.read_modbus_holding_registers()
-        except ConnectionException:
-            _LOGGER.error("Reading data failed! SolarEdge is offline.")
+        except ConnectionException as ex:
+            _LOGGER.error("Reading data failed! SolarEdge is offline.")   
 
             return True
 
     def read_modbus_holding_registers(self):
-        """Read_modbus_holding_registers."""
+
         inverter_data = self.read_holding_registers(unit=1, address=0x0, count=38)
 
         if inverter_data.isError():
@@ -188,7 +188,7 @@ class SolarEdgeModbusHub:
 
         power_a = decoder.decode_32bit_int()
         self.data["power_a"] = power_a
-
+        
         import_energy_a = decoder.decode_32bit_uint()
         self.data["import_energy_a"] = round(import_energy_a * 0.00125, 2)
 
@@ -208,7 +208,7 @@ class SolarEdgeModbusHub:
 
         power_b = decoder.decode_32bit_int()
         self.data["power_b"] = power_b
-
+        
         import_energy_b = decoder.decode_32bit_uint()
         self.data["import_energy_b"] = round(import_energy_b * 0.00125, 2)
 
@@ -228,7 +228,7 @@ class SolarEdgeModbusHub:
 
         power_c = decoder.decode_32bit_int()
         self.data["power_c"] = power_c
-
+        
         import_energy_c = decoder.decode_32bit_uint()
         self.data["import_energy_c"] = round(import_energy_c * 0.00125, 2)
 

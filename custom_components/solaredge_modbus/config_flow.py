@@ -1,4 +1,3 @@
-"""Config flow."""
 import ipaddress
 import re
 
@@ -7,13 +6,12 @@ from homeassistant import config_entries
 from homeassistant.const import (CONF_HOST, CONF_NAME, CONF_PORT,
                                  CONF_SCAN_INTERVAL)
 from homeassistant.core import HomeAssistant, callback
-from pymodbus.client.sync import ModbusTcpClient
 
 from .const import (
-    DEFAULT_NAME,
-    DEFAULT_PORT,
-    DEFAULT_SCAN_INTERVAL,
-    DOMAIN,
+	DEFAULT_NAME,
+	DEFAULT_PORT,
+	DEFAULT_SCAN_INTERVAL,
+	DOMAIN,
 )
 
 DATA_SCHEMA = vol.Schema(
@@ -39,12 +37,13 @@ def host_valid(host):
 @callback
 def solaredge_modbus_entries(hass: HomeAssistant):
     """Return the hosts already configured."""
-    return {
+    return set(
         entry.data[CONF_HOST] for entry in hass.config_entries.async_entries(DOMAIN)
-    }
+    )
 
-class SolarEdgeModbusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """solaredge Modbus configflow."""
+
+class SOLAREDGEModbusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+    """SOLAREDGE Modbus configflow."""
 
     VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
