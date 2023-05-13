@@ -14,7 +14,7 @@ from homeassistant.helpers.entity import Entity
 from homeassistant import config_entries, core
 
 from . import DOMAIN
-from . import CONF_SCAN_INTERVAL
+#from . import CONF_SCAN_INTERVAL
 
 #from homeassistant.helpers.entity import generate_entity_id
 
