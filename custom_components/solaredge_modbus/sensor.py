@@ -8,10 +8,9 @@ from typing import Optional
 
 #import homeassistant.util.dt as dt_util
 
-from .const import ATTR_MANUFACTURER, DOMAIN, SENSOR_TYPES, IamMeterModbusSensorEntityDescription
+from .const import ATTR_MANUFACTURER, DOMAIN, SENSOR_TYPES, SolarEdgeModbusSensorEntityDescription
 
 _LOGGER = logging.getLogger(__name__)
-
 
 async def async_setup_entry(hass, entry, async_add_entities):
     hub_name = entry.data[CONF_NAME]
@@ -25,7 +24,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
     entities = []
     for sensor_description in SENSOR_TYPES.values():
-        sensor = IamMeterModbusSensor(
+        sensor = SolarEdgeModbusSensor(
             hub_name,
             hub,
             device_info,
@@ -37,28 +36,28 @@ async def async_setup_entry(hass, entry, async_add_entities):
     return True
 
 
-class IamMeterModbusSensor(SensorEntity):
-    """Representation of an IamMeter Modbus sensor."""
+class SolarEdgeModbusSensor(SensorEntity):
+    """Representation of an SolarEdge Modbus sensor."""
 
     def __init__(
         self,
         platform_name,
         hub,
         device_info,
-        description: IamMeterModbusSensorEntityDescription,
+        description: SolarEdgeModbusSensorEntityDescription,
     ):
         """Initialize the sensor."""
         self._platform_name = platform_name
         self._attr_device_info = device_info
         self._hub = hub
-        self.entity_description: IamMeterModbusSensorEntityDescription = description
+        self.entity_description: SolarEdgeModbusSensorEntityDescription = description
 
     async def async_added_to_hass(self):
         """Register callbacks."""
-        self._hub.async_add_iammeter_modbus_sensor(self._modbus_data_updated)
+        self._hub.async_add_solaredge_modbus_sensor(self._modbus_data_updated)
 
     async def async_will_remove_from_hass(self) -> None:
-        self._hub.async_remove_iammeter_modbus_sensor(self._modbus_data_updated)
+        self._hub.async_remove_solaredge_modbus_sensor(self._modbus_data_updated)
 
     @callback
     def _modbus_data_updated(self):
