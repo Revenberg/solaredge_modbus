@@ -8,7 +8,8 @@ from typing import Optional
 
 #import homeassistant.util.dt as dt_util
 
-from .const import ATTR_MANUFACTURER, DOMAIN, SENSOR_TYPES, SolarEdgeModbusSensorEntityDescription
+from .const import ATTR_MANUFACTURER, DOMAIN
+from .const import SENSOR_TYPES, SolarEdgeModbusSensorEntityDescription
 
 _LOGGER = logging.getLogger(__name__)
 
