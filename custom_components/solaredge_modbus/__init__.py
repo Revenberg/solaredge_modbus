@@ -161,11 +161,11 @@ class SolarEdgeModbusHub:
             return self._client.read_holding_registers(address, count, **kwargs)
 
     def read_modbus_data(self):
- 	
+
         try:
             return self.read_modbus_holding_registers()
         except ConnectionException as ex:
-            _LOGGER.error("Reading data failed! SolarEdge is offline.")   
+            _LOGGER.error("Reading data failed! SolarEdge is offline.")
 
             return True
 
@@ -188,7 +188,7 @@ class SolarEdgeModbusHub:
 
         power_a = decoder.decode_32bit_int()
         self.data["power_a"] = power_a
-        
+
         import_energy_a = decoder.decode_32bit_uint()
         self.data["import_energy_a"] = round(import_energy_a * 0.00125, 2)
 
@@ -208,7 +208,7 @@ class SolarEdgeModbusHub:
 
         power_b = decoder.decode_32bit_int()
         self.data["power_b"] = power_b
-        
+
         import_energy_b = decoder.decode_32bit_uint()
         self.data["import_energy_b"] = round(import_energy_b * 0.00125, 2)
 
@@ -228,7 +228,7 @@ class SolarEdgeModbusHub:
 
         power_c = decoder.decode_32bit_int()
         self.data["power_c"] = power_c
-        
+
         import_energy_c = decoder.decode_32bit_uint()
         self.data["import_energy_c"] = round(import_energy_c * 0.00125, 2)
 

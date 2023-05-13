@@ -75,13 +75,13 @@ class SolarEdgeModbusSensor(SensorEntity):
 
     @property
     def unique_id(self) -> Optional[str]:
-        return f"{self._platform_name}_{self.entity_description.key}"  
-    
+        return f"{self._platform_name}_{self.entity_description.key}"
+
     @property
     def native_value(self):
         """Return the state of the sensor."""
         return (
-        	self._hub.data[self.entity_description.key]
-        	if self.entity_description.key in self._hub.data
-        	else None
+            self._hub.data[self.entity_description.key]
+            if self.entity_description.key in self._hub.data
+            else None
         )
