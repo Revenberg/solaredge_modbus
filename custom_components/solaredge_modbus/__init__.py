@@ -161,7 +161,7 @@ class SolarEdgeModbusHub:
             return self._client.read_holding_registers(address, count, **kwargs)
 
     def read_modbus_data(self):
-
+        """Read modbus data"""
         try:
             return self.read_modbus_holding_registers()
         except ConnectionException as ex:

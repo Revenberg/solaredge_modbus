@@ -1,11 +1,11 @@
+"""Sensor definition."""
 from homeassistant.const import CONF_NAME
 from homeassistant.core import callback
 from homeassistant.components.sensor import SensorEntity
 import logging
-from typing import Optional, Dict, Any
-
-
-import homeassistant.util.dt as dt_util
+from typing import Optional
+#, dict, Any
+#import homeassistant.util.dt as dt_util
 
 from .const import ATTR_MANUFACTURER, DOMAIN, SENSOR_TYPES, SolarEdgeModbusSensorEntityDescription
 
@@ -13,6 +13,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass, entry, async_add_entities):
+    """Async_setup_entry."""
     hub_name = entry.data[CONF_NAME]
     hub = hass.data[DOMAIN][hub_name]["hub"]
 
@@ -57,6 +58,7 @@ class SolarEdgeModbusSensor(SensorEntity):
         self._hub.async_add_SolarEdge_modbus_sensor(self._modbus_data_updated)
 
     async def async_will_remove_from_hass(self) -> None:
+        """Async_will_remove_from_hass."""
         self._hub.async_remove_SolarEdge_modbus_sensor(self._modbus_data_updated)
 
     @callback

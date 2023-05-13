@@ -1,3 +1,4 @@
+"""Constance definition."""
 from dataclasses import dataclass
 
 from homeassistant.components.sensor import (
@@ -11,7 +12,7 @@ from homeassistant.const import (
     DEVICE_CLASS_ENERGY,
     DEVICE_CLASS_POWER,
     DEVICE_CLASS_POWER_FACTOR,
-    DEVICE_CLASS_TEMPERATURE,
+ #   DEVICE_CLASS_TEMPERATURE,
     DEVICE_CLASS_VOLTAGE,
     ELECTRIC_CURRENT_AMPERE,
     ELECTRIC_CURRENT_MILLIAMPERE,
@@ -19,7 +20,7 @@ from homeassistant.const import (
     ENERGY_KILO_WATT_HOUR,
     FREQUENCY_HERTZ,
     PERCENTAGE,
-    POWER_VOLT_AMPERE,
+ #   POWER_VOLT_AMPERE,
     POWER_WATT,
 )
 
@@ -34,7 +35,7 @@ ATTR_MANUFACTURER = "SolarEdge"
 class SolarEdgeModbusSensorEntityDescription(SensorEntityDescription):
     """A class that describes SolarEdge Modbus sensor entities."""
 
-SENSOR_TYPES: dict[str, list[SolarEdgeModbusSensorEntityDescription]] = {  
+SENSOR_TYPES: dict[str, list[SolarEdgeModbusSensorEntityDescription]] = {
     "voltage_a": SolarEdgeModbusSensorEntityDescription(
         name="Voltage L1",
         key="voltage_a",
@@ -73,7 +74,7 @@ SENSOR_TYPES: dict[str, list[SolarEdgeModbusSensorEntityDescription]] = {
         key="power_factor_a",
         native_unit_of_measurement=PERCENTAGE,
         device_class=DEVICE_CLASS_POWER_FACTOR,
-    ),	
+    ),
     "voltage_b": SolarEdgeModbusSensorEntityDescription(
         name="Voltage L2",
         key="voltage_b",
