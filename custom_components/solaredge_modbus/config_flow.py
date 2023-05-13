@@ -1,3 +1,4 @@
+"""Config Flow."""
 import ipaddress
 import re
 
@@ -8,10 +9,10 @@ from homeassistant.const import (CONF_HOST, CONF_NAME, CONF_PORT,
 from homeassistant.core import HomeAssistant, callback
 
 from .const import (
-	DEFAULT_NAME,
-	DEFAULT_PORT,
-	DEFAULT_SCAN_INTERVAL,
-	DOMAIN,
+    DEFAULT_NAME,
+    DEFAULT_PORT,
+    DEFAULT_SCAN_INTERVAL,
+    DOMAIN,
 )
 
 DATA_SCHEMA = vol.Schema(
