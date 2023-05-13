@@ -7,6 +7,7 @@ from homeassistant import config_entries
 from homeassistant.const import (CONF_HOST, CONF_NAME, CONF_PORT,
                                  CONF_SCAN_INTERVAL)
 from homeassistant.core import HomeAssistant, callback
+from pymodbus.client.sync import ModbusTcpClient
 
 from .const import (
     DEFAULT_NAME,
