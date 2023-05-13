@@ -24,7 +24,7 @@ from homeassistant.const import (
     POWER_WATT,
 )
 
-DOMAIN = "solaredge_modbus"
+DOMAIN = "solaredge_modbus1"
 DEFAULT_NAME = "SolarEdge"
 DEFAULT_SCAN_INTERVAL = 2
 DEFAULT_PORT = 502
