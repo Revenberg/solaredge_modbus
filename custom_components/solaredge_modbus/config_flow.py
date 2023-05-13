@@ -38,10 +38,9 @@ def host_valid(host):
 @callback
 def solaredge_modbus_entries(hass: HomeAssistant):
     """Return the hosts already configured."""
-    return set(
+    return {
         entry.data[CONF_HOST] for entry in hass.config_entries.async_entries(DOMAIN)
-    )
-
+    }
 
 class solaredgeModbusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """solaredge Modbus configflow."""
