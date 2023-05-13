@@ -8,6 +8,8 @@ from homeassistant.const import (CONF_HOST, CONF_NAME, CONF_PORT,
                                  CONF_SCAN_INTERVAL)
 from homeassistant.core import HomeAssistant, callback
 
+import pymodbus.client.sync
+
 from .const import (
     DEFAULT_NAME,
     DEFAULT_PORT,
