@@ -1,4 +1,4 @@
-"""The Iammeter Modbus Integration."""
+"""The SolarEdge Modbus Integration."""
 import asyncio
 import logging
 import threading
@@ -24,7 +24,7 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
-IAMMETER_MODBUS_SCHEMA = vol.Schema(
+SolarEdge_MODBUS_SCHEMA = vol.Schema(
     {
         vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
         vol.Required(CONF_HOST): cv.string,
@@ -36,20 +36,20 @@ IAMMETER_MODBUS_SCHEMA = vol.Schema(
 )
 
 CONFIG_SCHEMA = vol.Schema(
-    {DOMAIN: vol.Schema({cv.slug: IAMMETER_MODBUS_SCHEMA})}, extra=vol.ALLOW_EXTRA
+    {DOMAIN: vol.Schema({cv.slug: SolarEdge_MODBUS_SCHEMA})}, extra=vol.ALLOW_EXTRA
 )
 
 PLATFORMS = ["sensor"]
 
 
 async def async_setup(hass, config):
-    """Set up the IamMeter modbus component."""
+    """Set up the SolarEdge modbus component."""
     hass.data[DOMAIN] = {}
     return True
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
-    """Set up a IamMeter mobus."""
+    """Set up a SolarEdge mobus."""
     host = entry.data[CONF_HOST]
     name = entry.data[CONF_NAME]
     port = entry.data[CONF_PORT]
@@ -57,7 +57,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     _LOGGER.debug("Setup %s.%s", DOMAIN, name)
 
-    hub = IammeterModbusHub(hass, name, host, port, scan_interval)
+    hub = SolarEdgeModbusHub(hass, name, host, port, scan_interval)
     """Register the hub."""
     hass.data[DOMAIN][name] = {"hub": hub}
 
@@ -68,7 +68,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     return True
 
 async def async_unload_entry(hass, entry):
-    """Unload IamMeter mobus entry."""
+    """Unload SolarEdge mobus entry."""
     unload_ok = all(
         await asyncio.gather(
             *[
@@ -84,7 +84,7 @@ async def async_unload_entry(hass, entry):
     return True
 
 
-class IammeterModbusHub:
+class SolarEdgeModbusHub:
     """Thread safe wrapper class for pymodbus."""
 
     def __init__(
@@ -106,7 +106,7 @@ class IammeterModbusHub:
         self.data = {}
 
     @callback
-    def async_add_iammeter_modbus_sensor(self, update_callback):
+    def async_add_SolarEdge_modbus_sensor(self, update_callback):
         """Listen for data updates."""
         # This is the first sensor, set up interval.
         if not self._sensors:
@@ -118,7 +118,7 @@ class IammeterModbusHub:
         self._sensors.append(update_callback)
 
     @callback
-    def async_remove_iammeter_modbus_sensor(self, update_callback):
+    def async_remove_SolarEdge_modbus_sensor(self, update_callback):
         """Remove data update."""
         self._sensors.remove(update_callback)
 
@@ -165,7 +165,7 @@ class IammeterModbusHub:
         try:
             return self.read_modbus_holding_registers()
         except ConnectionException as ex:
-            _LOGGER.error("Reading data failed! IamMeter is offline.")   
+            _LOGGER.error("Reading data failed! SolarEdge is offline.")   
 
             return True
 

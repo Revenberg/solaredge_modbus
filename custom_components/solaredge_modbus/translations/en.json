@@ -2,11 +2,11 @@
     "config": {
       "step": {
         "user": {
-          "title": "Define your IamMeter modbus-connection",
+          "title": "Define your SolarEdge modbus-connection",
           "data": {
-            "host": "The ip-address of your IamMeter modbus device",
-            "name": "The prefix to be used for your IamMeter sensors",
-            "port": "The TCP port on which to connect to the IamMeter",
+            "host": "The ip-address of your SolarEdge modbus device",
+            "name": "The prefix to be used for your SolarEdge sensors",
+            "port": "The TCP port on which to connect to the SolarEdge",
             "scan_interval": "The polling frequency of the modbus registers in seconds"
           }
         }
