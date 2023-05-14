@@ -11,10 +11,10 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, CONF_NAME, CONF_PORT, CONF_SCAN_INTERVAL
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.event import async_track_time_interval
-from pymodbus.client.sync import ModbusTcpClient
-from pymodbus.constants import Endian
-from pymodbus.exceptions import ConnectionException
-from pymodbus.payload import BinaryPayloadDecoder
+#from pymodbus.client.sync import ModbusTcpClient
+#from pymodbus.constants import Endian
+#from pymodbus.exceptions import ConnectionException
+#from pymodbus.payload import BinaryPayloadDecoder
 
 from .const import (
     DEFAULT_NAME,
@@ -97,7 +97,7 @@ class SOLAREDGEModbusHub:
     ):
         """Initialize the Modbus hub."""
         self._hass = hass
-        self._client = ModbusTcpClient(host=host, port=port, timeout=5)
+#        self._client = ModbusTcpClient(host=host, port=port, timeout=5)
         self._lock = threading.Lock()
         self._name = name
         self._scan_interval = timedelta(seconds=scan_interval)
@@ -162,10 +162,10 @@ class SOLAREDGEModbusHub:
 
     def read_modbus_data(self):
 
-        try:
-            return self.read_modbus_holding_registers()
-        except ConnectionException:
-            _LOGGER.error("Reading data failed! SolarEdge is offline.")
+#        try:
+#            return self.read_modbus_holding_registers()
+#        except ConnectionException:
+#            _LOGGER.error("Reading data failed! SolarEdge is offline.")
 
             return True
 
@@ -176,82 +176,82 @@ class SOLAREDGEModbusHub:
         if inverter_data.isError():
             return False
 
-        decoder = BinaryPayloadDecoder.fromRegisters(
-            inverter_data.registers, byteorder=Endian.Big
-        )
+#        decoder = BinaryPayloadDecoder.fromRegisters(
+#            inverter_data.registers, byteorder=Endian.Big
+#        )
 
-        voltage_a = decoder.decode_16bit_uint()
-        self.data["voltage_a"] = round(voltage_a * 0.01, 1)
+#        voltage_a = decoder.decode_16bit_uint()
+#        self.data["voltage_a"] = round(voltage_a * 0.01, 1)
 
-        current_a = decoder.decode_16bit_uint()
-        self.data["current_a"] = round(current_a * 0.01, 1)
+#        current_a = decoder.decode_16bit_uint()
+#        self.data["current_a"] = round(current_a * 0.01, 1)
 
-        power_a = decoder.decode_32bit_int()
-        self.data["power_a"] = power_a
+#        power_a = decoder.decode_32bit_int()
+#        self.data["power_a"] = power_a
 
-        import_energy_a = decoder.decode_32bit_uint()
-        self.data["import_energy_a"] = round(import_energy_a * 0.00125, 2)
+#        import_energy_a = decoder.decode_32bit_uint()
+#        self.data["import_energy_a"] = round(import_energy_a * 0.00125, 2)
 
-        export_energy_a = decoder.decode_32bit_uint()
-        self.data["export_energy_a"] = round(export_energy_a * 0.00125, 2)
+#        export_energy_a = decoder.decode_32bit_uint()
+#        self.data["export_energy_a"] = round(export_energy_a * 0.00125, 2)
 
-        power_factor_a = decoder.decode_16bit_uint()
-        self.data["power_factor_a"] = round(power_factor_a * 0.001, 2)
+#        power_factor_a = decoder.decode_16bit_uint()
+#        self.data["power_factor_a"] = round(power_factor_a * 0.001, 2)
 
-        decoder.skip_bytes(2)
+#        decoder.skip_bytes(2)
 
-        voltage_b = decoder.decode_16bit_uint()
-        self.data["voltage_b"] = round(voltage_b * 0.01, 1)
+#        voltage_b = decoder.decode_16bit_uint()
+#        self.data["voltage_b"] = round(voltage_b * 0.01, 1)
 
-        current_b = decoder.decode_16bit_uint()
-        self.data["current_b"] = round(current_b * 0.01, 1)
+#        current_b = decoder.decode_16bit_uint()
+#        self.data["current_b"] = round(current_b * 0.01, 1)
 
-        power_b = decoder.decode_32bit_int()
-        self.data["power_b"] = power_b
+#        power_b = decoder.decode_32bit_int()
+#        self.data["power_b"] = power_b
 
-        import_energy_b = decoder.decode_32bit_uint()
-        self.data["import_energy_b"] = round(import_energy_b * 0.00125, 2)
+#        import_energy_b = decoder.decode_32bit_uint()
+#        self.data["import_energy_b"] = round(import_energy_b * 0.00125, 2)
 
-        export_energy_b = decoder.decode_32bit_uint()
-        self.data["export_energy_b"] = round(export_energy_b * 0.00125, 2)
+#        export_energy_b = decoder.decode_32bit_uint()
+#        self.data["export_energy_b"] = round(export_energy_b * 0.00125, 2)
 
-        power_factor_b = decoder.decode_16bit_uint()
-        self.data["power_factor_b"] = round(power_factor_b * 0.001, 2)
+#        power_factor_b = decoder.decode_16bit_uint()
+#        self.data["power_factor_b"] = round(power_factor_b * 0.001, 2)
 
-        decoder.skip_bytes(2)
+#        decoder.skip_bytes(2)
 
-        voltage_c = decoder.decode_16bit_uint()
-        self.data["voltage_c"] = round(voltage_c * 0.01, 1)
+#        voltage_c = decoder.decode_16bit_uint()
+#        self.data["voltage_c"] = round(voltage_c * 0.01, 1)
 
-        current_c = decoder.decode_16bit_uint()
-        self.data["current_c"] = round(current_c * 0.01, 1)
+#        current_c = decoder.decode_16bit_uint()
+#        self.data["current_c"] = round(current_c * 0.01, 1)
 
-        power_c = decoder.decode_32bit_int()
-        self.data["power_c"] = power_c
+#        power_c = decoder.decode_32bit_int()
+#        self.data["power_c"] = power_c
 
-        import_energy_c = decoder.decode_32bit_uint()
-        self.data["import_energy_c"] = round(import_energy_c * 0.00125, 2)
+#        import_energy_c = decoder.decode_32bit_uint()
+#        self.data["import_energy_c"] = round(import_energy_c * 0.00125, 2)
 
-        export_energy_c = decoder.decode_32bit_uint()
-        self.data["export_energy_c"] = round(export_energy_c * 0.00125, 2)
+#        export_energy_c = decoder.decode_32bit_uint()
+#        self.data["export_energy_c"] = round(export_energy_c * 0.00125, 2)
 
-        power_factor_c = decoder.decode_16bit_uint()
-        self.data["power_factor_c"] = round(power_factor_c * 0.001, 2)
+#        power_factor_c = decoder.decode_16bit_uint()
+#        self.data["power_factor_c"] = round(power_factor_c * 0.001, 2)
 
-        decoder.skip_bytes(2)
+#        decoder.skip_bytes(2)
 
-        frequency = decoder.decode_16bit_uint()
-        self.data["frequency"] = round(frequency * 0.01, 1)
+#        frequency = decoder.decode_16bit_uint()
+#        self.data["frequency"] = round(frequency * 0.01, 1)
 
-        decoder.skip_bytes(2)
+#        decoder.skip_bytes(2)
 
-        total_power = decoder.decode_32bit_int()
-        self.data["total_power"] = total_power
+#        total_power = decoder.decode_32bit_int()
+#        self.data["total_power"] = total_power
 
-        total_import_energy = decoder.decode_32bit_uint()
-        self.data["total_import_energy"] = round(total_import_energy * 0.00125, 2)
+#        total_import_energy = decoder.decode_32bit_uint()
+#        self.data["total_import_energy"] = round(total_import_energy * 0.00125, 2)
 
-        total_export_energy = decoder.decode_32bit_uint()
-        self.data["total_export_energy"] = round(total_export_energy * 0.00125, 2)
+#        total_export_energy = decoder.decode_32bit_uint()
+#        self.data["total_export_energy"] = round(total_export_energy * 0.00125, 2)
 
         return True
