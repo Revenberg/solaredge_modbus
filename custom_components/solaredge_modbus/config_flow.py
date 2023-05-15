@@ -15,6 +15,10 @@ from .const import (
     DOMAIN,
 )
 
+import logging
+_LOGGER = logging.getLogger(__name__)
+_LOGGER.setLevel(logging.DEBUG)
+
 DATA_SCHEMA = vol.Schema(
     {
         vol.Optional(CONF_NAME, default=DEFAULT_NAME): str,
@@ -43,10 +47,10 @@ def solaredge_modbus_entries(hass: HomeAssistant):
     )
 
 
-class SOLAREDGEModbusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+class SolarEdgeModbusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """SOLAREDGE Modbus configflow."""
 
-    VERSION = 1
+    VERSION = 2
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
 
     def _host_in_configuration_exists(self, host) -> bool:
@@ -57,8 +61,10 @@ class SOLAREDGEModbusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_user(self, user_input=None):
         """Handle the initial step."""
+        _LOGGER.debug( "async_step_user" )
         errors = {}
 
+        _LOGGER.debug( user_input )
         if user_input is not None:
             host = user_input[CONF_HOST]
 
