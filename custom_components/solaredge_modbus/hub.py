@@ -87,8 +87,6 @@ class SolarEdgeModbusMultiHub:
         self._name = name
         self._host = host
         self._port = port
-        self._number_of_inverters = number_of_inverters
-        self._start_device_id = start_device_id
         self._detect_meters = detect_meters
         self._detect_batteries = detect_batteries
         self._keep_modbus_open = keep_modbus_open
@@ -120,8 +118,6 @@ class SolarEdgeModbusMultiHub:
         _LOGGER.debug(
             (
                 f"{DOMAIN} configuration: "
-                f"number_of_inverters={self._number_of_inverters}, "
-                f"start_device_id={self._start_device_id}, "
                 f"detect_meters={self._detect_meters}, "
                 f"detect_batteries={self._detect_batteries}, "
                 f"keep_modbus_open={self._keep_modbus_open}, "
@@ -154,101 +150,100 @@ class SolarEdgeModbusMultiHub:
                 ),
             )
 
-        for inverter_index in range(self._number_of_inverters):
-            inverter_unit_id = inverter_index + self._start_device_id
+        inverter_unit_id = inverter_index + self._start_device_id
 
+        try:
+            new_inverter = SolarEdgeInverter(inverter_unit_id, self)
+            await self._hass.async_add_executor_job(new_inverter.init_device)
+            self.inverters.append(new_inverter)
+
+        except ModbusReadError as e:
+            await self.disconnect()
+            raise HubInitFailed(f"{e}")
+
+        except DeviceInvalid as e:
+            """Inverters are required"""
+            _LOGGER.error(f"Inverter device ID {inverter_unit_id}: {e}")
+            raise HubInitFailed(f"{e}")
+
+        if self._detect_meters:
             try:
-                new_inverter = SolarEdgeInverter(inverter_unit_id, self)
-                await self._hass.async_add_executor_job(new_inverter.init_device)
-                self.inverters.append(new_inverter)
+                new_meter_1 = SolarEdgeMeter(inverter_unit_id, 1, self)
+                await self._hass.async_add_executor_job(new_meter_1.init_device)
+
+                for meter in self.meters:
+                    if new_meter_1.serial == meter.serial:
+                        _LOGGER.warning(
+                            (
+                                f"Duplicate serial {new_meter_1.serial} "
+                                f"on meter 1 inverter {inverter_unit_id}"
+                            ),
+                        )
+                        raise DeviceInvalid(
+                            f"Duplicate m1 serial {new_meter_1.serial}"
+                        )
+
+                self.meters.append(new_meter_1)
+                _LOGGER.debug(f"Found meter 1 on inverter ID {inverter_unit_id}")
 
             except ModbusReadError as e:
                 await self.disconnect()
                 raise HubInitFailed(f"{e}")
 
-            except DeviceInvalid as e:
-                """Inverters are required"""
-                _LOGGER.error(f"Inverter device ID {inverter_unit_id}: {e}")
+            except DeviceInvalid:
+                pass
+
+            try:
+                new_meter_2 = SolarEdgeMeter(inverter_unit_id, 2, self)
+                await self._hass.async_add_executor_job(new_meter_2.init_device)
+
+                for meter in self.meters:
+                    if new_meter_2.serial == meter.serial:
+                        _LOGGER.warning(
+                            (
+                                f"Duplicate serial {new_meter_2.serial} "
+                                f"on meter 2 inverter {inverter_unit_id}"
+                            ),
+                        )
+                        raise DeviceInvalid(
+                            f"Duplicate m2 serial {new_meter_2.serial}"
+                        )
+
+                self.meters.append(new_meter_2)
+                _LOGGER.debug(f"Found meter 2 on inverter ID {inverter_unit_id}")
+
+            except ModbusReadError as e:
+                await self.disconnect()
                 raise HubInitFailed(f"{e}")
 
-            if self._detect_meters:
-                try:
-                    new_meter_1 = SolarEdgeMeter(inverter_unit_id, 1, self)
-                    await self._hass.async_add_executor_job(new_meter_1.init_device)
+            except DeviceInvalid:
+                pass
 
-                    for meter in self.meters:
-                        if new_meter_1.serial == meter.serial:
-                            _LOGGER.warning(
-                                (
-                                    f"Duplicate serial {new_meter_1.serial} "
-                                    f"on meter 1 inverter {inverter_unit_id}"
-                                ),
-                            )
-                            raise DeviceInvalid(
-                                f"Duplicate m1 serial {new_meter_1.serial}"
-                            )
+            try:
+                new_meter_3 = SolarEdgeMeter(inverter_unit_id, 3, self)
+                await self._hass.async_add_executor_job(new_meter_3.init_device)
 
-                    self.meters.append(new_meter_1)
-                    _LOGGER.debug(f"Found meter 1 on inverter ID {inverter_unit_id}")
+                for meter in self.meters:
+                    if new_meter_3.serial == meter.serial:
+                        _LOGGER.warning(
+                            (
+                                f"Duplicate serial {new_meter_3.serial} "
+                                f"on meter 3 inverter {inverter_unit_id}"
+                            ),
+                        )
+                        raise DeviceInvalid(
+                            f"Duplicate m3 serial {new_meter_3.serial}"
+                        )
 
-                except ModbusReadError as e:
-                    await self.disconnect()
-                    raise HubInitFailed(f"{e}")
+                self.meters.append(new_meter_3)
+                _LOGGER.debug(f"Found meter 3 on inverter ID {inverter_unit_id}")
 
-                except DeviceInvalid:
-                    pass
+            except ModbusReadError as e:
+                await self.disconnect()
+                raise HubInitFailed(f"{e}")
 
-                try:
-                    new_meter_2 = SolarEdgeMeter(inverter_unit_id, 2, self)
-                    await self._hass.async_add_executor_job(new_meter_2.init_device)
-
-                    for meter in self.meters:
-                        if new_meter_2.serial == meter.serial:
-                            _LOGGER.warning(
-                                (
-                                    f"Duplicate serial {new_meter_2.serial} "
-                                    f"on meter 2 inverter {inverter_unit_id}"
-                                ),
-                            )
-                            raise DeviceInvalid(
-                                f"Duplicate m2 serial {new_meter_2.serial}"
-                            )
-
-                    self.meters.append(new_meter_2)
-                    _LOGGER.debug(f"Found meter 2 on inverter ID {inverter_unit_id}")
-
-                except ModbusReadError as e:
-                    await self.disconnect()
-                    raise HubInitFailed(f"{e}")
-
-                except DeviceInvalid:
-                    pass
-
-                try:
-                    new_meter_3 = SolarEdgeMeter(inverter_unit_id, 3, self)
-                    await self._hass.async_add_executor_job(new_meter_3.init_device)
-
-                    for meter in self.meters:
-                        if new_meter_3.serial == meter.serial:
-                            _LOGGER.warning(
-                                (
-                                    f"Duplicate serial {new_meter_3.serial} "
-                                    f"on meter 3 inverter {inverter_unit_id}"
-                                ),
-                            )
-                            raise DeviceInvalid(
-                                f"Duplicate m3 serial {new_meter_3.serial}"
-                            )
-
-                    self.meters.append(new_meter_3)
-                    _LOGGER.debug(f"Found meter 3 on inverter ID {inverter_unit_id}")
-
-                except ModbusReadError as e:
-                    await self.disconnect()
-                    raise HubInitFailed(f"{e}")
-
-                except DeviceInvalid:
-                    pass
+            except DeviceInvalid:
+                pass
 
             if self._detect_batteries:
                 try:
@@ -329,7 +324,7 @@ class SolarEdgeModbusMultiHub:
 
     async def async_refresh_modbus_data(self, _now: Optional[int] = None) -> bool:
         if not self.is_socket_open():
-            await self.connect()
+            await self.connect()g
 
         if not self.initalized:
             try:
