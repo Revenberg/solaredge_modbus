@@ -324,7 +324,7 @@ class SolarEdgeModbusMultiHub:
 
     async def async_refresh_modbus_data(self, _now: Optional[int] = None) -> bool:
         if not self.is_socket_open():
-            await self.connect()g
+            await self.connect()
 
         if not self.initalized:
             try:
