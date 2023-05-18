@@ -150,7 +150,7 @@ class SolarEdgeModbusMultiHub:
                 ),
             )
 
-        inverter_unit_id = inverter_index + self._start_device_id
+        inverter_unit_id = 1
 
         try:
             new_inverter = SolarEdgeInverter(inverter_unit_id, self)
