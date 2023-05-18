@@ -1,257 +1,234 @@
 """The SolarEdge Modbus Integration."""
 import asyncio
 import logging
-import threading
 from datetime import timedelta
-from typing import Optional
+from typing import Any
 
-import homeassistant.helpers.config_validation as cv
-import voluptuous as vol
+import async_timeout
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_HOST, CONF_NAME, CONF_PORT, CONF_SCAN_INTERVAL
-from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers.event import async_track_time_interval
-#from pymodbus.client.sync import ModbusTcpClient
-#from pymodbus.constants import Endian
-#from pymodbus.exceptions import ConnectionException
-#from pymodbus.payload import BinaryPayloadDecoder
-
-from .const import (
-    DEFAULT_NAME,
-    DEFAULT_SCAN_INTERVAL,
-    DOMAIN,
+from homeassistant.const import (
+    CONF_HOST,
+    CONF_NAME,
+    CONF_PORT,
+    CONF_SCAN_INTERVAL,
+    Platform,
 )
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.device_registry import DeviceEntry
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+
+from .const import DOMAIN, ConfDefaultFlag, ConfDefaultInt, ConfName, RetrySettings
+from .hub import DataUpdateFailed, HubInitFailed, SolarEdgeModbusMultiHub
 
 _LOGGER = logging.getLogger(__name__)
 
-SOLAREDGE_MODBUS_SCHEMA = vol.Schema(
-    {
-        vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
-        vol.Required(CONF_HOST): cv.string,
-        vol.Required(CONF_PORT): cv.string,
-        vol.Optional(
-            CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL
-        ): cv.positive_int,
-    }
-)
-
-CONFIG_SCHEMA = vol.Schema(
-    {DOMAIN: vol.Schema({cv.slug: SOLAREDGE_MODBUS_SCHEMA})}, extra=vol.ALLOW_EXTRA
-)
-
-PLATFORMS = ["sensor"]
+PLATFORMS: list[str] = [
+    Platform.BINARY_SENSOR,
+    Platform.NUMBER,
+    Platform.SELECT,
+    Platform.SENSOR,
+    Platform.SWITCH,
+]
 
 
-async def async_setup(hass, config):
-    """Set up the SolarEdge modbus component."""
-    hass.data[DOMAIN] = {}
-    return True
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Set up SolarEdge Modbus from a config entry."""
 
+    entry_updates: dict[str, Any] = {}
+    if CONF_SCAN_INTERVAL in entry.data:
+        data = {**entry.data}
+        entry_updates["data"] = data
+        entry_updates["options"] = {
+            **entry.options,
+            CONF_SCAN_INTERVAL: data.pop(CONF_SCAN_INTERVAL),
+        }
+    if entry_updates:
+        hass.config_entries.async_update_entry(entry, **entry_updates)
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
-    """Set up a SolarEdge mobus."""
-    host = entry.data[CONF_HOST]
-    name = entry.data[CONF_NAME]
-    port = entry.data[CONF_PORT]
-    scan_interval = entry.data[CONF_SCAN_INTERVAL]
-
-    _LOGGER.debug("Setup %s.%s", DOMAIN, name)
-
-    hub = SOLAREDGEModbusHub(hass, name, host, port, scan_interval)
-    """Register the hub."""
-    hass.data[DOMAIN][name] = {"hub": hub}
-
-    for component in PLATFORMS:
-        hass.async_create_task(
-            hass.config_entries.async_forward_entry_setup(entry, component)
-        )
-    return True
-
-async def async_unload_entry(hass, entry):
-    """Unload SolarEdge mobus entry."""
-    unload_ok = all(
-        await asyncio.gather(
-            *[
-                hass.config_entries.async_forward_entry_unload(entry, component)
-                for component in PLATFORMS
-            ]
-        )
-    )
-    if not unload_ok:
-        return False
-
-    hass.data[DOMAIN].pop(entry.data["name"])
-    return True
-
-
-class SOLAREDGEModbusHub:
-    """Thread safe wrapper class for pymodbus."""
-
-    def __init__(
-        self,
+    solaredge_hub = SolarEdgeModbusMultiHub(
         hass,
-        name,
-        host,
-        port,
-        scan_interval,
-    ):
-        """Initialize the Modbus hub."""
-        self._hass = hass
-#        self._client = ModbusTcpClient(host=host, port=port, timeout=5)
-        self._lock = threading.Lock()
-        self._name = name
-        self._scan_interval = timedelta(seconds=scan_interval)
-        self._unsub_interval_method = None
-        self._sensors = []
-        self.data = {}
+        entry.data[CONF_NAME],
+        entry.data[CONF_HOST],
+        entry.data[CONF_PORT],
+#        entry.data.get(ConfName.NUMBER_INVERTERS, ConfDefaultInt.NUMBER_INVERTERS),
+#        entry.data.get(ConfName.DEVICE_ID, ConfDefaultInt.DEVICE_ID),
+        entry.options.get(ConfName.DETECT_METERS, bool(ConfDefaultFlag.DETECT_METERS)),
+        entry.options.get(
+            ConfName.DETECT_BATTERIES, bool(ConfDefaultFlag.DETECT_BATTERIES)
+        ),
+        entry.options.get(
+            ConfName.KEEP_MODBUS_OPEN, bool(ConfDefaultFlag.KEEP_MODBUS_OPEN)
+        ),
+        entry.options.get(
+            ConfName.ADV_PWR_CONTROL, bool(ConfDefaultFlag.ADV_PWR_CONTROL)
+        ),
+        entry.options.get(
+            ConfName.ADV_STORAGE_CONTROL, bool(ConfDefaultFlag.ADV_STORAGE_CONTROL)
+        ),
+        entry.options.get(
+            ConfName.ADV_SITE_LIMIT_CONTROL,
+            bool(ConfDefaultFlag.ADV_SITE_LIMIT_CONTROL),
+        ),
+        entry.options.get(
+            ConfName.ALLOW_BATTERY_ENERGY_RESET,
+            bool(ConfDefaultFlag.ALLOW_BATTERY_ENERGY_RESET),
+        ),
+        entry.options.get(ConfName.SLEEP_AFTER_WRITE, ConfDefaultInt.SLEEP_AFTER_WRITE),
+        entry.options.get(
+            ConfName.BATTERY_RATING_ADJUST, ConfDefaultInt.BATTERY_RATING_ADJUST
+        ),
+    )
 
-    @callback
-    def async_add_solaredge_modbus_sensor(self, update_callback):
-        """Listen for data updates."""
-        # This is the first sensor, set up interval.
-        if not self._sensors:
-            self.connect()
-            self._unsub_interval_method = async_track_time_interval(
-                self._hass, self.async_refresh_modbus_data, self._scan_interval
-            )
+    coordinator = SolarEdgeCoordinator(
+        hass,
+        solaredge_hub,
+        entry.options.get(CONF_SCAN_INTERVAL, ConfDefaultInt.SCAN_INTERVAL),
+    )
 
-        self._sensors.append(update_callback)
+    hass.data.setdefault(DOMAIN, {})
+    hass.data[DOMAIN][entry.entry_id] = {
+        "hub": solaredge_hub,
+        "coordinator": coordinator,
+    }
 
-    @callback
-    def async_remove_solaredge_modbus_sensor(self, update_callback):
-        """Remove data update."""
-        self._sensors.remove(update_callback)
+    await coordinator.async_config_entry_first_refresh()
 
-        if not self._sensors:
-            """stop the interval timer upon removal of last sensor"""
-            self._unsub_interval_method()
-            self._unsub_interval_method = None
-            self.close()
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
-    async def async_refresh_modbus_data(self, _now: Optional[int] = None) -> None:
-        """Time to update."""
-        if not self._sensors:
-            return
+    entry.async_on_unload(entry.add_update_listener(async_reload_entry))
 
-        update_result = self.read_modbus_data()
+    return True
 
-        if update_result:
-            for update_callback in self._sensors:
-                update_callback()
 
-    @property
-    def name(self):
-        """Return the name of this hub."""
-        return self._name
+async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Unload a config entry."""
+    solaredge_hub = hass.data[DOMAIN][entry.entry_id]["hub"]
+    await solaredge_hub.shutdown()
 
-    def close(self):
-        """Disconnect client."""
-        with self._lock:
-            self._client.close()
+    unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    if unload_ok:
+        hass.data[DOMAIN].pop(entry.entry_id)
 
-    def connect(self):
-        """Connect client."""
-        with self._lock:
-            self._client.connect()
+    return unload_ok
 
-    def read_holding_registers(self, unit, address, count):
-        """Read holding registers."""
-        with self._lock:
-            kwargs = {"unit": unit} if unit else {}
-            return self._client.read_holding_registers(address, count, **kwargs)
 
-    def read_modbus_data(self):
+async def async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Handle an options update."""
+    await hass.config_entries.async_reload(entry.entry_id)
 
-#        try:
-#            return self.read_modbus_holding_registers()
-#        except ConnectionException:
-#            _LOGGER.error("Reading data failed! SolarEdge is offline.")
 
-            return True
+async def async_remove_config_entry_device(
+    hass: HomeAssistant, config_entry: ConfigEntry, device_entry: DeviceEntry
+) -> bool:
+    """Remove a config entry from a device."""
+    solaredge_hub = hass.data[DOMAIN][config_entry.entry_id]["hub"]
 
-    def read_modbus_holding_registers(self):
+    known_devices = []
 
-        inverter_data = self.read_holding_registers(unit=1, address=0x0, count=38)
+    for inverter in solaredge_hub.inverters:
+        inverter_device_ids = {
+            dev_id[1]
+            for dev_id in inverter.device_info["identifiers"]
+            if dev_id[0] == DOMAIN
+        }
+        for dev_id in inverter_device_ids:
+            known_devices.append(dev_id)
 
-        if inverter_data.isError():
+    for meter in solaredge_hub.meters:
+        meter_device_ids = {
+            dev_id[1]
+            for dev_id in meter.device_info["identifiers"]
+            if dev_id[0] == DOMAIN
+        }
+        for dev_id in meter_device_ids:
+            known_devices.append(dev_id)
+
+    for battery in solaredge_hub.batteries:
+        battery_device_ids = {
+            dev_id[1]
+            for dev_id in battery.device_info["identifiers"]
+            if dev_id[0] == DOMAIN
+        }
+        for dev_id in battery_device_ids:
+            known_devices.append(dev_id)
+
+    this_device_ids = {
+        dev_id[1] for dev_id in device_entry.identifiers if dev_id[0] == DOMAIN
+    }
+
+    for device_id in this_device_ids:
+        if device_id in known_devices:
+            _LOGGER.error(f"Failed to remove device entry: device {device_id} in use")
             return False
 
-#        decoder = BinaryPayloadDecoder.fromRegisters(
-#            inverter_data.registers, byteorder=Endian.Big
-#        )
+    return True
 
-#        voltage_a = decoder.decode_16bit_uint()
-#        self.data["voltage_a"] = round(voltage_a * 0.01, 1)
 
-#        current_a = decoder.decode_16bit_uint()
-#        self.data["current_a"] = round(current_a * 0.01, 1)
+class SolarEdgeCoordinator(DataUpdateCoordinator):
+    def __init__(
+        self, hass: HomeAssistant, hub: SolarEdgeModbusMultiHub, scan_interval: int
+    ):
+        super().__init__(
+            hass,
+            _LOGGER,
+            name="SolarEdge Coordinator",
+            update_interval=timedelta(seconds=scan_interval),
+        )
+        self._hub = hub
 
-#        power_a = decoder.decode_32bit_int()
-#        self.data["power_a"] = power_a
+        if scan_interval < 10 and not self._hub.keep_modbus_open:
+            _LOGGER.warning("Polling frequency < 10, requiring keep modbus open.")
+            self._hub.keep_modbus_open = True
 
-#        import_energy_a = decoder.decode_32bit_uint()
-#        self.data["import_energy_a"] = round(import_energy_a * 0.00125, 2)
+    async def _async_update_data(self):
+        try:
+            async with async_timeout.timeout(self._hub.coordinator_timeout):
+                return await self._refresh_modbus_data_with_retry(
+                    ex_type=DataUpdateFailed,
+                    limit=RetrySettings.Limit,
+                    wait_ms=RetrySettings.Time,
+                    wait_ratio=RetrySettings.Ratio,
+                )
 
-#        export_energy_a = decoder.decode_32bit_uint()
-#        self.data["export_energy_a"] = round(export_energy_a * 0.00125, 2)
+        except HubInitFailed as e:
+            raise UpdateFailed(f"{e}")
 
-#        power_factor_a = decoder.decode_16bit_uint()
-#        self.data["power_factor_a"] = round(power_factor_a * 0.001, 2)
+        except DataUpdateFailed as e:
+            raise UpdateFailed(f"{e}")
 
-#        decoder.skip_bytes(2)
+    async def _refresh_modbus_data_with_retry(
+        self,
+        ex_type=Exception,
+        limit=0,
+        wait_ms=100,
+        wait_ratio=2,
+    ):
+        """
+        Retry refresh until no exception occurs or retries exhaust
+        :param ex_type: retry only if exception is subclass of this type
+        :param limit: maximum number of invocation attempts
+        :param wait_ms: initial wait time after each attempt in milliseconds.
+        :param wait_ratio: increase wait by multiplying by this after each try.
+        :return: result of first successful invocation
+        :raises: last invocation exception if attempts exhausted
+                 or exception is not an instance of ex_type
+        """
+        attempt = 1
+        while True:
+            try:
+                return await self._hub.async_refresh_modbus_data()
+            except Exception as ex:
+                if not isinstance(ex, ex_type):
+                    raise ex
+                if 0 < limit <= attempt:
+                    _LOGGER.debug(f"No more data refresh attempts (maximum {limit})")
+                    raise ex
 
-#        voltage_b = decoder.decode_16bit_uint()
-#        self.data["voltage_b"] = round(voltage_b * 0.01, 1)
+                _LOGGER.debug(f"Failed data refresh attempt #{attempt}", exc_info=ex)
 
-#        current_b = decoder.decode_16bit_uint()
-#        self.data["current_b"] = round(current_b * 0.01, 1)
-
-#        power_b = decoder.decode_32bit_int()
-#        self.data["power_b"] = power_b
-
-#        import_energy_b = decoder.decode_32bit_uint()
-#        self.data["import_energy_b"] = round(import_energy_b * 0.00125, 2)
-
-#        export_energy_b = decoder.decode_32bit_uint()
-#        self.data["export_energy_b"] = round(export_energy_b * 0.00125, 2)
-
-#        power_factor_b = decoder.decode_16bit_uint()
-#        self.data["power_factor_b"] = round(power_factor_b * 0.001, 2)
-
-#        decoder.skip_bytes(2)
-
-#        voltage_c = decoder.decode_16bit_uint()
-#        self.data["voltage_c"] = round(voltage_c * 0.01, 1)
-
-#        current_c = decoder.decode_16bit_uint()
-#        self.data["current_c"] = round(current_c * 0.01, 1)
-
-#        power_c = decoder.decode_32bit_int()
-#        self.data["power_c"] = power_c
-
-#        import_energy_c = decoder.decode_32bit_uint()
-#        self.data["import_energy_c"] = round(import_energy_c * 0.00125, 2)
-
-#        export_energy_c = decoder.decode_32bit_uint()
-#        self.data["export_energy_c"] = round(export_energy_c * 0.00125, 2)
-
-#        power_factor_c = decoder.decode_16bit_uint()
-#        self.data["power_factor_c"] = round(power_factor_c * 0.001, 2)
-
-#        decoder.skip_bytes(2)
-
-#        frequency = decoder.decode_16bit_uint()
-#        self.data["frequency"] = round(frequency * 0.01, 1)
-
-#        decoder.skip_bytes(2)
-
-#        total_power = decoder.decode_32bit_int()
-#        self.data["total_power"] = total_power
-
-#        total_import_energy = decoder.decode_32bit_uint()
-#        self.data["total_import_energy"] = round(total_import_energy * 0.00125, 2)
-
-#        total_export_energy = decoder.decode_32bit_uint()
-#        self.data["total_export_energy"] = round(total_export_energy * 0.00125, 2)
-
-        return True
+                attempt += 1
+                _LOGGER.debug(
+                    f"Waiting {wait_ms} ms before data refresh attempt #{attempt}"
+                )
+                await asyncio.sleep(wait_ms / 1000)
+                wait_ms *= wait_ratio
