@@ -3588,4 +3588,3 @@ def _get_diagnostic_string():
 
 # For backward compatibility
 _getDiagnosticString = _get_diagnostic_string
-
