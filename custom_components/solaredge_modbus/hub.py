@@ -6,8 +6,10 @@ from typing import Any, Dict, Optional
 
 from homeassistant.core import HomeAssistant
 
+from .rs485eth import Instrument
+
 try:
-    from pymodbus.client import ModbusTcpClient
+    #from pymodbus.client import ModbusTcpClient
     from pymodbus.constants import Endian
     from pymodbus.exceptions import ConnectionException, ModbusIOException
     from pymodbus.payload import BinaryPayloadDecoder
@@ -427,7 +429,8 @@ class SolarEdgeModbusMultiHub:
         """Connect modbus client."""
         with self._lock:
             if self._client is None:
-                self._client = ModbusTcpClient(host=self._host, port=self._port)
+                self._client = Instrument(host=self._host, port=self._port, debug=False)
+                # self._client = ModbusTcpClient(host=self._host, port=self._port)
 
             await self._hass.async_add_executor_job(self._client.connect)
 
