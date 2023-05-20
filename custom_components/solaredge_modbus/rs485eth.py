@@ -1539,7 +1539,7 @@ def _extract_payload(response, slaveaddress, mode, functioncode):
     if mode == MODE_ASCII:
         if len(response) < MINIMAL_RESPONSE_LENGTH_ASCII:
             raise InvalidResponseError(
-                f"Too short Modbus ASCII response (minimum length "
+                "Too short Modbus ASCII response (minimum length "
                 + f"{MINIMAL_RESPONSE_LENGTH_ASCII} bytes). Response: {response!r}"
             )
     elif len(response) < MINIMAL_RESPONSE_LENGTH_RTU:
@@ -3443,7 +3443,7 @@ def _check_string(
         )
     if not issubclass(exception_type, Exception):
         raise TypeError(
-            f"The exception_type must be an exception class. Given: "
+            "The exception_type must be an exception class. Given: "
             + f"{type(exception_type)!r}"
         )
 
