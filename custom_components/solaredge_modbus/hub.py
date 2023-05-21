@@ -545,17 +545,15 @@ class SolarEdgeInverter:
         #self.name = f"{self.hub.hub_id.capitalize()} I{self.inverter_unit_id}"
         self.uid_base = "1234"
 
-        #self._device_info = {
-        #    "identifiers": {(DOMAIN, f"{self.model}_{self.serial}")},
-        #    "name": self.name,
-        #    "manufacturer": self.manufacturer,
-        #    "model": self.model,
-        #    "sw_version": self.fw_version,
-        #    "hw_version": self.option,
-        #}
-        x = 1
-        x = x + 1
-
+        self._device_info = {
+            "identifiers": {(DOMAIN, "1234")},
+            "name": "test",
+            "manufacturer": "SolarEdge",
+            #"model": self.model,
+            #"sw_version": self.fw_version,
+            #"hw_version": self.option,
+        }
+        
     def getValueLong(self, addr, numberOfDecimals=0, functioncode=0, signed=False):
         rc = self.hub._client.read_long(addr, functioncode=functioncode, signed=signed)
         return rc
