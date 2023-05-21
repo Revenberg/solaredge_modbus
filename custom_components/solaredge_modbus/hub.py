@@ -689,6 +689,7 @@ class SolarEdgeInverter:
         #    "hw_version": self.option,
         #}
         x = 1
+        x = x + 1
 
     def read_modbus_data(self) -> None:
         #inverter_data = self.hub.read_holding_registers(
@@ -1026,7 +1027,8 @@ class SolarEdgeInverter:
         #    _LOGGER.debug(f"Inverter {self.inverter_unit_id}: {name} {display_value}")
 
         #""" Power Control Options: Storage Control """
-        #if self.hub.option_storage_control is True and self.decoded_storage is not None:
+        #if self.hub.option_storage_control is True and self.decoded_storage 
+        # is not None:
         #    for battery in self.hub.batteries:
         #        if self.inverter_unit_id != battery.inverter_unit_id:
         #            continue
@@ -1087,6 +1089,7 @@ class SolarEdgeInverter:
         #                f"Inverter {self.inverter_unit_id}: {name} {display_value}"
         #            )
         x = 1
+        x = x + 1
 
     async def write_registers(self, address, payload):
         """Write inverter register."""
