@@ -133,24 +133,24 @@ class SolarEdgeModbusMultiHub:
         )
 
     async def _async_init_solaredge(self) -> None:
-        if not self.is_socket_open():
-            raise HubInitFailed(f"Could not open Modbus/TCP connection to {self._host}")
+        #if not self.is_socket_open():
+        #    raise HubInitFailed(f"Could not open Modbus/TCP connection to {self._host}")
 
-        if self._adv_storage_control:
-            _LOGGER.warning(
-                (
-                    "Power Control Options: Storage Control is enabled. "
-                    "Use at your own risk!"
-                ),
-            )
+        #if self._adv_storage_control:
+        #    _LOGGER.warning(
+        #        (
+        #            "Power Control Options: Storage Control is enabled. "
+        #            "Use at your own risk!"
+        #        ),
+        #    )
 
-        if self._adv_site_limit_control:
-            _LOGGER.warning(
-                (
-                    "Power Control Options: Site Limit Control is enabled. "
-                    "Use at your own risk!"
-                ),
-            )
+        #if self._adv_site_limit_control:
+        #    _LOGGER.warning(
+        #        (
+        #            "Power Control Options: Site Limit Control is enabled. "
+        #            "Use at your own risk!"
+        #        ),
+        #    )
 
         inverter_unit_id = 1
 
