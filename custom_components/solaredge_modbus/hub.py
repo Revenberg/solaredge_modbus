@@ -17,7 +17,8 @@ try:
 except ImportError:
     raise ImportError("pymodbus is not installed, or pymodbus version is not supported")
 
-#from .const import DOMAIN, SunSpecNotImpl
+from .const import DOMAIN
+#, SunSpecNotImpl
 #from .helpers import float_to_hex, parse_modbus_string
 
 _LOGGER = logging.getLogger(__name__)
