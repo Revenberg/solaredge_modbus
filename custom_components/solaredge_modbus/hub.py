@@ -425,7 +425,6 @@ class SolarEdgeInverter:
         #        ),
         #    )
 
-        self._client
         #if (
         #    decoded_ident["C_SunSpec_ID"] == SunSpecNotImpl.UINT32
         #    or decoded_ident["C_SunSpec_DID"] == SunSpecNotImpl.UINT16
@@ -558,11 +557,11 @@ class SolarEdgeInverter:
         x = x + 1
 
     def getValueLong(self, addr, numberOfDecimals=0, functioncode=0, signed=False):
-        rc = self._instrument.read_long(addr, functioncode=functioncode, signed=signed)
+        rc = self.hub._client.read_long(addr, functioncode=functioncode, signed=signed)
         return rc
 
     def getValueRegister(self, addr, numberOfDecimals=0, functioncode=0, signed=False):
-        rc = self._instrument.read_register(addr, numberOfDecimals=numberOfDecimals, 
+        rc = self.hub._client.read_register(addr, numberOfDecimals=numberOfDecimals, 
                                             functioncode=functioncode, signed=signed)
         return rc
 
