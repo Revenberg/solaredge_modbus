@@ -429,7 +429,7 @@ class SolarEdgeModbusMultiHub:
         """Connect modbus client."""
         with self._lock:
             if self._client is None:
-                self._client = Instrument(host=self._host, port=self._port, debug=False)
+                self._client = Instrument(eth_address=self._host, eth_port=self._port, debug=False)
                 # self._client = ModbusTcpClient(host=self._host, port=self._port)
 
             await self._hass.async_add_executor_job(self._client.connect)
