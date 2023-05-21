@@ -189,8 +189,8 @@ class SolarEdgeModbusMultiHub:
         self.initalized = True
 
     async def async_refresh_modbus_data(self, _now: Optional[int] = None) -> bool:
-        #if not self.is_socket_open():
-        #    await self.connect()
+        if not self.is_socket_open():
+            await self.connect()
 
         if not self.initalized:
             try:
@@ -301,13 +301,13 @@ class SolarEdgeModbusMultiHub:
 
             #await self._hass.async_add_executor_job(self._client.connect)
 
-#    def is_socket_open(self) -> bool:
+    def is_socket_open(self) -> bool:
 #        """Check modbus client connection status."""
         #with self._lock:
-#        if self._client is None:
-#            return False
+        if self._client is None:
+            return False
 
-#        return self._client.is_socket_open()
+        return True
 
     async def shutdown(self) -> None:
         """Shut down the hub."""
@@ -334,8 +334,8 @@ class SolarEdgeModbusMultiHub:
         self._wr_address = address
         self._wr_payload = payload
 
-        #if not self.is_socket_open():
-        #    await self.connect()
+        if not self.is_socket_open():
+            await self.connect()
 
         try:
             result = await self._hass.async_add_executor_job(self._write_registers)
