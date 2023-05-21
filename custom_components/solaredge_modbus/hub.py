@@ -10,15 +10,15 @@ from .rs485eth import Instrument
 
 try:
     #from pymodbus.client import ModbusTcpClient
-    from pymodbus.constants import Endian
+    #from pymodbus.constants import Endian
     from pymodbus.exceptions import ConnectionException, ModbusIOException
-    from pymodbus.payload import BinaryPayloadDecoder
+    #from pymodbus.payload import BinaryPayloadDecoder
     from pymodbus.pdu import ExceptionResponse, ModbusExceptions
 except ImportError:
     raise ImportError("pymodbus is not installed, or pymodbus version is not supported")
 
-from .const import DOMAIN, SunSpecNotImpl
-from .helpers import float_to_hex, parse_modbus_string
+#from .const import DOMAIN, SunSpecNotImpl
+#from .helpers import float_to_hex, parse_modbus_string
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -561,7 +561,8 @@ class SolarEdgeInverter:
         return rc
 
     def getValueRegister(self, addr, numberOfDecimals=0, functioncode=0, signed=False):
-        rc = self._instrument.read_register(addr, numberOfDecimals=numberOfDecimals, functioncode=functioncode, signed=signed)
+        rc = self._instrument.read_register(addr, numberOfDecimals=numberOfDecimals, 
+                                            functioncode=functioncode, signed=signed)
         return rc
 
     def round(self, floatval):
@@ -583,27 +584,40 @@ class SolarEdgeInverter:
             [
 #                ("C_SunSpec_DID", decoder.decode_16bit_uint()),
 #                ("C_SunSpec_Length", decoder.decode_16bit_uint()),
-                ("AC_Current", self.getValueRegister(3005, functioncode=4, signed=False)),
-                ("AC_Current_A", self.getValueRegister(3036, numberOfDecimals=1, functioncode=4, signed=False)),
-                ("AC_Current_B", self.getValueRegister(3037, numberOfDecimals=1, functioncode=4, signed=False)),
-                ("AC_Current_C", self.getValueRegister(3038, numberOfDecimals=1, functioncode=4, signed=False)),
+                ("AC_Current", self.getValueRegister(3005, functioncode=4, 
+                                        signed=False)),
+                ("AC_Current_A", self.getValueRegister(3036, numberOfDecimals=1, 
+                                        functioncode=4, signed=False)),
+                ("AC_Current_B", self.getValueRegister(3037, numberOfDecimals=1, 
+                                        functioncode=4, signed=False)),
+                ("AC_Current_C", self.getValueRegister(3038, numberOfDecimals=1, 
+                                        functioncode=4, signed=False)),
 #                ("AC_Current_SF", decoder.decode_16bit_int()),
-                ("AC_Voltage_AB", self.getValueRegister(3033, numberOfDecimals=1,functioncode=4, signed=False)),
-                ("AC_Voltage_BC", self.getValueRegister(3034, numberOfDecimals=1, functioncode=4, signed=False)),
-                ("AC_Voltage_CA", self.getValueRegister(3035, numberOfDecimals=1, functioncode=4, signed=False)),
+                ("AC_Voltage_AB", self.getValueRegister(3033, numberOfDecimals=1,
+                                        functioncode=4, signed=False)),
+                ("AC_Voltage_BC", self.getValueRegister(3034, numberOfDecimals=1, 
+                                        functioncode=4, signed=False)),
+                ("AC_Voltage_CA", self.getValueRegister(3035, numberOfDecimals=1, 
+                                        functioncode=4, signed=False)),
 
-                ("dc_voltage1", self.getValueRegister(3031, numberOfDecimals=1, functioncode=4, signed=False)),
-                ("dc_current1", self.getValueRegister(3022, functioncode=4, signed=False)),
-                ("dc_voltage2", self.getValueRegister(3023, numberOfDecimals=1, functioncode=4, signed=False)),
-                ("dc_current2", self.getValueRegister(3024, functioncode=4, signed=False)),
+                ("dc_voltage1", self.getValueRegister(3031, numberOfDecimals=1, 
+                                        functioncode=4, signed=False)),
+                ("dc_current1", self.getValueRegister(3022, functioncode=4, 
+                                        signed=False)),
+                ("dc_voltage2", self.getValueRegister(3023, numberOfDecimals=1, 
+                                        functioncode=4, signed=False)),
+                ("dc_current2", self.getValueRegister(3024, functioncode=4, 
+                                        signed=False)),
 
 #                ("AC_Voltage_AN", decoder.decode_16bit_uint()),
 #                ("AC_Voltage_BN", decoder.decode_16bit_uint()),
 #                ("AC_Voltage_CN", decoder.decode_16bit_uint()),
 #                ("AC_Voltage_SF", decoder.decode_16bit_int()),
-                ("AC_Power", self.getValueLong(3004, functioncode=4, signed=False)),
+                ("AC_Power", self.getValueLong(3004, functioncode=4, 
+                                               signed=False)),
 #                ("AC_Power_SF", decoder.decode_16bit_int()),
-                ("AC_Frequency", self.getValueRegister(3042, numberOfDecimals=2, functioncode=4, signed=False)),
+                ("AC_Frequency", self.getValueRegister(3042, numberOfDecimals=2, 
+                                                functioncode=4, signed=False)),
 #                ("AC_Frequency_SF", decoder.decode_16bit_int()),
 #                ("AC_VA", decoder.decode_16bit_int()),
 #                ("AC_VA_SF", decoder.decode_16bit_int()),
@@ -617,10 +631,12 @@ class SolarEdgeInverter:
 #                ("I_DC_Current_SF", decoder.decode_16bit_int()),
 #                ("I_DC_Voltage", decoder.decode_16bit_uint()),
 #                ("I_DC_Voltage_SF", decoder.decode_16bit_int()),
-                ("I_DC_Power", self.getValueRegister(3007, functioncode=4, signed=False)),
+                ("I_DC_Power", self.getValueRegister(3007, functioncode=4, 
+                                                signed=False)),
 #                ("I_DC_Power_SF", decoder.decode_16bit_int()),
 #                ("I_Temp_Cab", decoder.decode_16bit_int()),
-                ("I_Temp_Sink", self.getValueRegister(3041, numberOfDecimals=1, functioncode=4, signed=True)),
+                ("I_Temp_Sink", self.getValueRegister(3041, numberOfDecimals=1, 
+                                                functioncode=4, signed=True)),
 #                ("I_Temp_Trns", decoder.decode_16bit_int()),
 #                ("I_Temp_Other", decoder.decode_16bit_int()),
 #                ("I_Temp_SF", decoder.decode_16bit_int()),
@@ -966,7 +982,8 @@ class SolarEdgeInverter:
         #            if isinstance(value, float):
         #                display_value = float_to_hex(value)
         #            else:
-        #                display_value = hex(value) if isinstance(value, int) else value
+        #                display_value = hex(value) if isinstance(value, int) else 
+        # value
         #            _LOGGER.debug(
         #                f"Inverter {self.inverter_unit_id}: {name} {display_value}"
         #            )
