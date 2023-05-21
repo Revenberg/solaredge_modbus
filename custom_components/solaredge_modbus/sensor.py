@@ -819,15 +819,15 @@ class ACEnergy(SolarEdgeSensorBase):
         self._phase = phase
         self.last = None
 
-        if self._platform.decoded_model["C_SunSpec_DID"] in [101, 102, 103]:
-            self.SUNSPEC_NOT_IMPL = SunSpecNotImpl.UINT16
-        elif self._platform.decoded_model["C_SunSpec_DID"] in [201, 202, 203, 204]:
-            self.SUNSPEC_NOT_IMPL = SunSpecNotImpl.INT16
-        else:
-            raise RuntimeError(
-                "ACEnergy C_SunSpec_DID ",
-                f"{self._platform.decoded_model['C_SunSpec_DID']}",
-            )
+#        if self._platform.decoded_model["C_SunSpec_DID"] in [101, 102, 103]:
+#            self.SUNSPEC_NOT_IMPL = SunSpecNotImpl.UINT16
+#        elif self._platform.decoded_model["C_SunSpec_DID"] in [201, 202, 203, 204]:
+#            self.SUNSPEC_NOT_IMPL = SunSpecNotImpl.INT16
+#        else:
+#            raise RuntimeError(
+#                "ACEnergy C_SunSpec_DID ",
+#                f"{self._platform.decoded_model['C_SunSpec_DID']}",
+#            )
 
     @property
     def icon(self) -> str:
@@ -852,27 +852,28 @@ class ACEnergy(SolarEdgeSensorBase):
 
     @property
     def entity_registry_enabled_default(self) -> bool:
-        if self._phase is None or self._phase in [
-            "Exported",
-            "Imported",
-            "Exported_A",
-            "Imported_A",
-        ]:
-            return True
+#        if self._phase is None or self._phase in [
+#            "Exported",
+#            "Imported",
+#            "Exported_A",
+#            "Imported_A",
+#        ]:
+#            return True
 
-        elif self._platform.decoded_model["C_SunSpec_DID"] in [
-            203,
-            204,
-        ] and self._phase in [
-            "Exported_B",
-            "Exported_C",
-            "Imported_B",
-            "Imported_C",
-        ]:
-            return True
+#        elif self._platform.decoded_model["C_SunSpec_DID"] in [
+#            203,
+#            204,
+#        ] and self._phase in [
+#            "Exported_B",
+#            "Exported_C",
+#            "Imported_B",
+#            "Imported_C",
+#        ]:
+#            return True
 
-        else:
-            return False
+#        else:
+#            return False
+        return False
 
     @property
     def name(self) -> str:
