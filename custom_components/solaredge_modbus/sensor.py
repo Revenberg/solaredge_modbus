@@ -296,20 +296,20 @@ class SolarEdgeDevice(SolarEdgeSensorBase):
 
         attrs["serial_number"] = self._platform.serial
 
-        try:
-            if self._platform.decoded_model["C_SunSpec_DID"] in SUNSPEC_DID:
-                attrs["sunspec_device"] = SUNSPEC_DID[
-                    self._platform.decoded_model["C_SunSpec_DID"]
-                ]
+#        try:
+#            if self._platform.decoded_model["C_SunSpec_DID"] in SUNSPEC_DID:
+#                attrs["sunspec_device"] = SUNSPEC_DID[
+#                    self._platform.decoded_model["C_SunSpec_DID"]
+#                ]
 
-        except KeyError:
-            pass
+#        except KeyError:
+#            pass
 
-        try:
-            attrs["sunspec_did"] = self._platform.decoded_model["C_SunSpec_DID"]
+#        try:
+#            attrs["sunspec_did"] = self._platform.decoded_model["C_SunSpec_DID"]
 
-        except KeyError:
-            pass
+#        except KeyError:
+#            pass
 
         try:
             if self._platform.decoded_mmppt is not None:
@@ -361,15 +361,15 @@ class ACCurrentSensor(SolarEdgeSensorBase):
         """Initialize the sensor."""
         self._phase = phase
 
-        if self._platform.decoded_model["C_SunSpec_DID"] in [101, 102, 103]:
-            self.SUNSPEC_NOT_IMPL = SunSpecNotImpl.UINT16
-        elif self._platform.decoded_model["C_SunSpec_DID"] in [201, 202, 203, 204]:
-            self.SUNSPEC_NOT_IMPL = SunSpecNotImpl.INT16
-        else:
-            raise RuntimeError(
-                "ACCurrentSensor C_SunSpec_DID "
-                f"{self._platform.decoded_model['C_SunSpec_DID']}"
-            )
+#        if self._platform.decoded_model["C_SunSpec_DID"] in [101, 102, 103]:
+#            self.SUNSPEC_NOT_IMPL = SunSpecNotImpl.UINT16
+#        elif self._platform.decoded_model["C_SunSpec_DID"] in [201, 202, 203, 204]:
+#            self.SUNSPEC_NOT_IMPL = SunSpecNotImpl.INT16
+#        else:
+#            raise RuntimeError(
+#                "ACCurrentSensor C_SunSpec_DID "
+#                f"{self._platform.decoded_model['C_SunSpec_DID']}"
+#            )
 
     @property
     def unique_id(self) -> str:
@@ -380,22 +380,23 @@ class ACCurrentSensor(SolarEdgeSensorBase):
 
     @property
     def entity_registry_enabled_default(self) -> bool:
-        if self._phase is None:
-            return True
+#        if self._phase is None:
+#            return True
 
-        elif self._platform.decoded_model["C_SunSpec_DID"] in [
-            103,
-            203,
-            204,
-        ] and self._phase in [
-            "A",
-            "B",
-            "C",
-        ]:
-            return True
+#        elif self._platform.decoded_model["C_SunSpec_DID"] in [
+#            103,
+#            203,
+#            204,
+#        ] and self._phase in [
+#            "A",
+#            "B",
+#            "C",
+#        ]:
+#            return True
 
-        else:
-            return False
+#        else:
+#            return False
+        return True
 
     @property
     def name(self) -> str:
@@ -443,15 +444,15 @@ class VoltageSensor(SolarEdgeSensorBase):
         """Initialize the sensor."""
         self._phase = phase
 
-        if self._platform.decoded_model["C_SunSpec_DID"] in [101, 102, 103]:
-            self.SUNSPEC_NOT_IMPL = SunSpecNotImpl.UINT16
-        elif self._platform.decoded_model["C_SunSpec_DID"] in [201, 202, 203, 204]:
-            self.SUNSPEC_NOT_IMPL = SunSpecNotImpl.INT16
-        else:
-            raise RuntimeError(
-                "ACCurrentSensor C_SunSpec_DID "
-                f"{self._platform.decoded_model['C_SunSpec_DID']}"
-            )
+#        if self._platform.decoded_model["C_SunSpec_DID"] in [101, 102, 103]:
+#            self.SUNSPEC_NOT_IMPL = SunSpecNotImpl.UINT16
+#        elif self._platform.decoded_model["C_SunSpec_DID"] in [201, 202, 203, 204]:
+#            self.SUNSPEC_NOT_IMPL = SunSpecNotImpl.INT16
+#        else:
+#            raise RuntimeError(
+#                "ACCurrentSensor C_SunSpec_DID "
+#                f"{self._platform.decoded_model['C_SunSpec_DID']}"
+#            )
 
     @property
     def unique_id(self) -> str:
@@ -468,18 +469,18 @@ class VoltageSensor(SolarEdgeSensorBase):
         elif self._phase in ["LN", "LL", "AB"]:
             return True
 
-        elif self._platform.decoded_model["C_SunSpec_DID"] in [
-            103,
-            203,
-            204,
-        ] and self._phase in [
-            "BC",
-            "CA",
-            "AN",
-            "BN",
-            "CN",
-        ]:
-            return True
+#        elif self._platform.decoded_model["C_SunSpec_DID"] in [
+#            103,
+#            203,
+#            204,
+#        ] and self._phase in [
+#            "BC",
+#            "CA",
+#            "AN",
+#            "BN",
+#            "CN",
+#        ]:
+#            return True
 
         else:
             return False
@@ -543,18 +544,19 @@ class ACPower(SolarEdgeSensorBase):
         if self._phase is None:
             return True
 
-        elif self._platform.decoded_model["C_SunSpec_DID"] in [
-            203,
-            204,
-        ] and self._phase in [
-            "A",
-            "B",
-            "C",
-        ]:
-            return True
+#        elif self._platform.decoded_model["C_SunSpec_DID"] in [
+#            203,
+#            204,
+#        ] and self._phase in [
+#            "A",
+#            "B",
+#            "C",
+#        ]:
+#            return True
 
-        else:
-            return False
+#        else:
+#            return False
+        return True
 
     @property
     def name(self) -> str:
