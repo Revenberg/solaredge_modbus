@@ -108,8 +108,8 @@ class Instrument:
 
     def __init__(
         self,
-        address,
-        port,
+        eth_address,
+        eth_port,
         slaveaddress=1,
         mode=MODE_RTU,
         close_port_after_each_call=False,
@@ -175,8 +175,8 @@ class Instrument:
 
         """
 
-        self.eth_address = address
-        self.eth_port = port
+        self.eth_address = eth_address
+        self.eth_port = eth_port
 
     def __repr__(self):
         """Give string representation of the :class:`.Instrument` object."""
