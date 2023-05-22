@@ -543,6 +543,7 @@ class SolarEdgeInverter:
         #self.option = self.decoded_common["C_Option"]
         #self.fw_version = self.decoded_common["C_Version"]
         #self.serial = self.decoded_common["C_SerialNumber"]
+        self.serial = 1
         #self.device_address = self.decoded_common["C_Device_address"]
         #self.name = f"{self.hub.hub_id.capitalize()} I{self.inverter_unit_id}"
         self.uid_base = "1234"

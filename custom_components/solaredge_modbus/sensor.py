@@ -81,7 +81,6 @@ async def async_setup_entry(
         entities.append(DCVoltage(inverter, config_entry, coordinator))
         entities.append(DCPower(inverter, config_entry, coordinator))
         entities.append(HeatSinkTemperature(inverter, config_entry, coordinator))
-        entities.append(SolarEdgeRRCR(inverter, config_entry, coordinator))
         entities.append(SolarEdgeActivePowerLimit(inverter, config_entry, coordinator))
         entities.append(SolarEdgeCosPhi(inverter, config_entry, coordinator))
         if inverter.is_mmppt:
@@ -1249,63 +1248,6 @@ class StatusVendor(SolarEdgeSensorBase):
 
             else:
                 return None
-
-        except KeyError:
-            return None
-
-
-class SolarEdgeRRCR(SolarEdgeGlobalPowerControlBlock):
-    def __init__(self, platform, config_entry, coordinator):
-        super().__init__(platform, config_entry, coordinator)
-        """Initialize the sensor."""
-
-    @property
-    def unique_id(self) -> str:
-        return f"{self._platform.serial}_rrcr"
-
-    @property
-    def name(self) -> str:
-        return "RRCR Status"
-
-    @property
-    def entity_registry_enabled_default(self) -> bool:
-        if self._platform.global_power_control is True:
-            return True
-        else:
-            return False
-
-    @property
-    def native_value(self):
-        try:
-            if (
-                self._platform.decoded_model["I_RRCR"] == SunSpecNotImpl.UINT16
-                or self._platform.decoded_model["I_RRCR"] > 0xF
-            ):
-                return None
-
-            else:
-                return self._platform.decoded_model["I_RRCR"]
-
-        except TypeError:
-            return None
-
-        except KeyError:
-            return None
-
-    @property
-    def extra_state_attributes(self):
-        try:
-            rrcr_inputs = []
-
-            if int(str(self._platform.decoded_model["I_RRCR"])) == 0x0:
-                return {"inputs": str(rrcr_inputs)}
-
-            else:
-                for i in range(0, 4):
-                    if int(str(self._platform.decoded_model["I_RRCR"])) & (1 << i):
-                        rrcr_inputs.append(RRCR_STATUS[i])
-
-                return {"inputs": str(rrcr_inputs)}
 
         except KeyError:
             return None
