@@ -504,8 +504,10 @@ class VoltageSensor(SolarEdgeSensorBase):
 #        try:
 #            if (
 #                self._platform.decoded_model[model_key] == self.SUNSPEC_NOT_IMPL
-#                or self._platform.decoded_model["AC_Voltage_SF"] == SunSpecNotImpl.INT16
-#                or self._platform.decoded_model["AC_Voltage_SF"] not in SUNSPEC_SF_RANGE
+#                or self._platform.decoded_model["AC_Voltage_SF"] == 
+# SunSpecNotImpl.INT16
+#                or self._platform.decoded_model["AC_Voltage_SF"] 
+# not in SUNSPEC_SF_RANGE
 #            ):
 #                return None
 
