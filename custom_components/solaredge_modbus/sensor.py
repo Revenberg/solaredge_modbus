@@ -407,16 +407,18 @@ class ACCurrentSensor(SolarEdgeSensorBase):
 
     @property
     def native_value(self):
-        if self._phase is None:
-            model_key = "AC_Current"
-        else:
-            model_key = f"AC_Current_{self._phase.upper()}"
+#        if self._phase is None:
+#            model_key = "AC_Current"
+#        else:
+#            model_key = f"AC_Current_{self._phase.upper()}"
 
 #        try:
 #            if (
 #                self._platform.decoded_model[model_key] == self.SUNSPEC_NOT_IMPL
-#                or self._platform.decoded_model["AC_Current_SF"] == SunSpecNotImpl.INT16
-#                or self._platform.decoded_model["AC_Current_SF"] not in SUNSPEC_SF_RANGE
+#                or self._platform.decoded_model["AC_Current_SF"] == 
+# SunSpecNotImpl.INT16
+#                or self._platform.decoded_model["AC_Current_SF"] 
+# not in SUNSPEC_SF_RANGE
 #            ):
 #                return None
 
@@ -428,6 +430,7 @@ class ACCurrentSensor(SolarEdgeSensorBase):
 
 #        except TypeError:
 #            return None
+        return None
 
     @property
     def suggested_display_precision(self):
