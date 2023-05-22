@@ -35,10 +35,10 @@ from .const import (
     MMPPT_EVENTS,
     RRCR_STATUS,
     SUNSPEC_DID,
-    SUNSPEC_SF_RANGE,
+#    SUNSPEC_SF_RANGE,
     VENDOR_STATUS,
     BatteryLimit,
-    SunSpecAccum,
+#    SunSpecAccum,
     SunSpecNotImpl,
 )
 from .helpers import float_to_hex, scale_factor, update_accum
@@ -61,7 +61,7 @@ async def async_setup_entry(
         entities.append(Version(inverter, config_entry, coordinator))
         entities.append(SolarEdgeInverterStatus(inverter, config_entry, coordinator))
         entities.append(StatusVendor(inverter, config_entry, coordinator))
-        entities.append(ACCurrentSensor(inverter, config_entry, coordinator))
+#        entities.append(ACCurrentSensor(inverter, config_entry, coordinator))
         entities.append(ACCurrentSensor(inverter, config_entry, coordinator, "A"))
         entities.append(ACCurrentSensor(inverter, config_entry, coordinator, "B"))
         entities.append(ACCurrentSensor(inverter, config_entry, coordinator, "C"))
@@ -407,14 +407,15 @@ class ACCurrentSensor(SolarEdgeSensorBase):
 
     @property
     def native_value(self):
-#        if self._phase is None:
-#            model_key = "AC_Current"
-#        else:
-#            model_key = f"AC_Current_{self._phase.upper()}"
+        if self._phase is None:
+            model_key = "AC_Current"
+        else:
+            model_key = f"AC_Current_{self._phase.upper()}"
 
-#        try:
+        try:
 #            if (
-#                self._platform.decoded_model[model_key] == self.SUNSPEC_NOT_IMPL
+#                self._platform.decoded_model[model_key] == 
+# self.SUNSPEC_NOT_IMPL
 #                or self._platform.decoded_model["AC_Current_SF"] == 
 # SunSpecNotImpl.INT16
 #                or self._platform.decoded_model["AC_Current_SF"] 
@@ -423,18 +424,17 @@ class ACCurrentSensor(SolarEdgeSensorBase):
 #                return None
 
 #            else:
-#                return scale_factor(
-#                    self._platform.decoded_model[model_key],
+                return scale_factor(
+                    self._platform.decoded_model[model_key],
 #                    self._platform.decoded_model["AC_Current_SF"],
-#                )
+                )
 
-#        except TypeError:
-#            return None
-        return None
+        except TypeError:
+            return None
 
-    @property
-    def suggested_display_precision(self):
-        return abs(self._platform.decoded_model["AC_Current_SF"])
+#    @property
+#    def suggested_display_precision(self):
+#        return abs(self._platform.decoded_model["AC_Current_SF"])
 
 class VoltageSensor(SolarEdgeSensorBase):
     device_class = SensorDeviceClass.VOLTAGE
@@ -496,14 +496,15 @@ class VoltageSensor(SolarEdgeSensorBase):
 
     @property
     def native_value(self):
-#        if self._phase is None:
-#            model_key = "AC_Voltage"
-#        else:
-#            model_key = f"AC_Voltage_{self._phase.upper()}"
+        if self._phase is None:
+            model_key = "AC_Voltage"
+        else:
+            model_key = f"AC_Voltage_{self._phase.upper()}"
 
-#        try:
+        try:
 #            if (
-#                self._platform.decoded_model[model_key] == self.SUNSPEC_NOT_IMPL
+#                self._platform.decoded_model[model_key] == 
+# self.SUNSPEC_NOT_IMPL
 #                or self._platform.decoded_model["AC_Voltage_SF"] == 
 # SunSpecNotImpl.INT16
 #                or self._platform.decoded_model["AC_Voltage_SF"] 
@@ -512,20 +513,17 @@ class VoltageSensor(SolarEdgeSensorBase):
 #                return None
 
 #            else:
-#                return scale_factor(
-#                    self._platform.decoded_model[model_key],
-#                    self._platform.decoded_model["AC_Voltage_SF"],
-#                )
+                return scale_factor(
+                    self._platform.decoded_model[model_key],
+                  #  self._platform.decoded_model["AC_Voltage_SF"],
+                )
 
-#        except TypeError:
-#            return None
-        return None
+        except TypeError:
+            return None
 
-    @property
-    def suggested_display_precision(self):
+#    @property
+#    def suggested_display_precision(self):
 #        return abs(self._platform.decoded_model["AC_Voltage_SF"])
-        return 2
-
 
 class ACPower(SolarEdgeSensorBase):
     device_class = SensorDeviceClass.POWER
@@ -579,24 +577,25 @@ class ACPower(SolarEdgeSensorBase):
             model_key = f"AC_Power_{self._phase.upper()}"
 
         try:
-            if (
-                self._platform.decoded_model[model_key] == SunSpecNotImpl.INT16
-                or self._platform.decoded_model["AC_Power_SF"] == SunSpecNotImpl.INT16
-            ):
-                return None
+#            if (
+#                self._platform.decoded_model[model_key] == SunSpecNotImpl.INT16
+#                or self._platform.decoded_model["AC_Power_SF"] == 
+# SunSpecNotImpl.INT16
+#            ):
+#                return None
 
-            else:
+#            else:
                 return scale_factor(
                     self._platform.decoded_model[model_key],
-                    self._platform.decoded_model["AC_Power_SF"],
+#                    self._platform.decoded_model["AC_Power_SF"],
                 )
 
         except TypeError:
             return None
 
-    @property
-    def suggested_display_precision(self):
-        return abs(self._platform.decoded_model["AC_Power_SF"])
+#    @property
+#    def suggested_display_precision(self):
+#        return abs(self._platform.decoded_model["AC_Power_SF"])
 
 
 class ACFrequency(SolarEdgeSensorBase):
@@ -619,27 +618,28 @@ class ACFrequency(SolarEdgeSensorBase):
     @property
     def native_value(self):
         try:
-            if (
-                self._platform.decoded_model["AC_Frequency"] == SunSpecNotImpl.UINT16
-                or self._platform.decoded_model["AC_Frequency_SF"]
-                == SunSpecNotImpl.INT16
-                or self._platform.decoded_model["AC_Frequency_SF"]
-                not in SUNSPEC_SF_RANGE
-            ):
-                return None
+#            if (
+#                self._platform.decoded_model["AC_Frequency"] == 
+# SunSpecNotImpl.UINT16
+#                or self._platform.decoded_model["AC_Frequency_SF"]
+#                == SunSpecNotImpl.INT16
+#                or self._platform.decoded_model["AC_Frequency_SF"]
+#                not in SUNSPEC_SF_RANGE
+#            ):
+#                return None
 
-            else:
+#            else:
                 return scale_factor(
                     self._platform.decoded_model["AC_Frequency"],
-                    self._platform.decoded_model["AC_Frequency_SF"],
+#                    self._platform.decoded_model["AC_Frequency_SF"],
                 )
 
         except TypeError:
             return None
 
-    @property
-    def suggested_display_precision(self):
-        return abs(self._platform.decoded_model["AC_Frequency_SF"])
+#    @property
+#    def suggested_display_precision(self):
+#        return abs(self._platform.decoded_model["AC_Frequency_SF"])
 
 
 class ACVoltAmp(SolarEdgeSensorBase):
@@ -678,25 +678,25 @@ class ACVoltAmp(SolarEdgeSensorBase):
             model_key = f"AC_VA_{self._phase.upper()}"
 
         try:
-            if (
-                self._platform.decoded_model[model_key] == SunSpecNotImpl.INT16
-                or self._platform.decoded_model["AC_VA_SF"] == SunSpecNotImpl.INT16
-                or self._platform.decoded_model["AC_VA_SF"] not in SUNSPEC_SF_RANGE
-            ):
-                return None
+#            if (
+#                self._platform.decoded_model[model_key] == SunSpecNotImpl.INT16
+#                or self._platform.decoded_model["AC_VA_SF"] == SunSpecNotImpl.INT16
+#                or self._platform.decoded_model["AC_VA_SF"] not in SUNSPEC_SF_RANGE
+#            ):
+#                return None
 
-            else:
+#            else:
                 return scale_factor(
                     self._platform.decoded_model[model_key],
-                    self._platform.decoded_model["AC_VA_SF"],
+#                    self._platform.decoded_model["AC_VA_SF"],
                 )
 
         except TypeError:
             return None
 
-    @property
-    def suggested_display_precision(self):
-        return abs(self._platform.decoded_model["AC_VA_SF"])
+#    @property
+#    def suggested_display_precision(self):
+#        return abs(self._platform.decoded_model["AC_VA_SF"])
 
 
 class ACVoltAmpReactive(SolarEdgeSensorBase):
@@ -735,25 +735,25 @@ class ACVoltAmpReactive(SolarEdgeSensorBase):
             model_key = f"AC_var_{self._phase.upper()}"
 
         try:
-            if (
-                self._platform.decoded_model[model_key] == SunSpecNotImpl.INT16
-                or self._platform.decoded_model["AC_var_SF"] == SunSpecNotImpl.INT16
-                or self._platform.decoded_model["AC_var_SF"] not in SUNSPEC_SF_RANGE
-            ):
-                return None
+#            if (
+#                self._platform.decoded_model[model_key] == SunSpecNotImpl.INT16
+#                or self._platform.decoded_model["AC_var_SF"] == SunSpecNotImpl.INT16
+#                or self._platform.decoded_model["AC_var_SF"] not in SUNSPEC_SF_RANGE
+#            ):
+#                return None
 
-            else:
+#            else:
                 return scale_factor(
                     self._platform.decoded_model[model_key],
-                    self._platform.decoded_model["AC_var_SF"],
+#                    self._platform.decoded_model["AC_var_SF"],
                 )
 
         except TypeError:
             return None
 
-    @property
-    def suggested_display_precision(self):
-        return abs(self._platform.decoded_model["AC_var_SF"])
+#    @property
+#    def suggested_display_precision(self):
+#        return abs(self._platform.decoded_model["AC_var_SF"])
 
 
 class ACPowerFactor(SolarEdgeSensorBase):
@@ -792,25 +792,25 @@ class ACPowerFactor(SolarEdgeSensorBase):
             model_key = f"AC_PF_{self._phase.upper()}"
 
         try:
-            if (
-                self._platform.decoded_model[model_key] == SunSpecNotImpl.INT16
-                or self._platform.decoded_model["AC_PF_SF"] == SunSpecNotImpl.INT16
-                or self._platform.decoded_model["AC_PF_SF"] not in SUNSPEC_SF_RANGE
-            ):
-                return None
+#            if (
+#                self._platform.decoded_model[model_key] == SunSpecNotImpl.INT16
+#                or self._platform.decoded_model["AC_PF_SF"] == SunSpecNotImpl.INT16
+#                or self._platform.decoded_model["AC_PF_SF"] not in SUNSPEC_SF_RANGE
+#            ):
+#                return None
 
-            else:
+#            else:
                 return scale_factor(
                     self._platform.decoded_model[model_key],
-                    self._platform.decoded_model["AC_PF_SF"],
+#                    self._platform.decoded_model["AC_PF_SF"],
                 )
 
         except TypeError:
             return None
 
-    @property
-    def suggested_display_precision(self):
-        return abs(self._platform.decoded_model["AC_PF_SF"])
+#    @property
+#    def suggested_display_precision(self):
+#        return abs(self._platform.decoded_model["AC_PF_SF"])
 
 
 class ACEnergy(SolarEdgeSensorBase):
@@ -896,20 +896,20 @@ class ACEnergy(SolarEdgeSensorBase):
             model_key = f"AC_Energy_WH_{self._phase}"
 
         try:
-            if (
-                self._platform.decoded_model[model_key] == SunSpecAccum.NA32
-                or self._platform.decoded_model[model_key] > SunSpecAccum.LIMIT32
-                or self._platform.decoded_model["AC_Energy_WH_SF"]
-                == self.SUNSPEC_NOT_IMPL
-                or self._platform.decoded_model["AC_Energy_WH_SF"]
-                not in SUNSPEC_SF_RANGE
-            ):
-                return None
+#            if (
+#                self._platform.decoded_model[model_key] == SunSpecAccum.NA32
+#                or self._platform.decoded_model[model_key] > SunSpecAccum.LIMIT32
+#                or self._platform.decoded_model["AC_Energy_WH_SF"]
+#                == self.SUNSPEC_NOT_IMPL
+#                or self._platform.decoded_model["AC_Energy_WH_SF"]
+#                not in SUNSPEC_SF_RANGE
+#            ):
+#                return None
 
-            else:
+#            else:
                 value = scale_factor(
                     self._platform.decoded_model[model_key],
-                    self._platform.decoded_model["AC_Energy_WH_SF"],
+#                    self._platform.decoded_model["AC_Energy_WH_SF"],
                 )
 
                 try:
@@ -942,27 +942,27 @@ class DCCurrent(SolarEdgeSensorBase):
     @property
     def native_value(self):
         try:
-            if (
-                self._platform.decoded_model["I_DC_Current"] == SunSpecNotImpl.UINT16
-                or self._platform.decoded_model["I_DC_Current_SF"]
-                == SunSpecNotImpl.INT16
-                or self._platform.decoded_model["I_DC_Current_SF"]
-                not in SUNSPEC_SF_RANGE
-            ):
-                return None
+#            if (
+#                self._platform.decoded_model["I_DC_Current"] == SunSpecNotImpl.UINT16
+#                or self._platform.decoded_model["I_DC_Current_SF"]
+#                == SunSpecNotImpl.INT16
+#                or self._platform.decoded_model["I_DC_Current_SF"]
+#                not in SUNSPEC_SF_RANGE
+#            ):
+#                return None
 
-            else:
+#            else:
                 return scale_factor(
                     self._platform.decoded_model["I_DC_Current"],
-                    self._platform.decoded_model["I_DC_Current_SF"],
+#                    self._platform.decoded_model["I_DC_Current_SF"],
                 )
 
         except TypeError:
             return None
 
-    @property
-    def suggested_display_precision(self):
-        return abs(self._platform.decoded_model["I_DC_Current_SF"])
+#    @property
+#    def suggested_display_precision(self):
+#        return abs(self._platform.decoded_model["I_DC_Current_SF"])
 
 
 class DCVoltage(SolarEdgeSensorBase):
@@ -985,27 +985,27 @@ class DCVoltage(SolarEdgeSensorBase):
     @property
     def native_value(self):
         try:
-            if (
-                self._platform.decoded_model["I_DC_Voltage"] == SunSpecNotImpl.UINT16
-                or self._platform.decoded_model["I_DC_Voltage_SF"]
-                == SunSpecNotImpl.INT16
-                or self._platform.decoded_model["I_DC_Voltage_SF"]
-                not in SUNSPEC_SF_RANGE
-            ):
-                return None
+#            if (
+#                self._platform.decoded_model["I_DC_Voltage"] == SunSpecNotImpl.UINT16
+#                or self._platform.decoded_model["I_DC_Voltage_SF"]
+#                == SunSpecNotImpl.INT16
+#                or self._platform.decoded_model["I_DC_Voltage_SF"]
+#                not in SUNSPEC_SF_RANGE
+#            ):
+#                return None
 
-            else:
+#            else:
                 return scale_factor(
                     self._platform.decoded_model["I_DC_Voltage"],
-                    self._platform.decoded_model["I_DC_Voltage_SF"],
+#                    self._platform.decoded_model["I_DC_Voltage_SF"],
                 )
 
         except TypeError:
             return None
 
-    @property
-    def suggested_display_precision(self):
-        return abs(self._platform.decoded_model["I_DC_Voltage_SF"])
+#    @property
+#    def suggested_display_precision(self):
+#        return abs(self._platform.decoded_model["I_DC_Voltage_SF"])
 
 
 class DCPower(SolarEdgeSensorBase):
@@ -1029,25 +1029,28 @@ class DCPower(SolarEdgeSensorBase):
     @property
     def native_value(self):
         try:
-            if (
-                self._platform.decoded_model["I_DC_Power"] == SunSpecNotImpl.INT16
-                or self._platform.decoded_model["I_DC_Power_SF"] == SunSpecNotImpl.INT16
-                or self._platform.decoded_model["I_DC_Power_SF"] not in SUNSPEC_SF_RANGE
-            ):
-                return None
+#            if (
+#                self._platform.decoded_model["I_DC_Power"] == 
+# SunSpecNotImpl.INT16
+#                or self._platform.decoded_model["I_DC_Power_SF"] == 
+# SunSpecNotImpl.INT16
+#                or self._platform.decoded_model["I_DC_Power_SF"] 
+# not in SUNSPEC_SF_RANGE
+#            ):
+#                return None
 
-            else:
+#            else:
                 return scale_factor(
                     self._platform.decoded_model["I_DC_Power"],
-                    self._platform.decoded_model["I_DC_Power_SF"],
+#                    self._platform.decoded_model["I_DC_Power_SF"],
                 )
 
         except TypeError:
             return None
 
-    @property
-    def suggested_display_precision(self):
-        return abs(self._platform.decoded_model["I_DC_Power_SF"])
+#    @property
+#    def suggested_display_precision(self):
+#        return abs(self._platform.decoded_model["I_DC_Power_SF"])
 
 
 class HeatSinkTemperature(SolarEdgeSensorBase):
@@ -1070,26 +1073,29 @@ class HeatSinkTemperature(SolarEdgeSensorBase):
     @property
     def native_value(self):
         try:
-            if (
-                self._platform.decoded_model["I_Temp_Sink"] == 0x0
-                or self._platform.decoded_model["I_Temp_Sink"] == SunSpecNotImpl.INT16
-                or self._platform.decoded_model["I_Temp_SF"] == SunSpecNotImpl.INT16
-                or self._platform.decoded_model["I_Temp_SF"] not in SUNSPEC_SF_RANGE
-            ):
-                return None
+#            if (
+#                self._platform.decoded_model["I_Temp_Sink"] == 0x0
+#                or self._platform.decoded_model["I_Temp_Sink"] == 
+# SunSpecNotImpl.INT16
+#                or self._platform.decoded_model["I_Temp_SF"] == 
+# SunSpecNotImpl.INT16
+#                or self._platform.decoded_model["I_Temp_SF"] 
+# not in SUNSPEC_SF_RANGE
+#            ):
+#                return None
 
-            else:
+#            else:
                 return scale_factor(
                     self._platform.decoded_model["I_Temp_Sink"],
-                    self._platform.decoded_model["I_Temp_SF"],
+#                    self._platform.decoded_model["I_Temp_SF"],
                 )
 
         except TypeError:
             return None
 
-    @property
-    def suggested_display_precision(self):
-        return abs(self._platform.decoded_model["I_Temp_SF"])
+#    @property
+#    def suggested_display_precision(self):
+#        return abs(self._platform.decoded_model["I_Temp_SF"])
 
 
 class SolarEdgeStatusSensor(SolarEdgeSensorBase):
@@ -1536,18 +1542,18 @@ class MeterVAhIE(SolarEdgeSensorBase):
             model_key = f"M_VAh_{self._phase}"
 
         try:
-            if (
-                self._platform.decoded_model[model_key] == SunSpecAccum.NA32
-                or self._platform.decoded_model[model_key] > SunSpecAccum.LIMIT32
-                or self._platform.decoded_model["M_VAh_SF"] == SunSpecNotImpl.INT16
-                or self._platform.decoded_model["M_VAh_SF"] not in SUNSPEC_SF_RANGE
-            ):
-                return None
+#            if (
+#                self._platform.decoded_model[model_key] == SunSpecAccum.NA32
+#                or self._platform.decoded_model[model_key] > SunSpecAccum.LIMIT32
+#                or self._platform.decoded_model["M_VAh_SF"] == SunSpecNotImpl.INT16
+#                or self._platform.decoded_model["M_VAh_SF"] not in SUNSPEC_SF_RANGE
+#            ):
+#                return None
 
-            else:
+#            else:
                 value = scale_factor(
                     self._platform.decoded_model[model_key],
-                    self._platform.decoded_model["M_VAh_SF"],
+ #                   self._platform.decoded_model["M_VAh_SF"],
                 )
 
                 try:
@@ -1558,9 +1564,9 @@ class MeterVAhIE(SolarEdgeSensorBase):
         except TypeError:
             return None
 
-    @property
-    def suggested_display_precision(self):
-        return abs(self._platform.decoded_model["M_VAh_SF"])
+#    @property
+#    def suggested_display_precision(self):
+#        return abs(self._platform.decoded_model["M_VAh_SF"])
 
 
 class MetervarhIE(SolarEdgeSensorBase):
@@ -1614,18 +1620,18 @@ class MetervarhIE(SolarEdgeSensorBase):
             model_key = f"M_varh_{self._phase}"
 
         try:
-            if (
-                self._platform.decoded_model[model_key] == SunSpecAccum.NA32
-                or self._platform.decoded_model[model_key] > SunSpecAccum.LIMIT32
-                or self._platform.decoded_model["M_varh_SF"] == SunSpecNotImpl.INT16
-                or self._platform.decoded_model["M_varh_SF"] not in SUNSPEC_SF_RANGE
-            ):
-                return None
+#            if (
+#                self._platform.decoded_model[model_key] == SunSpecAccum.NA32
+#                or self._platform.decoded_model[model_key] > SunSpecAccum.LIMIT32
+#                or self._platform.decoded_model["M_varh_SF"] == SunSpecNotImpl.INT16
+#                or self._platform.decoded_model["M_varh_SF"] not in SUNSPEC_SF_RANGE
+#            ):
+#                return None
 
-            else:
+#            else:
                 value = scale_factor(
                     self._platform.decoded_model[model_key],
-                    self._platform.decoded_model["M_varh_SF"],
+ #                   self._platform.decoded_model["M_varh_SF"],
                 )
 
                 try:
@@ -1636,9 +1642,9 @@ class MetervarhIE(SolarEdgeSensorBase):
         except TypeError:
             return None
 
-    @property
-    def suggested_display_precision(self):
-        return abs(self._platform.decoded_model["M_varh_SF"])
+#    @property
+#    def suggested_display_precision(self):
+#        return abs(self._platform.decoded_model["M_varh_SF"])
 
 
 class SolarEdgeBatteryAvgTemp(HeatSinkTemperature):
