@@ -22,7 +22,7 @@ from .const import DOMAIN
 #from .helpers import float_to_hex, parse_modbus_string
 
 _LOGGER = logging.getLogger(__name__)
-
+_LOGGER.setLevel(logging.DEBUG)
 
 class SolarEdgeException(Exception):
     """Base class for other exceptions"""
@@ -170,8 +170,10 @@ class SolarEdgeModbusMultiHub:
             _LOGGER.error(f"Inverter device ID {inverter_unit_id}: {e}")
             raise HubInitFailed(f"{e}")
 
+        _LOGGER.debug(f"inverters: {self.inverters}")               
         try:
             for inverter in self.inverters:
+                _LOGGER.debug(f"inverter: {inverter}")
                 await self._hass.async_add_executor_job(inverter.read_modbus_data)
 
         except ModbusReadError as e:
@@ -547,7 +549,7 @@ class SolarEdgeInverter:
 
         self._device_info = {
             "identifiers": {(DOMAIN, "1234")},
-            "name": "test",
+            "name": "SolarEdge RS485",
             "manufacturer": "SolarEdge",
             #"model": self.model,
             #"sw_version": self.fw_version,
@@ -567,6 +569,7 @@ class SolarEdgeInverter:
         return round(floatval, 2)
     
     def read_modbus_data(self) -> None:
+        _LOGGER.debug("read_modbus_data")
         #inverter_data = self.hub.read_holding_registers(
         #    unit=self.inverter_unit_id, address=40069, count=40
         #)
@@ -643,6 +646,7 @@ class SolarEdgeInverter:
             ]
         )
 
+        _LOGGER.debug(f"Inverter: {self.decoded_model}")
         #if (
         #    self.decoded_model["C_SunSpec_DID"] == SunSpecNotImpl.UINT16
         #    or self.decoded_model["C_SunSpec_DID"] not in [101, 102, 103]
