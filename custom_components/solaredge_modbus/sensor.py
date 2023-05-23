@@ -198,9 +198,6 @@ class SolarEdgeDevice(SolarEdgeSensorBase):
         attrs["manufacturer"] = self._platform.manufacturer
         attrs["model"] = self._platform.model
 
-        if len(self._platform.option) > 0:
-            attrs["option"] = self._platform.option
-
         if self._platform.has_parent:
             attrs["parent_device_id"] = self._platform.inverter_unit_id
 
