@@ -80,7 +80,7 @@ async def async_setup_entry(
         entities.append(DCCurrent(inverter, config_entry, coordinator))
         entities.append(DCVoltage(inverter, config_entry, coordinator))
         entities.append(DCPower(inverter, config_entry, coordinator))
-        #entities.append(HeatSinkTemperature(inverter, config_entry, coordinator))
+        entities.append(HeatSinkTemperature(inverter, config_entry, coordinator))
         #entities.append(SolarEdgeActivePowerLimit(inverter, config_entry, coordinator))
         #entities.append(SolarEdgeCosPhi(inverter, config_entry, coordinator))
     
@@ -1032,12 +1032,19 @@ class SolarEdgeStatusSensor(SolarEdgeSensorBase):
 
     @property
     def unique_id(self) -> str:
+        _LOGGER.debug("unique_id")
+        _LOGGER.debug(self._platform.uid_base)
+        
         return f"{self._platform.uid_base}_status"
 
     @property
     def name(self) -> str:
         return "Status"
 
+    @property
+    def native_value(self):
+        _LOGGER.debug("native_value")
+        return True
 
 class SolarEdgeInverterStatus(SolarEdgeStatusSensor):
     options = list(DEVICE_STATUS.values())
@@ -1076,63 +1083,6 @@ class SolarEdgeInverterStatus(SolarEdgeStatusSensor):
             pass
 
         return attrs
-
-
-class SolarEdgeBatteryStatus(SolarEdgeStatusSensor):
-    options = list(BATTERY_STATUS.values())
-
-    def __init__(self, platform, config_entry, coordinator):
-        super().__init__(platform, config_entry, coordinator)
-        """Initialize the sensor."""
-
-    @property
-    def native_value(self):
-        try:
-            if self._platform.decoded_model["B_Status"] == SunSpecNotImpl.UINT32:
-                return None
-
-            return str(BATTERY_STATUS[self._platform.decoded_model["B_Status"]])
-
-        except TypeError:
-            return None
-
-        except KeyError:
-            return None
-
-    @property
-    def extra_state_attributes(self):
-        attrs = {}
-
-        try:
-            if self._platform.decoded_model["B_Status"] in BATTERY_STATUS_TEXT:
-                attrs["status_text"] = BATTERY_STATUS_TEXT[
-                    self._platform.decoded_model["B_Status"]
-                ]
-
-            attrs["status_value"] = self._platform.decoded_model["B_Status"]
-
-        except KeyError:
-            pass
-
-        return attrs
-
-
-class SolarEdgeGlobalPowerControlBlock(SolarEdgeSensorBase):
-    def __init__(self, platform, config_entry, coordinator):
-        super().__init__(platform, config_entry, coordinator)
-        """Initialize the sensor."""
-
-    @property
-    def available(self) -> bool:
-        if (
-            self._platform.global_power_control is not True
-            or self._platform.online is not True
-        ):
-            return False
-
-        else:
-            return True
-
 
 class StatusVendor(SolarEdgeSensorBase):
     entity_category = EntityCategory.DIAGNOSTIC
@@ -1176,87 +1126,6 @@ class StatusVendor(SolarEdgeSensorBase):
 
     #    except KeyError:
     #        return None
-
-class SolarEdgeActivePowerLimit(SolarEdgeGlobalPowerControlBlock):
-    state_class = SensorStateClass.MEASUREMENT
-    native_unit_of_measurement = PERCENTAGE
-    suggested_display_precision = 0
-    icon = "mdi:percent"
-
-    def __init__(self, platform, config_entry, coordinator):
-        super().__init__(platform, config_entry, coordinator)
-        """Initialize the sensor."""
-
-    @property
-    def unique_id(self) -> str:
-        return f"{self._platform.serial}_active_power_limit"
-
-    @property
-    def name(self) -> str:
-        return "Active Power Limit"
-
-    @property
-    def entity_registry_enabled_default(self) -> bool:
-        if self._platform.global_power_control is True:
-            return True
-        else:
-            return False
-
-    @property
-    def native_value(self):
-        try:
-            if (
-                self._platform.decoded_model["I_Power_Limit"] == SunSpecNotImpl.UINT16
-                or self._platform.decoded_model["I_Power_Limit"] > 100
-                or self._platform.decoded_model["I_Power_Limit"] < 0
-            ):
-                return None
-
-            else:
-                return self._platform.decoded_model["I_Power_Limit"]
-
-        except KeyError:
-            return None
-
-
-class SolarEdgeCosPhi(SolarEdgeGlobalPowerControlBlock):
-    state_class = SensorStateClass.MEASUREMENT
-    suggested_display_precision = 1
-    icon = "mdi:angle-acute"
-
-    def __init__(self, platform, config_entry, coordinator):
-        super().__init__(platform, config_entry, coordinator)
-        """Initialize the sensor."""
-
-    @property
-    def unique_id(self) -> str:
-        return f"{self._platform.serial}_cosphi"
-
-    @property
-    def name(self) -> str:
-        return "CosPhi"
-
-    @property
-    def entity_registry_enabled_default(self) -> bool:
-        return False
-
-    @property
-    def native_value(self):
-        try:
-            if (
-                float_to_hex(self._platform.decoded_model["I_CosPhi"])
-                == hex(SunSpecNotImpl.FLOAT32)
-                or self._platform.decoded_model["I_CosPhi"] > 1.0
-                or self._platform.decoded_model["I_CosPhi"] < -1.0
-            ):
-                return None
-
-            else:
-                return self._platform.decoded_model["I_CosPhi"]
-
-        except KeyError:
-            return None
-
 
 class MeterEvents(SolarEdgeSensorBase):
     entity_category = EntityCategory.DIAGNOSTIC

@@ -650,6 +650,7 @@ class SolarEdgeInverter:
 #                ("I_Temp_Other", decoder.decode_16bit_int()),
 #                ("I_Temp_SF", decoder.decode_16bit_int()),
 #                ("I_Status", decoder.decode_16bit_int()),
+                ("I_Status", True),
 #                ("I_Status_Vendor", decoder.decode_16bit_int()),
             ]
         )
