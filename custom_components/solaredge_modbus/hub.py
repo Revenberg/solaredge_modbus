@@ -540,6 +540,7 @@ class SolarEdgeInverter:
 
         #self.manufacturer = self.decoded_common["C_Manufacturer"]
         #self.model = self.decoded_common["C_Model"]
+        self.model = "SolarEdge"
         #self.option = self.decoded_common["C_Option"]
         #self.fw_version = self.decoded_common["C_Version"]
         #self.serial = self.decoded_common["C_SerialNumber"]
@@ -552,7 +553,7 @@ class SolarEdgeInverter:
             "identifiers": {(DOMAIN, "1234")},
             "name": "SolarEdge RS485",
             "manufacturer": "SolarEdge",
-            "model": "SolarEdge",
+            "model": self.model,
             #"sw_version": self.fw_version,
             #"hw_version": self.option,
         }
