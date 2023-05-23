@@ -545,6 +545,7 @@ class SolarEdgeInverter:
         self.model = "SolarEdge"
         #self.option = self.decoded_common["C_Option"]
         #self.fw_version = self.decoded_common["C_Version"]
+        self.fw_version = 1234
         #self.serial = self.decoded_common["C_SerialNumber"]
         self.serial = 1234
         #self.device_address = self.decoded_common["C_Device_address"]
