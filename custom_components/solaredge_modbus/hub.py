@@ -539,6 +539,7 @@ class SolarEdgeInverter:
         #self.hub.mmppt_common[self.inverter_unit_id] = self.decoded_mmppt
 
         #self.manufacturer = self.decoded_common["C_Manufacturer"]
+        self.manufacturer = "SolarEdge"
         #self.model = self.decoded_common["C_Model"]
         self.model = "SolarEdge"
         #self.option = self.decoded_common["C_Option"]
