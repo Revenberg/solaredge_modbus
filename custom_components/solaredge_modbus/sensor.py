@@ -345,6 +345,8 @@ class ACCurrentSensor(SolarEdgeSensorBase):
                 return scale_factor(
                     self._platform.decoded_model[model_key],
 #                    self._platform.decoded_model["AC_Current_SF"],
+                    self._platform.decoded_model["AC_Current"],
+
                 )
 
         except TypeError:
@@ -431,9 +433,13 @@ class VoltageSensor(SolarEdgeSensorBase):
 #                return None
 
 #            else:
+                _LOGGER.debug(model_key)
+                _LOGGER.debug(self._phase)
+
                 return scale_factor(
                     self._platform.decoded_model[model_key],
                   #  self._platform.decoded_model["AC_Voltage_SF"],
+                    self._platform.decoded_model["AC_Voltage_AB"],
                 )
 
         except TypeError:
