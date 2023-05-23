@@ -558,7 +558,7 @@ class SolarEdgeInverter:
             "name": "SolarEdge RS485",
             "manufacturer": "SolarEdge",
             "model": self.model,
-            #"sw_version": self.fw_version,
+            "sw_version": self.fw_version,
             #"hw_version": self.option,
         }
         
