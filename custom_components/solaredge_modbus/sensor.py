@@ -80,9 +80,9 @@ async def async_setup_entry(
         entities.append(DCCurrent(inverter, config_entry, coordinator))
         entities.append(DCVoltage(inverter, config_entry, coordinator))
         entities.append(DCPower(inverter, config_entry, coordinator))
-        entities.append(HeatSinkTemperature(inverter, config_entry, coordinator))
-        entities.append(SolarEdgeActivePowerLimit(inverter, config_entry, coordinator))
-        entities.append(SolarEdgeCosPhi(inverter, config_entry, coordinator))
+        #entities.append(HeatSinkTemperature(inverter, config_entry, coordinator))
+        #entities.append(SolarEdgeActivePowerLimit(inverter, config_entry, coordinator))
+        #entities.append(SolarEdgeCosPhi(inverter, config_entry, coordinator))
     
     _LOGGER.debug(entities)
     if entities:
