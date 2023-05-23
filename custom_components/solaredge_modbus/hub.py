@@ -209,30 +209,30 @@ class SolarEdgeModbusMultiHub:
         #    )
 
         #else:
-        #    self._online = True
-        #    try:
-        #        for inverter in self.inverters:
-        #            await self._hass.async_add_executor_job(inverter.read_modbus_data)
+        self._online = True
+        try:
+            for inverter in self.inverters:
+                await self._hass.async_add_executor_job(inverter.read_modbus_data)
         #        for meter in self.meters:
         #            await self._hass.async_add_executor_job(meter.read_modbus_data)
         #        for battery in self.batteries:
         #            await self._hass.async_add_executor_job(battery.read_modbus_data)
 
-        #    except ModbusReadError as e:
-        #        self._online = False
+        except ModbusReadError as e:
+            self._online = False
         #        #await self.disconnect()
-        #        raise DataUpdateFailed(f"Update failed: {e}")
+            raise DataUpdateFailed(f"Update failed: {e}")
 
-        #    except DeviceInvalid as e:
-        #        self._online = False
+        except DeviceInvalid as e:
+            self._online = False
                 #if not self._keep_modbus_open:
                     #await self.disconnect()
-        #        raise DataUpdateFailed(f"Invalid device: {e}")
+            raise DataUpdateFailed(f"Invalid device: {e}")
 
-        #    except ConnectionException as e:
-        #        self._online = False
+        except ConnectionException as e:
+            self._online = False
                 #await self.disconnect()
-        #        raise DataUpdateFailed(f"Connection failed: {e}")
+            raise DataUpdateFailed(f"Connection failed: {e}")
 
         #if not self._keep_modbus_open:
             #await self.disconnect()
