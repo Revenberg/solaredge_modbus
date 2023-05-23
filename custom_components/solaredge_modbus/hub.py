@@ -543,7 +543,7 @@ class SolarEdgeInverter:
         #self.option = self.decoded_common["C_Option"]
         #self.fw_version = self.decoded_common["C_Version"]
         #self.serial = self.decoded_common["C_SerialNumber"]
-        self.serial = 1
+        self.serial = 1234
         #self.device_address = self.decoded_common["C_Device_address"]
         #self.name = f"{self.hub.hub_id.capitalize()} I{self.inverter_unit_id}"
         self.uid_base = "1234"
@@ -581,6 +581,8 @@ class SolarEdgeInverter:
         #decoder = BinaryPayloadDecoder.fromRegisters(
         #    inverter_data.registers, byteorder=Endian.Big
         #)
+
+        # https://ginlongsolis.freshdesk.com/helpdesk/attachments/36112313359
 
         self.decoded_model = OrderedDict(
             [
