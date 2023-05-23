@@ -859,7 +859,7 @@ class DCCurrent(SolarEdgeSensorBase):
 
     @property
     def native_value(self):
-        try:
+#        try:
 #            if (
 #                self._platform.decoded_model["I_DC_Current"] == SunSpecNotImpl.UINT16
 #                or self._platform.decoded_model["I_DC_Current_SF"]
@@ -870,12 +870,12 @@ class DCCurrent(SolarEdgeSensorBase):
 #                return None
 
 #            else:
-                return scale_factor(
-                    self._platform.decoded_model["I_DC_Current"],
+#                return scale_factor(
+#                    self._platform.decoded_model["I_DC_Current"],
 #                    self._platform.decoded_model["I_DC_Current_SF"],
-                )
+#                )
 
-        except TypeError:
+#        except TypeError:
             return None
 
 #    @property
