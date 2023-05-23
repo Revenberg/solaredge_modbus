@@ -44,7 +44,7 @@ from .const import (
 from .helpers import float_to_hex, scale_factor, update_accum
 
 _LOGGER = logging.getLogger(__name__)
-
+_LOGGER.setLevel(logging.DEBUG)
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -359,6 +359,7 @@ class ACCurrentSensor(SolarEdgeSensorBase):
         super().__init__(platform, config_entry, coordinator)
         """Initialize the sensor."""
         self._phase = phase
+        _LOGGER.debug(phase)
 
 #        if self._platform.decoded_model["C_SunSpec_DID"] in [101, 102, 103]:
 #            self.SUNSPEC_NOT_IMPL = SunSpecNotImpl.UINT16
@@ -406,6 +407,9 @@ class ACCurrentSensor(SolarEdgeSensorBase):
 
     @property
     def native_value(self):
+        _LOGGER.debug(model_key)
+        _LOGGER.debug(self._platform.decoded_model)
+        _LOGGER.debug(self._platform.decoded_model[model_key])
         if self._phase is None:
             model_key = "AC_Current"
         else:
