@@ -1145,32 +1145,31 @@ class StatusVendor(SolarEdgeSensorBase):
 
     @property
     def native_value(self):
-        try:
-            if self._platform.decoded_model["I_Status_Vendor"] == SunSpecNotImpl.INT16:
-                return None
+    #    try:
+    #        if self._platform.decoded_model["I_Status_Vendor"] == SunSpecNotImpl.INT16:
+    #            return None
 
-            else:
-                return str(self._platform.decoded_model["I_Status_Vendor"])
+    #        else:
+    #            return str(self._platform.decoded_model["I_Status_Vendor"])
 
-        except TypeError:
-            return None
+   #     except TypeError:
+        return None
 
-    @property
-    def extra_state_attributes(self):
-        try:
-            if self._platform.decoded_model["I_Status_Vendor"] in VENDOR_STATUS:
-                return {
-                    "description": VENDOR_STATUS[
-                        self._platform.decoded_model["I_Status_Vendor"]
-                    ]
-                }
+    #@property
+    #def extra_state_attributes(self):
+    #    try:
+    #        if self._platform.decoded_model["I_Status_Vendor"] in VENDOR_STATUS:
+    #            return {
+    #                "description": VENDOR_STATUS[
+    #                    self._platform.decoded_model["I_Status_Vendor"]
+    #                ]
+    #            }
 
-            else:
-                return None
+    #        else:
+    #            return None
 
-        except KeyError:
-            return None
-
+    #    except KeyError:
+    #        return None
 
 class SolarEdgeActivePowerLimit(SolarEdgeGlobalPowerControlBlock):
     state_class = SensorStateClass.MEASUREMENT
