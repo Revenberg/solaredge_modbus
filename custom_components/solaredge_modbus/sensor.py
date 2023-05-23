@@ -34,7 +34,7 @@ from .const import (
     METER_EVENTS,
     MMPPT_EVENTS,
 #    RRCR_STATUS,
-    SUNSPEC_DID,
+#    SUNSPEC_DID,
 #    SUNSPEC_SF_RANGE,
     VENDOR_STATUS,
     BatteryLimit,
