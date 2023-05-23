@@ -36,7 +36,7 @@ from .const import (
 #    RRCR_STATUS,
 #    SUNSPEC_DID,
 #    SUNSPEC_SF_RANGE,
-    VENDOR_STATUS,
+#    VENDOR_STATUS,
     BatteryLimit,
 #    SunSpecAccum,
     SunSpecNotImpl,
