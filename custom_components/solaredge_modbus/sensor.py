@@ -145,54 +145,54 @@ class SolarEdgeDevice(SolarEdgeSensorBase):
     def extra_state_attributes(self):
         attrs = {}
 
-        try:
-            if (
-                float_to_hex(self._platform.decoded_common["B_MaxChargePeakPower"])
-                != hex(SunSpecNotImpl.FLOAT32)
-                and self._platform.decoded_common["B_MaxChargePeakPower"] > 0
-            ):
-                attrs["batt_charge_peak"] = self._platform.decoded_common[
-                    "B_MaxChargePeakPower"
-                ]
+#        try:
+#            if (
+#                float_to_hex(self._platform.decoded_common["B_MaxChargePeakPower"])
+#                != hex(SunSpecNotImpl.FLOAT32)
+#                and self._platform.decoded_common["B_MaxChargePeakPower"] > 0
+#            ):
+#                attrs["batt_charge_peak"] = self._platform.decoded_common[
+#                    "B_MaxChargePeakPower"
+#                ]
 
-            if (
-                float_to_hex(self._platform.decoded_common["B_MaxDischargePeakPower"])
-                != hex(SunSpecNotImpl.FLOAT32)
-                and self._platform.decoded_common["B_MaxDischargePeakPower"] > 0
-            ):
-                attrs["batt_discharge_peak"] = self._platform.decoded_common[
-                    "B_MaxDischargePeakPower"
-                ]
+#            if (
+#                float_to_hex(self._platform.decoded_common["B_MaxDischargePeakPower"])
+#                != hex(SunSpecNotImpl.FLOAT32)
+#                and self._platform.decoded_common["B_MaxDischargePeakPower"] > 0
+#            ):
+#                attrs["batt_discharge_peak"] = self._platform.decoded_common[
+#                    "B_MaxDischargePeakPower"
+#                ]
 
-            if (
-                float_to_hex(self._platform.decoded_common["B_MaxChargePower"])
-                != hex(SunSpecNotImpl.FLOAT32)
-                and self._platform.decoded_common["B_MaxChargePower"] > 0
-            ):
-                attrs["batt_max_charge"] = self._platform.decoded_common[
-                    "B_MaxChargePower"
-                ]
+#            if (
+#                float_to_hex(self._platform.decoded_common["B_MaxChargePower"])
+#                != hex(SunSpecNotImpl.FLOAT32)
+#                and self._platform.decoded_common["B_MaxChargePower"] > 0
+#            ):
+#                attrs["batt_max_charge"] = self._platform.decoded_common[
+#                    "B_MaxChargePower"
+#                ]
 
-            if (
-                float_to_hex(self._platform.decoded_common["B_MaxDischargePower"])
-                != hex(SunSpecNotImpl.FLOAT32)
-                and self._platform.decoded_common["B_MaxDischargePower"] > 0
-            ):
-                attrs["batt_max_discharge"] = self._platform.decoded_common[
-                    "B_MaxDischargePower"
-                ]
+#            if (
+#                float_to_hex(self._platform.decoded_common["B_MaxDischargePower"])
+#                != hex(SunSpecNotImpl.FLOAT32)
+#                and self._platform.decoded_common["B_MaxDischargePower"] > 0
+#            ):
+#                attrs["batt_max_discharge"] = self._platform.decoded_common[
+#                    "B_MaxDischargePower"
+#                ]
 
-            if (
-                float_to_hex(self._platform.decoded_common["B_RatedEnergy"])
-                != hex(SunSpecNotImpl.FLOAT32)
-                and self._platform.decoded_common["B_RatedEnergy"] > 0
-            ):
-                attrs["batt_rated_energy"] = self._platform.decoded_common[
-                    "B_RatedEnergy"
-                ]
+#            if (
+#                float_to_hex(self._platform.decoded_common["B_RatedEnergy"])
+#                != hex(SunSpecNotImpl.FLOAT32)
+#                and self._platform.decoded_common["B_RatedEnergy"] > 0
+#            ):
+#                attrs["batt_rated_energy"] = self._platform.decoded_common[
+#                    "B_RatedEnergy"
+#                ]
 
-        except KeyError:
-            pass
+#        except KeyError:
+#            pass
 
         attrs["device_id"] = self._platform.device_address
         attrs["manufacturer"] = self._platform.manufacturer
