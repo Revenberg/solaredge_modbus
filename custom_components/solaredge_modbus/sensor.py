@@ -24,8 +24,8 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
-    BATTERY_STATUS,
-    BATTERY_STATUS_TEXT,
+    #BATTERY_STATUS,
+    #BATTERY_STATUS_TEXT,
     DEVICE_STATUS,
     DEVICE_STATUS_TEXT,
     DOMAIN,
