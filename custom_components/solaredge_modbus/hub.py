@@ -385,6 +385,7 @@ class SolarEdgeInverter:
         self.global_power_control = None
         self.advanced_power_control = None
         self.site_limit_control = None
+        self.manufacturer = "SolarEdge"
 
     def init_device(self) -> None:
         #inverter_data = self.hub.read_holding_registers(
