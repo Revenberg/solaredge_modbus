@@ -61,7 +61,7 @@ async def async_setup_entry(
         entities.append(Version(inverter, config_entry, coordinator))
         entities.append(SolarEdgeInverterStatus(inverter, config_entry, coordinator))
         entities.append(StatusVendor(inverter, config_entry, coordinator))
-#        entities.append(ACCurrentSensor(inverter, config_entry, coordinator))
+        entities.append(ACCurrentSensor(inverter, config_entry, coordinator))
         entities.append(ACCurrentSensor(inverter, config_entry, coordinator, "A"))
         entities.append(ACCurrentSensor(inverter, config_entry, coordinator, "B"))
         entities.append(ACCurrentSensor(inverter, config_entry, coordinator, "C"))
@@ -83,97 +83,8 @@ async def async_setup_entry(
         entities.append(HeatSinkTemperature(inverter, config_entry, coordinator))
         entities.append(SolarEdgeActivePowerLimit(inverter, config_entry, coordinator))
         entities.append(SolarEdgeCosPhi(inverter, config_entry, coordinator))
-        if inverter.is_mmppt:
-            entities.append(SolarEdgeMMPPTEvents(inverter, config_entry, coordinator))
-
-    for meter in hub.meters:
-        entities.append(SolarEdgeDevice(meter, config_entry, coordinator))
-        entities.append(Version(meter, config_entry, coordinator))
-        entities.append(MeterEvents(meter, config_entry, coordinator))
-        entities.append(ACCurrentSensor(meter, config_entry, coordinator))
-        entities.append(ACCurrentSensor(meter, config_entry, coordinator, "A"))
-        entities.append(ACCurrentSensor(meter, config_entry, coordinator, "B"))
-        entities.append(ACCurrentSensor(meter, config_entry, coordinator, "C"))
-        entities.append(VoltageSensor(meter, config_entry, coordinator, "LN"))
-        entities.append(VoltageSensor(meter, config_entry, coordinator, "AN"))
-        entities.append(VoltageSensor(meter, config_entry, coordinator, "BN"))
-        entities.append(VoltageSensor(meter, config_entry, coordinator, "CN"))
-        entities.append(VoltageSensor(meter, config_entry, coordinator, "LL"))
-        entities.append(VoltageSensor(meter, config_entry, coordinator, "AB"))
-        entities.append(VoltageSensor(meter, config_entry, coordinator, "BC"))
-        entities.append(VoltageSensor(meter, config_entry, coordinator, "CA"))
-        entities.append(ACFrequency(meter, config_entry, coordinator))
-        entities.append(ACPower(meter, config_entry, coordinator))
-        entities.append(ACPower(meter, config_entry, coordinator, "A"))
-        entities.append(ACPower(meter, config_entry, coordinator, "B"))
-        entities.append(ACPower(meter, config_entry, coordinator, "C"))
-        entities.append(ACVoltAmp(meter, config_entry, coordinator))
-        entities.append(ACVoltAmp(meter, config_entry, coordinator, "A"))
-        entities.append(ACVoltAmp(meter, config_entry, coordinator, "B"))
-        entities.append(ACVoltAmp(meter, config_entry, coordinator, "C"))
-        entities.append(ACVoltAmpReactive(meter, config_entry, coordinator))
-        entities.append(ACVoltAmpReactive(meter, config_entry, coordinator, "A"))
-        entities.append(ACVoltAmpReactive(meter, config_entry, coordinator, "B"))
-        entities.append(ACVoltAmpReactive(meter, config_entry, coordinator, "C"))
-        entities.append(ACPowerFactor(meter, config_entry, coordinator))
-        entities.append(ACPowerFactor(meter, config_entry, coordinator, "A"))
-        entities.append(ACPowerFactor(meter, config_entry, coordinator, "B"))
-        entities.append(ACPowerFactor(meter, config_entry, coordinator, "C"))
-        entities.append(ACEnergy(meter, config_entry, coordinator, "Exported"))
-        entities.append(ACEnergy(meter, config_entry, coordinator, "Exported_A"))
-        entities.append(ACEnergy(meter, config_entry, coordinator, "Exported_B"))
-        entities.append(ACEnergy(meter, config_entry, coordinator, "Exported_C"))
-        entities.append(ACEnergy(meter, config_entry, coordinator, "Imported"))
-        entities.append(ACEnergy(meter, config_entry, coordinator, "Imported_A"))
-        entities.append(ACEnergy(meter, config_entry, coordinator, "Imported_B"))
-        entities.append(ACEnergy(meter, config_entry, coordinator, "Imported_C"))
-        entities.append(MeterVAhIE(meter, config_entry, coordinator, "Exported"))
-        entities.append(MeterVAhIE(meter, config_entry, coordinator, "Exported_A"))
-        entities.append(MeterVAhIE(meter, config_entry, coordinator, "Exported_B"))
-        entities.append(MeterVAhIE(meter, config_entry, coordinator, "Exported_C"))
-        entities.append(MeterVAhIE(meter, config_entry, coordinator, "Imported"))
-        entities.append(MeterVAhIE(meter, config_entry, coordinator, "Imported_A"))
-        entities.append(MeterVAhIE(meter, config_entry, coordinator, "Imported_B"))
-        entities.append(MeterVAhIE(meter, config_entry, coordinator, "Imported_C"))
-        entities.append(MetervarhIE(meter, config_entry, coordinator, "Import_Q1"))
-        entities.append(MetervarhIE(meter, config_entry, coordinator, "Import_Q1_A"))
-        entities.append(MetervarhIE(meter, config_entry, coordinator, "Import_Q1_B"))
-        entities.append(MetervarhIE(meter, config_entry, coordinator, "Import_Q1_C"))
-        entities.append(MetervarhIE(meter, config_entry, coordinator, "Import_Q2"))
-        entities.append(MetervarhIE(meter, config_entry, coordinator, "Import_Q2_A"))
-        entities.append(MetervarhIE(meter, config_entry, coordinator, "Import_Q2_B"))
-        entities.append(MetervarhIE(meter, config_entry, coordinator, "Import_Q2_C"))
-        entities.append(MetervarhIE(meter, config_entry, coordinator, "Export_Q3"))
-        entities.append(MetervarhIE(meter, config_entry, coordinator, "Export_Q3_A"))
-        entities.append(MetervarhIE(meter, config_entry, coordinator, "Export_Q3_B"))
-        entities.append(MetervarhIE(meter, config_entry, coordinator, "Export_Q3_C"))
-        entities.append(MetervarhIE(meter, config_entry, coordinator, "Export_Q4"))
-        entities.append(MetervarhIE(meter, config_entry, coordinator, "Export_Q4_A"))
-        entities.append(MetervarhIE(meter, config_entry, coordinator, "Export_Q4_B"))
-        entities.append(MetervarhIE(meter, config_entry, coordinator, "Export_Q4_C"))
-
-    for battery in hub.batteries:
-        entities.append(SolarEdgeDevice(battery, config_entry, coordinator))
-        entities.append(Version(battery, config_entry, coordinator))
-        entities.append(SolarEdgeBatteryAvgTemp(battery, config_entry, coordinator))
-        entities.append(SolarEdgeBatteryMaxTemp(battery, config_entry, coordinator))
-        entities.append(SolarEdgeBatteryVoltage(battery, config_entry, coordinator))
-        entities.append(SolarEdgeBatteryCurrent(battery, config_entry, coordinator))
-        entities.append(SolarEdgeBatteryPower(battery, config_entry, coordinator))
-        entities.append(
-            SolarEdgeBatteryEnergyExport(battery, config_entry, coordinator)
-        )
-        entities.append(
-            SolarEdgeBatteryEnergyImport(battery, config_entry, coordinator)
-        )
-        entities.append(SolarEdgeBatteryMaxEnergy(battery, config_entry, coordinator))
-        entities.append(
-            SolarEdgeBatteryAvailableEnergy(battery, config_entry, coordinator)
-        )
-        entities.append(SolarEdgeBatterySOH(battery, config_entry, coordinator))
-        entities.append(SolarEdgeBatterySOE(battery, config_entry, coordinator))
-        entities.append(SolarEdgeBatteryStatus(battery, config_entry, coordinator))
-
+    
+    _LOGGER.debug(entities)
     if entities:
         async_add_entities(entities)
 
@@ -359,6 +270,7 @@ class ACCurrentSensor(SolarEdgeSensorBase):
         super().__init__(platform, config_entry, coordinator)
         """Initialize the sensor."""
         self._phase = phase
+        _LOGGER.debug("__init__")
         _LOGGER.debug(phase)
 
 #        if self._platform.decoded_model["C_SunSpec_DID"] in [101, 102, 103]:
@@ -407,15 +319,20 @@ class ACCurrentSensor(SolarEdgeSensorBase):
 
     @property
     def native_value(self):
+        _LOGGER.debug("native_value")
         _LOGGER.debug(self._phase)
         if self._phase is None:
             model_key = "AC_Current"
         else:
             model_key = f"AC_Current_{self._phase.upper()}"
+        _LOGGER.debug("========= 1 ==================")
         _LOGGER.debug(model_key)
+        _LOGGER.debug("========= 2 ==================")
         _LOGGER.debug(self._platform.decoded_model)
+        _LOGGER.debug("========= 3 ==================")
         _LOGGER.debug(self._platform.decoded_model[model_key])
-
+        _LOGGER.debug("========= 4 ==================")
+        
         try:
 #            if (
 #                self._platform.decoded_model[model_key] == 
