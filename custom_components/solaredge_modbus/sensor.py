@@ -902,7 +902,7 @@ class DCVoltage(SolarEdgeSensorBase):
 
     @property
     def native_value(self):
-        try:
+#        try:
 #            if (
 #                self._platform.decoded_model["I_DC_Voltage"] == SunSpecNotImpl.UINT16
 #                or self._platform.decoded_model["I_DC_Voltage_SF"]
@@ -913,12 +913,12 @@ class DCVoltage(SolarEdgeSensorBase):
 #                return None
 
 #            else:
-                return scale_factor(
-                    self._platform.decoded_model["I_DC_Voltage"],
+#                return scale_factor(
+#                    self._platform.decoded_model["I_DC_Voltage"],
 #                    self._platform.decoded_model["I_DC_Voltage_SF"],
-                )
+#                )
 
-        except TypeError:
+#        except TypeError:
             return None
 
 #    @property
