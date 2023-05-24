@@ -120,7 +120,7 @@ async def async_setup_entry(
 
 class SolarEdgeSensorBase(CoordinatorEntity, SensorEntity):
     should_poll = False
-    suggested_display_precision = None
+    suggested_display_precision = 2
     _attr_has_entity_name = True
 
     def __init__(self, platform, config_entry, coordinator):
@@ -1020,7 +1020,7 @@ class DCPower(SolarEdgeSensorBase):
 
     @property
     def native_value(self):
-        try:
+        #try:
 #            if (
 #                self._platform.decoded_model["I_DC_Power"] == 
 # SunSpecNotImpl.INT16
@@ -1032,16 +1032,16 @@ class DCPower(SolarEdgeSensorBase):
 #                return None
 
 #            else:
-                _LOGGER.debug("I_DC_Power")
+        _LOGGER.debug("I_DC_Power")
 
-                self._platform.decoded_model["I_DC_Power"]
+        self._platform.decoded_model["I_DC_Power"]
 #                return scale_factor(
 #                    self._platform.decoded_model["I_DC_Power"],
 #                    self._platform.decoded_model["I_DC_Power_SF"],
 #                )
 
-        except TypeError:
-            return None
+        #except TypeError:
+        #    return None
 
 #    @property
 #    def suggested_display_precision(self):
