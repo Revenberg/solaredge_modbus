@@ -983,6 +983,8 @@ class DCPower(SolarEdgeSensorBase):
 #                return None
 
 #            else:
+                _LOGGER.debug("I_DC_Power")
+
                 return scale_factor(
                     self._platform.decoded_model["I_DC_Power"],
 #                    self._platform.decoded_model["I_DC_Power_SF"],
