@@ -91,7 +91,7 @@ async def async_setup_entry(
         _LOGGER.debug("====================== 18 ======")
         entities.append(ACVoltAmpReactive(inverter, config_entry, coordinator))
         _LOGGER.debug("====================== 19 ======")
-        entities.append(ACPowerFactor(inverter, config_entry, coordinator))
+        #entities.append(ACPowerFactor(inverter, config_entry, coordinator))
         _LOGGER.debug("====================== 20 ======")
         entities.append(ACEnergy(inverter, config_entry, coordinator))
         _LOGGER.debug("====================== 21 ======")
@@ -142,10 +142,6 @@ class SolarEdgeSensorBase(CoordinatorEntity, SensorEntity):
     @property
     def available(self) -> bool:
         return self._platform.online
-
-#    @property
-#    def state(self) -> bool:
-#        return self._platform.online
 
     @callback
     def _handle_coordinator_update(self) -> None:
@@ -318,26 +314,6 @@ class ACCurrentSensor(SolarEdgeSensorBase):
             return f"{self._platform.uid_base}_ac_current_{self._phase.lower()}"
 
     @property
-    def entity_registry_enabled_default(self) -> bool:
-#        if self._phase is None:
-#            return True
-
-#        elif self._platform.decoded_model["C_SunSpec_DID"] in [
-#            103,
-#            203,
-#            204,
-#        ] and self._phase in [
-#            "A",
-#            "B",
-#            "C",
-#        ]:
-#            return True
-
-#        else:
-#            return False
-        return True
-
-    @property
     def name(self) -> str:
         if self._phase is None:
             return "AC Current"
@@ -394,33 +370,16 @@ class VoltageSensor(SolarEdgeSensorBase):
         _LOGGER.debug("==========  INIT ================")
         _LOGGER.debug(self._phase)
 
-#        if self._platform.decoded_model["C_SunSpec_DID"] in [101, 102, 103]:
-#            self.SUNSPEC_NOT_IMPL = SunSpecNotImpl.UINT16
-#        elif self._platform.decoded_model["C_SunSpec_DID"] in [201, 202, 203, 204]:
-#            self.SUNSPEC_NOT_IMPL = SunSpecNotImpl.INT16
-#        else:
-#            raise RuntimeError(
-#                "ACCurrentSensor C_SunSpec_DID "
-#                f"{self._platform.decoded_model['C_SunSpec_DID']}"
-#            )
-
     @property
     def unique_id(self) -> str:
         _LOGGER.debug("==========  unique_id ================")
         _LOGGER.debug(self._phase)
         if self._phase is None:
+            _LOGGER.debug("==========  unique_id 1 ================")
             return f"{self._platform.uid_base}_ac_voltage"
         else:
+            _LOGGER.debug("==========  unique_id 2 ================")
             return f"{self._platform.uid_base}_ac_voltage_{self._phase.lower()}"
-
-    @property
-    def entity_registry_enabled_default(self) -> bool:
-        _LOGGER.debug("==========  entity_registry_enabled_default ================")
-        _LOGGER.debug(self._phase)
-        #if self._phase is None:
-        #    raise NotImplementedError
-
-        return True
 
     @property
     def name(self) -> str:
@@ -440,18 +399,6 @@ class VoltageSensor(SolarEdgeSensorBase):
         else:
             model_key = f"AC_Voltage_{self._phase.upper()}"
 
-#        try:
-#            if (
-#                self._platform.decoded_model[model_key] == 
-# self.SUNSPEC_NOT_IMPL
-#                or self._platform.decoded_model["AC_Voltage_SF"] == 
-# SunSpecNotImpl.INT16
-#                or self._platform.decoded_model["AC_Voltage_SF"] 
-# not in SUNSPEC_SF_RANGE
-#            ):
-#                return None
-
-#            else:
         _LOGGER.debug("========== native_value 2 ================")
         _LOGGER.debug(model_key)
         _LOGGER.debug(self._phase)
@@ -490,25 +437,6 @@ class ACPower(SolarEdgeSensorBase):
             return f"{self._platform.uid_base}_ac_power"
         else:
             return f"{self._platform.uid_base}_ac_power_{self._phase.lower()}"
-
-    @property
-    def entity_registry_enabled_default(self) -> bool:
-        if self._phase is None:
-            return True
-
-#        elif self._platform.decoded_model["C_SunSpec_DID"] in [
-#            203,
-#            204,
-#        ] and self._phase in [
-#            "A",
-#            "B",
-#            "C",
-#        ]:
-#            return True
-
-#        else:
-#            return False
-        return True
 
     @property
     def name(self) -> str:
@@ -555,6 +483,7 @@ class ACFrequency(SolarEdgeSensorBase):
     state_class = SensorStateClass.MEASUREMENT
     native_unit_of_measurement = UnitOfFrequency.HERTZ
     suggested_display_precision = 1
+    entity_registry_enabled_default = True
     
     def __init__(self, platform, config_entry, coordinator):
         super().__init__(platform, config_entry, coordinator)
@@ -626,10 +555,6 @@ class ACVoltAmp(SolarEdgeSensorBase):
             return f"AC VA {self._phase.upper()}"
 
     @property
-    def entity_registry_enabled_default(self) -> bool:
-        return False
-
-    @property
     def native_value(self):
         if self._phase is None:
             model_key = "AC_VA"
@@ -688,10 +613,6 @@ class ACVoltAmpReactive(SolarEdgeSensorBase):
             return f"AC var {self._phase.upper()}"
 
     @property
-    def entity_registry_enabled_default(self) -> bool:
-        return False
-
-    @property
     def native_value(self):
         if self._phase is None:
             model_key = "AC_var"
@@ -722,64 +643,6 @@ class ACVoltAmpReactive(SolarEdgeSensorBase):
 #    @property
 #    def suggested_display_precision(self):
 #        return abs(self._platform.decoded_model["AC_var_SF"])
-
-
-class ACPowerFactor(SolarEdgeSensorBase):
-    device_class = SensorDeviceClass.POWER_FACTOR
-    state_class = SensorStateClass.MEASUREMENT
-    native_unit_of_measurement = PERCENTAGE
-    suggested_display_precision = 1
-
-    def __init__(self, platform, config_entry, coordinator, phase: str = None):
-        super().__init__(platform, config_entry, coordinator)
-        """Initialize the sensor."""
-        self._phase = phase
-
-    @property
-    def unique_id(self) -> str:
-        if self._phase is None:
-            return f"{self._platform.uid_base}_ac_pf"
-        else:
-            return f"{self._platform.uid_base}_ac_pf_{self._phase.lower()}"
-
-    @property
-    def name(self) -> str:
-        if self._phase is None:
-            return "AC PF"
-        else:
-            return f"AC PF {self._phase.upper()}"
-
-    @property
-    def entity_registry_enabled_default(self) -> bool:
-        return False
-
-    @property
-    def native_value(self):
-        if self._phase is None:
-            model_key = "AC_PF"
-        else:
-            model_key = f"AC_PF_{self._phase.upper()}"
-
-        try:
-#            if (
-#                self._platform.decoded_model[model_key] == SunSpecNotImpl.INT16
-#                or self._platform.decoded_model["AC_PF_SF"] == SunSpecNotImpl.INT16
-#                or self._platform.decoded_model["AC_PF_SF"] not in SUNSPEC_SF_RANGE
-#            ):
-#                return None
-
-#            else:
-                _LOGGER.debug(model_key)
-                _LOGGER.debug(self._phase)
-
-                self._platform.decoded_model[model_key]
-#                return scale_factor(
-#                    self._platform.decoded_model[model_key],
-#                    self._platform.decoded_model["AC_PF_SF"],
-#                )
-
-        except TypeError:
-            return None
 
 #    @property
 #    def suggested_display_precision(self):
@@ -828,31 +691,6 @@ class ACEnergy(SolarEdgeSensorBase):
             return f"{self._platform.uid_base}_ac_energy_kwh"
         else:
             return f"{self._platform.uid_base}_{self._phase.lower()}_kwh"
-
-    @property
-    def entity_registry_enabled_default(self) -> bool:
-#        if self._phase is None or self._phase in [
-#            "Exported",
-#            "Imported",
-#            "Exported_A",
-#            "Imported_A",
-#        ]:
-#            return True
-
-#        elif self._platform.decoded_model["C_SunSpec_DID"] in [
-#            203,
-#            204,
-#        ] and self._phase in [
-#            "Exported_B",
-#            "Exported_C",
-#            "Imported_B",
-#            "Imported_C",
-#        ]:
-#            return True
-
-#        else:
-#            return False
-        return False
 
     @property
     def name(self) -> str:
@@ -1067,28 +905,8 @@ class HeatSinkTemperature(SolarEdgeSensorBase):
 
     @property
     def native_value(self):
-#        try:
-#            if (
-#                self._platform.decoded_model["I_Temp_Sink"] == 0x0
-#                or self._platform.decoded_model["I_Temp_Sink"] == 
-# SunSpecNotImpl.INT16
-#                or self._platform.decoded_model["I_Temp_SF"] == 
-# SunSpecNotImpl.INT16
-#                or self._platform.decoded_model["I_Temp_SF"] 
-# not in SUNSPEC_SF_RANGE
-#            ):
-#                return None
-
-#            else:
         _LOGGER.debug("I_Temp_Sink")
         return self._platform.decoded_model["I_Temp_Sink"]
-#                return scale_factor(
-#                    self._platform.decoded_model["I_Temp_Sink"],
-#                    self._platform.decoded_model["I_Temp_SF"],
-#                )
-
-#        except TypeError:
-#            return None
 
 #    @property
 #    def suggested_display_precision(self):
