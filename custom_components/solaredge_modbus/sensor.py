@@ -509,6 +509,9 @@ class ACPower(SolarEdgeSensorBase):
 #                return None
 
 #            else:
+                _LOGGER.debug(model_key)
+                _LOGGER.debug(self._phase)
+
                 return scale_factor(
                     self._platform.decoded_model[model_key],
 #                    self._platform.decoded_model["AC_Power_SF"],
@@ -610,6 +613,9 @@ class ACVoltAmp(SolarEdgeSensorBase):
 #                return None
 
 #            else:
+                _LOGGER.debug(model_key)
+                _LOGGER.debug(self._phase)
+
                 return scale_factor(
                     self._platform.decoded_model[model_key],
 #                    self._platform.decoded_model["AC_VA_SF"],
@@ -667,6 +673,9 @@ class ACVoltAmpReactive(SolarEdgeSensorBase):
 #                return None
 
 #            else:
+                _LOGGER.debug(model_key)
+                _LOGGER.debug(self._phase)
+
                 return scale_factor(
                     self._platform.decoded_model[model_key],
 #                    self._platform.decoded_model["AC_var_SF"],
@@ -724,6 +733,9 @@ class ACPowerFactor(SolarEdgeSensorBase):
 #                return None
 
 #            else:
+                _LOGGER.debug(model_key)
+                _LOGGER.debug(self._phase)
+
                 return scale_factor(
                     self._platform.decoded_model[model_key],
 #                    self._platform.decoded_model["AC_PF_SF"],
@@ -831,6 +843,9 @@ class ACEnergy(SolarEdgeSensorBase):
 #                return None
 
 #            else:
+                _LOGGER.debug(model_key)
+                _LOGGER.debug(self._phase)
+
                 value = scale_factor(
                     self._platform.decoded_model[model_key],
 #                    self._platform.decoded_model["AC_Energy_WH_SF"],
@@ -876,13 +891,16 @@ class DCCurrent(SolarEdgeSensorBase):
 #                return None
 
 #            else:
-#                return scale_factor(
-#                    self._platform.decoded_model["I_DC_Current"],
+                _LOGGER.debug(model_key)
+                _LOGGER.debug(self._phase)
+
+                return scale_factor(
+                    self._platform.decoded_model["I_DC_Current"],
 #                    self._platform.decoded_model["I_DC_Current_SF"],
-#                )
+                )
 
 #        except TypeError:
-            return None
+#            return None
 
 #    @property
 #    def suggested_display_precision(self):
@@ -919,10 +937,13 @@ class DCVoltage(SolarEdgeSensorBase):
 #                return None
 
 #            else:
-#                return scale_factor(
-#                    self._platform.decoded_model["I_DC_Voltage"],
+                _LOGGER.debug(model_key)
+                _LOGGER.debug(self._phase)
+
+                return scale_factor(
+                    self._platform.decoded_model["I_DC_Voltage"],
 #                    self._platform.decoded_model["I_DC_Voltage_SF"],
-#                )
+                )
 
 #        except TypeError:
             return None
@@ -1101,6 +1122,8 @@ class StatusVendor(SolarEdgeSensorBase):
 
     @property
     def native_value(self):
+        _LOGGER.debug("I_Status_Vendor")
+
     #    try:
     #        if self._platform.decoded_model["I_Status_Vendor"] == SunSpecNotImpl.INT16:
     #            return None
@@ -1144,6 +1167,8 @@ class MeterEvents(SolarEdgeSensorBase):
 
     @property
     def native_value(self):
+        _LOGGER.debug("M_Events")
+
         try:
             if self._platform.decoded_model["M_Events"] == SunSpecNotImpl.UINT32:
                 return None
@@ -1193,6 +1218,8 @@ class SolarEdgeMMPPTEvents(SolarEdgeSensorBase):
 
     @property
     def native_value(self):
+        _LOGGER.debug("mmpt_events")
+
         try:
             if self._platform.decoded_model["mmppt_Events"] == SunSpecNotImpl.UINT32:
                 return None
@@ -1286,6 +1313,9 @@ class MeterVAhIE(SolarEdgeSensorBase):
 #                return None
 
 #            else:
+                _LOGGER.debug(model_key)
+                _LOGGER.debug(self._phase)
+
                 value = scale_factor(
                     self._platform.decoded_model[model_key],
  #                   self._platform.decoded_model["M_VAh_SF"],
@@ -1364,6 +1394,9 @@ class MetervarhIE(SolarEdgeSensorBase):
 #                return None
 
 #            else:
+                _LOGGER.debug(model_key)
+                _LOGGER.debug(self._phase)
+
                 value = scale_factor(
                     self._platform.decoded_model[model_key],
  #                   self._platform.decoded_model["M_varh_SF"],
@@ -1429,6 +1462,8 @@ class SolarEdgeBatteryMaxTemp(HeatSinkTemperature):
     @property
     def native_value(self):
         try:
+            _LOGGER.debug("B_Temo_max")
+
             if (
                 float_to_hex(self._platform.decoded_model["B_Temp_Max"])
                 == hex(SunSpecNotImpl.FLOAT32)
@@ -1449,6 +1484,8 @@ class SolarEdgeBatteryVoltage(DCVoltage):
 
     @property
     def native_value(self):
+        _LOGGER.debug("B_DC_Voltage")
+
         try:
             if (
                 float_to_hex(self._platform.decoded_model["B_DC_Voltage"])
@@ -1473,6 +1510,8 @@ class SolarEdgeBatteryCurrent(DCCurrent):
 
     @property
     def native_value(self):
+        _LOGGER.debug("B_DV_Current")
+
         try:
             if (
                 float_to_hex(self._platform.decoded_model["B_DC_Current"])
@@ -1498,6 +1537,8 @@ class SolarEdgeBatteryPower(DCPower):
 
     @property
     def native_value(self):
+        _LOGGER.debug("B_DC_POWER")
+
         try:
             if (
                 float_to_hex(self._platform.decoded_model["B_DC_Power"])
@@ -1541,6 +1582,8 @@ class SolarEdgeBatteryEnergyExport(SolarEdgeSensorBase):
 
     @property
     def native_value(self):
+        _LOGGER.debug("B_export_engergy_WH")
+
         try:
             if self._platform.decoded_model[
                 "B_Export_Energy_WH"
@@ -1609,6 +1652,8 @@ class SolarEdgeBatteryEnergyImport(SolarEdgeSensorBase):
 
     @property
     def native_value(self):
+        _LOGGER.debug("B_Imprt_energy_wh")
+
         try:
             if self._platform.decoded_model[
                 "B_Import_Energy_WH"
@@ -1675,6 +1720,8 @@ class SolarEdgeBatteryMaxEnergy(SolarEdgeSensorBase):
 
     @property
     def native_value(self):
+        _LOGGER.debug("B_Energy_max")
+
         if (
             float_to_hex(self._platform.decoded_model["B_Energy_Max"])
             == hex(SunSpecNotImpl.FLOAT32)
@@ -1745,6 +1792,8 @@ class SolarEdgeBatterySOH(SolarEdgeSensorBase):
 
     @property
     def native_value(self):
+        _LOGGER.debug("B_SOH")
+
         if (
             float_to_hex(self._platform.decoded_model["B_SOH"])
             == hex(SunSpecNotImpl.FLOAT32)
@@ -1776,6 +1825,8 @@ class SolarEdgeBatterySOE(SolarEdgeSensorBase):
 
     @property
     def native_value(self):
+        _LOGGER.debug("B_SOE")
+
         if (
             float_to_hex(self._platform.decoded_model["B_SOE"])
             == hex(SunSpecNotImpl.FLOAT32)
