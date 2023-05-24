@@ -484,6 +484,10 @@ class SolarEdgeInverter:
 #                ("I_Status", decoder.decode_16bit_int()),
                 ("I_Status", 3),
                 ("I_Status_Vendor", 3),
+                ("SN_1", SN_1),
+                ("SN_2", SN_2),
+                ("SN_3", SN_3),
+                ("SN_4", SN_4),
             ]
         )
 
