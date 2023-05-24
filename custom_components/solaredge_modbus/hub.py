@@ -41,7 +41,6 @@ class DeviceInitFailed(SolarEdgeException):
 
     pass
 
-
 class ModbusReadError(SolarEdgeException):
     """Raised when a modbus read fails"""
 
@@ -415,7 +414,7 @@ class SolarEdgeInverter:
         except ConnectionException as e:
             _LOGGER.error(f"Connection error: {e}")
             self._online = False
-            return None
+            raise ModbusReadError(f"{e}")
 
         self.decoded_model = OrderedDict(
             [
