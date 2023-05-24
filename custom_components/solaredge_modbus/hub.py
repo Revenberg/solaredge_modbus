@@ -134,26 +134,6 @@ class SolarEdgeModbusMultiHub:
         )
 
     async def _async_init_solaredge(self) -> None:
-        #if not self.is_socket_open():
-        #    raise HubInitFailed(f"Could not 
-        # open Modbus/TCP connection to {self._host}")
-
-        #if self._adv_storage_control:
-        #    _LOGGER.warning(
-        #        (
-        #            "Power Control Options: Storage Control is enabled. "
-        #            "Use at your own risk!"
-        #        ),
-        #    )
-
-        #if self._adv_site_limit_control:
-        #    _LOGGER.warning(
-        #        (
-        #            "Power Control Options: Site Limit Control is enabled. "
-        #            "Use at your own risk!"
-        #        ),
-        #    )
-
         inverter_unit_id = 1
 
         try:
@@ -207,21 +187,10 @@ class SolarEdgeModbusMultiHub:
                 #await self.disconnect()
                 raise HubInitFailed(f"Setup failed: {e}")
 
-        #if not self.is_socket_open():
-        #    self._online = False
-        #    raise DataUpdateFailed(
-        #        f"Could not open Modbus/TCP connection to {self._host}"
-        #    )
-
-        #else:
         self._online = True
         try:
             for inverter in self.inverters:
                 await self._hass.async_add_executor_job(inverter.read_modbus_data)
-        #        for meter in self.meters:
-        #            await self._hass.async_add_executor_job(meter.read_modbus_data)
-        #        for battery in self.batteries:
-        #            await self._hass.async_add_executor_job(battery.read_modbus_data)
 
         except ModbusReadError as e:
             self._online = False
@@ -393,157 +362,6 @@ class SolarEdgeInverter:
         self.manufacturer = "SolarEdge"
 
     def init_device(self) -> None:
-        #inverter_data = self.hub.read_holding_registers(
-        #    unit=self.inverter_unit_id, address=40000, count=4
-        #)
-        #if inverter_data.isError():
-        #    _LOGGER.debug(f"Inverter {self.inverter_unit_id}: {inverter_data}")
-        
-
-        #    if type(inverter_data) is ModbusIOException:
-        #        raise DeviceInvalid(
-        #            f"No response from inverter ID {self.inverter_unit_id}"
-        #        )
-
-        #    if type(inverter_data) is ExceptionResponse:
-        #        if inverter_data.exception_code == ModbusExceptions.IllegalAddress:
-        #            raise DeviceInvalid(
-        #                f"ID {self.inverter_unit_id} is not a SunSpec inverter."
-        #            )
-
-        #    raise ModbusReadError(inverter_data)
-
-        #decoder = BinaryPayloadDecoder.fromRegisters(
-        #    inverter_data.registers, byteorder=Endian.Big
-        #)
-
-        #decoded_ident = OrderedDict(
-        #    [
-        #        ("C_SunSpec_ID", decoder.decode_32bit_uint()),
-        #        ("C_SunSpec_DID", decoder.decode_16bit_uint()),
-        #        ("C_SunSpec_Length", decoder.decode_16bit_uint()),
-        #    ]
-        #)
-
-        #for name, value in iter(decoded_ident.items()):
-        #    _LOGGER.debug(
-        #        (
-        #            f"Inverter {self.inverter_unit_id}: "
-        #            f"{name} {hex(value) if isinstance(value, int) else value}"
-        #        ),
-        #    )
-
-        #if (
-        #    decoded_ident["C_SunSpec_ID"] == SunSpecNotImpl.UINT32
-        #    or decoded_ident["C_SunSpec_DID"] == SunSpecNotImpl.UINT16
-        #    or decoded_ident["C_SunSpec_ID"] != 0x53756E53
-        #    or decoded_ident["C_SunSpec_DID"] != 0x0001
-        #    or decoded_ident["C_SunSpec_Length"] != 65
-        #):
-        #    raise DeviceInvalid(
-        #        f"ID {self.inverter_unit_id} is not a SunSpec inverter."
-        #    )
-
-        #inverter_data = self.hub.read_holding_registers(
-        #    unit=self.inverter_unit_id, address=40004, count=65
-        #)
-        #if inverter_data.isError():
-        #    _LOGGER.debug(f"Inverter {self.inverter_unit_id}: {inverter_data}")
-        #    raise ModbusReadError(inverter_data)
-
-        #decoder = BinaryPayloadDecoder.fromRegisters(
-        #    inverter_data.registers, byteorder=Endian.Big
-        #)
-
-        #self.decoded_common = OrderedDict(
-        #    [
-        #        (
-        #            "C_Manufacturer",
-        #            parse_modbus_string(decoder.decode_string(32)),
-        #        ),
-        #        ("C_Model", parse_modbus_string(decoder.decode_string(32))),
-        #        ("C_Option", parse_modbus_string(decoder.decode_string(16))),
-        #        ("C_Version", parse_modbus_string(decoder.decode_string(16))),
-        #        (
-        #            "C_SerialNumber",
-        #            parse_modbus_string(decoder.decode_string(32)),
-        #        ),
-        #        ("C_Device_address", decoder.decode_16bit_uint()),
-        #    ]
-        #)
-
-        #for name, value in iter(self.decoded_common.items()):
-        #    _LOGGER.debug(
-        #        (
-        #            f"Inverter {self.inverter_unit_id}: "
-        #            f"{name} {hex(value) if isinstance(value, int) else value}"
-        #        ),
-        #    )
-
-        #self.hub.inverter_common[self.inverter_unit_id] = self.decoded_common
-
-        #mmppt_common = self.hub.read_holding_registers(
-        #    unit=self.inverter_unit_id, address=40121, count=9
-        #)
-        #if mmppt_common.isError():
-        #    _LOGGER.debug(f"Inverter {self.inverter_unit_id} MMPPT: {mmppt_common}")
-
-        #    if type(mmppt_common) is ModbusIOException:
-        #        raise ModbusReadError(
-        #            f"No response from inverter ID {self.inverter_unit_id}"
-        #        )
-
-        #    elif type(mmppt_common) is ExceptionResponse:
-        #        if mmppt_common.exception_code == ModbusExceptions.IllegalAddress:
-        #            _LOGGER.debug(
-        #                f"Inverter {self.inverter_unit_id} is NOT Multiple MPPT"
-        #            )
-        #            self.decoded_mmppt = None
-
-        #    else:
-        #        raise ModbusReadError(mmppt_common)
-
-        #else:
-        #    decoder = BinaryPayloadDecoder.fromRegisters(
-        #        mmppt_common.registers, byteorder=Endian.Big
-        #    )
-
-        #    self.decoded_mmppt = OrderedDict(
-        #        [
-        #            ("mmppt_DID", decoder.decode_16bit_uint()),
-        #            ("mmppt_Length", decoder.decode_16bit_uint()),
-        #            ("ignore", decoder.skip_bytes(12)),
-        #            ("mmppt_Units", decoder.decode_16bit_uint()),
-        #        ]
-        #    )
-
-        #    try:
-        #        del self.decoded_mmppt["ignore"]
-        #    except KeyError:
-        #        pass
-
-        #    for name, value in iter(self.decoded_mmppt.items()):
-        #        _LOGGER.debug(
-        #            (
-        #                f"Inverter {self.inverter_unit_id} MMPPT: "
-        #                f"{name} {hex(value) if isinstance(value, int) else value}"
-        #            ),
-        #        )
-
-        #    if (
-        #        self.decoded_mmppt["mmppt_DID"] == SunSpecNotImpl.UINT16
-        #        or self.decoded_mmppt["mmppt_Units"] == SunSpecNotImpl.UINT16
-        #        or self.decoded_mmppt["mmppt_DID"] not in [160]
-        #        or self.decoded_mmppt["mmppt_Units"] not in [2, 3]
-        #    ):
-        #        _LOGGER.debug(f"Inverter {self.inverter_unit_id} is NOT Multiple MPPT")
-        #        self.decoded_mmppt = None
-
-        #    else:
-        #        _LOGGER.debug(f"Inverter {self.inverter_unit_id} is Multiple MPPT")
-
-        #self.hub.mmppt_common[self.inverter_unit_id] = self.decoded_mmppt
-
         #self.manufacturer = self.decoded_common["C_Manufacturer"]
         self.manufacturer = "SolarEdge"
         #self.model = self.decoded_common["C_Model"]
@@ -585,18 +403,19 @@ class SolarEdgeInverter:
     
     def read_modbus_data(self) -> None:
         _LOGGER.debug("read_modbus_data")
-        #inverter_data = self.hub.read_holding_registers(
-        #    unit=self.inverter_unit_id, address=40069, count=40
-        #)
-        #if inverter_data.isError():
-        #    _LOGGER.debug(f"Inverter {self.inverter_unit_id}: {inverter_data}")
-        #    raise ModbusReadError(inverter_data)
-
-        #decoder = BinaryPayloadDecoder.fromRegisters(
-        #    inverter_data.registers, byteorder=Endian.Big
-        #)
-
+        
         # https://ginlongsolis.freshdesk.com/helpdesk/attachments/36112313359
+
+        try:
+            SN_1 = self.getValueString(3061, functioncode=3)
+            SN_2 = self.getValueString(3062, functioncode=3)
+            SN_3 = self.getValueString(3063, functioncode=3)
+            SN_4 = self.getValueString(3064, functioncode=3)
+        
+        except ConnectionException as e:
+            _LOGGER.error(f"Connection error: {e}")
+            self._online = False
+            return None
 
         self.decoded_model = OrderedDict(
             [
@@ -666,10 +485,6 @@ class SolarEdgeInverter:
 #                ("I_Status", decoder.decode_16bit_int()),
                 ("I_Status", 3),
                 ("I_Status_Vendor", 3),
-                ("SN_1", self.getValueString(3061, functioncode=3)),
-                ("SN_2", self.getValueString(3062, functioncode=3)),
-                ("SN_3", self.getValueString(3063, functioncode=3)),
-                ("SN_4", self.getValueString(3064, functioncode=3)),
             ]
         )
 
