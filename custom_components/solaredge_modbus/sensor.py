@@ -41,7 +41,7 @@ from .const import (
 #    SunSpecAccum,
     SunSpecNotImpl,
 )
-from .helpers import  update_accum
+from .helpers import  update_accum, scale_factor
 # scale_factor, float_to_hex
 _LOGGER = logging.getLogger(__name__)
 _LOGGER.setLevel(logging.DEBUG)
@@ -373,7 +373,7 @@ class ACCurrentSensor(SolarEdgeSensorBase):
 #            ):
 #                return None
 
-        self._platform.decoded_model[model_key]
+        return self._platform.decoded_model[model_key]
 #            else:
 #                return scale_factor(
 #                self._platform.decoded_model[model_key],
@@ -467,7 +467,7 @@ class VoltageSensor(SolarEdgeSensorBase):
         _LOGGER.debug(model_key)
         _LOGGER.debug(self._phase)
 
-        self._platform.decoded_model[model_key]
+        return self._platform.decoded_model[model_key]
 #                return scale_factor(
 #                    self._platform.decoded_model[model_key],
                   #  self._platform.decoded_model["AC_Voltage_SF"],
@@ -544,7 +544,7 @@ class ACPower(SolarEdgeSensorBase):
                 _LOGGER.debug(model_key)
                 _LOGGER.debug(self._phase)
 
-                self._platform.decoded_model[model_key]
+                return self._platform.decoded_model[model_key]
 #                return scale_factor(
 #                    self._platform.decoded_model[model_key],
 #                    self._platform.decoded_model["AC_Power_SF"],
@@ -577,7 +577,7 @@ class ACFrequency(SolarEdgeSensorBase):
 
     @property
     def native_value(self):
-        try:
+#        try:
 #            if (
 #                self._platform.decoded_model["AC_Frequency"] == 
 # SunSpecNotImpl.UINT16
@@ -591,15 +591,16 @@ class ACFrequency(SolarEdgeSensorBase):
 #            else:
                 _LOGGER.debug("AC_Frequency")
                 _LOGGER.debug(self._platform.decoded_model["AC_Frequency"])
-
-                self._platform.decoded_model["AC_Frequency"]
+                return self._platform.decoded_model["AC_Frequency"]
+ 
+                #self._platform.decoded_model["AC_Frequency"]
                 #return scale_factor(
                 #    self._platform.decoded_model["AC_Frequency"],
                 #    self._platform.decoded_model["AC_Frequency_SF"],
                 #)
 
-        except TypeError:
-            return None
+#        except TypeError:
+#            return None
 
 #    @property
 #    def suggested_display_precision(self):
@@ -653,7 +654,7 @@ class ACVoltAmp(SolarEdgeSensorBase):
                 _LOGGER.debug(model_key)
                 _LOGGER.debug(self._phase)
 
-                self._platform.decoded_model[model_key]
+                return self._platform.decoded_model[model_key]
 #                return scale_factor(
 #                    self._platform.decoded_model[model_key],
 #                    self._platform.decoded_model["AC_VA_SF"],
@@ -714,7 +715,7 @@ class ACVoltAmpReactive(SolarEdgeSensorBase):
                 _LOGGER.debug(model_key)
                 _LOGGER.debug(self._phase)
 
-                self._platform.decoded_model[model_key]
+                return self._platform.decoded_model[model_key]
 #                return scale_factor(
 #                    self._platform.decoded_model[model_key],
 #                    self._platform.decoded_model["AC_var_SF"],
@@ -1066,7 +1067,7 @@ class HeatSinkTemperature(SolarEdgeSensorBase):
 
     @property
     def native_value(self):
-        try:
+#        try:
 #            if (
 #                self._platform.decoded_model["I_Temp_Sink"] == 0x0
 #                or self._platform.decoded_model["I_Temp_Sink"] == 
@@ -1079,14 +1080,15 @@ class HeatSinkTemperature(SolarEdgeSensorBase):
 #                return None
 
 #            else:
-                self._platform.decoded_model["I_Temp_Sink"]
+        _LOGGER.debug("I_Temp_Sink")
+        self._platform.decoded_model["I_Temp_Sink"]
 #                return scale_factor(
 #                    self._platform.decoded_model["I_Temp_Sink"],
 #                    self._platform.decoded_model["I_Temp_SF"],
 #                )
 
-        except TypeError:
-            return None
+#        except TypeError:
+#            return None
 
 #    @property
 #    def suggested_display_precision(self):
