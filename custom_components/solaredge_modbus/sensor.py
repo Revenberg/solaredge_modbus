@@ -946,7 +946,7 @@ class DCVoltage(SolarEdgeSensorBase):
                 )
 
 #        except TypeError:
-            return None
+            #return None
 
 #    @property
 #    def suggested_display_precision(self):
