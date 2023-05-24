@@ -585,10 +585,11 @@ class ACFrequency(SolarEdgeSensorBase):
                 _LOGGER.debug("AC_Frequency")
                 _LOGGER.debug(self._platform.decoded_model["AC_Frequency"])
 
-                return scale_factor(
-                    self._platform.decoded_model["AC_Frequency"],
-                    self._platform.decoded_model["AC_Frequency_SF"],
-                )
+                self._platform.decoded_model["AC_Frequency"],
+                #return scale_factor(
+                #    self._platform.decoded_model["AC_Frequency"],
+                #    self._platform.decoded_model["AC_Frequency_SF"],
+                #)
 
         except TypeError:
             return None
