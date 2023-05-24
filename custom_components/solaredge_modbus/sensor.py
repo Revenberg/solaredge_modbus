@@ -391,7 +391,7 @@ class VoltageSensor(SolarEdgeSensorBase):
         super().__init__(platform, config_entry, coordinator)
         """Initialize the sensor."""
         self._phase = phase
-        _LOGGER.debug("==========================")
+        _LOGGER.debug("==========  INIT ================")
         _LOGGER.debug(self._phase)
 
 #        if self._platform.decoded_model["C_SunSpec_DID"] in [101, 102, 103]:
@@ -406,6 +406,8 @@ class VoltageSensor(SolarEdgeSensorBase):
 
     @property
     def unique_id(self) -> str:
+        _LOGGER.debug("==========  unique_id ================")
+        _LOGGER.debug(self._phase)
         if self._phase is None:
             return f"{self._platform.uid_base}_ac_voltage"
         else:
@@ -413,6 +415,8 @@ class VoltageSensor(SolarEdgeSensorBase):
 
     @property
     def entity_registry_enabled_default(self) -> bool:
+        _LOGGER.debug("==========  entity_registry_enabled_default ================")
+        _LOGGER.debug(self._phase)
         if self._phase is None:
             raise NotImplementedError
 
@@ -432,12 +436,11 @@ class VoltageSensor(SolarEdgeSensorBase):
 #        ]:
 #            return True
 
-        else:
-            return True
+        return True
 
     @property
     def name(self) -> str:
-        _LOGGER.debug("==========================")
+        _LOGGER.debug("=========== NAME ===============")
         _LOGGER.debug(self._phase)
         if self._phase is None:
             return "AC Voltage"
@@ -463,7 +466,7 @@ class VoltageSensor(SolarEdgeSensorBase):
 #                return None
 
 #            else:
-        _LOGGER.debug("==========================")
+        _LOGGER.debug("========== native_value ================")
         _LOGGER.debug(model_key)
         _LOGGER.debug(self._phase)
 
@@ -486,7 +489,7 @@ class ACPower(SolarEdgeSensorBase):
     state_class = SensorStateClass.MEASUREMENT
     native_unit_of_measurement = UnitOfPower.WATT
     icon = "mdi:solar-power"
-    suggested_display_precision = 1
+    suggested_display_precision = 0
 
     def __init__(self, platform, config_entry, coordinator, phase: str = None):
         super().__init__(platform, config_entry, coordinator)
@@ -563,6 +566,7 @@ class ACFrequency(SolarEdgeSensorBase):
     device_class = SensorDeviceClass.FREQUENCY
     state_class = SensorStateClass.MEASUREMENT
     native_unit_of_measurement = UnitOfFrequency.HERTZ
+    suggested_display_precision = 1
     
     def __init__(self, platform, config_entry, coordinator):
         super().__init__(platform, config_entry, coordinator)
@@ -1011,7 +1015,7 @@ class DCPower(SolarEdgeSensorBase):
     state_class = SensorStateClass.MEASUREMENT
     native_unit_of_measurement = UnitOfPower.WATT
     icon = "mdi:solar-power"
-    suggested_display_precision = 3
+    suggested_display_precision = 0
 
     def __init__(self, platform, config_entry, coordinator):
         super().__init__(platform, config_entry, coordinator)
