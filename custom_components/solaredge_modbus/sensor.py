@@ -596,9 +596,9 @@ class ACFrequency(SolarEdgeSensorBase):
         except TypeError:
             return None
 
-    @property
-    def suggested_display_precision(self):
-        return abs(self._platform.decoded_model["AC_Frequency_SF"])
+#    @property
+#    def suggested_display_precision(self):
+#        return abs(self._platform.decoded_model["AC_Frequency_SF"])
 
 
 class ACVoltAmp(SolarEdgeSensorBase):
@@ -928,7 +928,7 @@ class DCCurrent(SolarEdgeSensorBase):
 
 #            else:
                 _LOGGER.debug("I_DC_Current")
-                self._platform.decod#ed_model["I_DC_Current"]
+                self._platform.decoded_model["I_DC_Current"]
 #                return scale_factor(
 #                    self._platform.decod#ed_model["I_DC_Current"],
 #                    self._platform.decoded_model["I_DC_Current_SF"],
