@@ -611,7 +611,7 @@ class SolarEdgeInverter:
                                         functioncode=4, signed=False)),
                 ("AC_Current_C", self.getValueRegister(3038, numberOfDecimals=1, 
                                         functioncode=4, signed=False)),
-#                ("AC_Current_SF", decoder.decode_16bit_int()),
+                ("AC_Current_SF", 2),
                 ("AC_Voltage_AB", self.getValueRegister(3033, numberOfDecimals=1,
                                         functioncode=4, signed=False)),
                 ("AC_Voltage_BC", self.getValueRegister(3034, numberOfDecimals=1, 
