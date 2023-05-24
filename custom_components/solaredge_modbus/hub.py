@@ -571,6 +571,10 @@ class SolarEdgeInverter:
                                             functioncode=functioncode, signed=signed)
         return rc
 
+    def getValueString(self, addr, functioncode=16):
+        rc = self.hub._client.read_string(addr, functioncode=functioncode)
+        return rc
+
     def round(self, floatval):
         return round(floatval, 2)
     
@@ -657,14 +661,10 @@ class SolarEdgeInverter:
 #                ("I_Status", decoder.decode_16bit_int()),
                 ("I_Status", 3),
                 ("I_Status_Vendor", 3),
-                ("SN_1", self.getValueRegister(3061, numberOfDecimals=0, 
-                                                functioncode=4, signed=True)),
-                ("SN_2", self.getValueRegister(3062, numberOfDecimals=0, 
-                                                functioncode=4, signed=True)),
-                ("SN_3", self.getValueRegister(3063, numberOfDecimals=0, 
-                                                functioncode=4, signed=True)),
-                ("SN_4", self.getValueRegister(3064, numberOfDecimals=0, 
-                                                functioncode=4, signed=True)),
+                ("SN_1", self.getValueString(3061, functioncode=16)),
+                ("SN_2", self.getValueString(3062, functioncode=16)),
+                ("SN_3", self.getValueString(3063, functioncode=16)),
+                ("SN_4", self.getValueString(3064, functioncode=16)),
             ]
         )
 

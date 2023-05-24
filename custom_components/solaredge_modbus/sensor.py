@@ -420,22 +420,6 @@ class VoltageSensor(SolarEdgeSensorBase):
         if self._phase is None:
             raise NotImplementedError
 
-       # elif self._phase in ["LN", "LL", "AB"]:
-       #     return True
-
-#        elif self._platform.decoded_model["C_SunSpec_DID"] in [
-#            103,
-#            203,
-#            204,
-#        ] and self._phase in [
-#            "BC",
-#            "CA",
-#            "AN",
-#            "BN",
-#            "CN",
-#        ]:
-#            return True
-
         return True
 
     @property
