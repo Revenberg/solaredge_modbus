@@ -41,7 +41,7 @@ from .const import (
 #    SunSpecAccum,
     SunSpecNotImpl,
 )
-from .helpers import  update_accum, scale_factor
+from .helpers import  update_accum
 # scale_factor, float_to_hex
 _LOGGER = logging.getLogger(__name__)
 _LOGGER.setLevel(logging.DEBUG)
