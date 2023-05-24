@@ -462,11 +462,12 @@ class VoltageSensor(SolarEdgeSensorBase):
                 _LOGGER.debug(model_key)
                 _LOGGER.debug(self._phase)
 
-                return scale_factor(
-                    self._platform.decoded_model[model_key],
+                self._platform.decoded_model[model_key]
+#                return scale_factor(
+#                    self._platform.decoded_model[model_key],
                   #  self._platform.decoded_model["AC_Voltage_SF"],
-                    self._platform.decoded_model["AC_Voltage_AB"],
-                )
+#                    self._platform.decoded_model["AC_Voltage_AB"],
+#                )
 
         except TypeError:
             return None
@@ -538,10 +539,11 @@ class ACPower(SolarEdgeSensorBase):
                 _LOGGER.debug(model_key)
                 _LOGGER.debug(self._phase)
 
-                return scale_factor(
-                    self._platform.decoded_model[model_key],
+                self._platform.decoded_model[model_key]
+#                return scale_factor(
+#                    self._platform.decoded_model[model_key],
 #                    self._platform.decoded_model["AC_Power_SF"],
-                )
+#                )
 
         except TypeError:
             return None
@@ -585,7 +587,7 @@ class ACFrequency(SolarEdgeSensorBase):
                 _LOGGER.debug("AC_Frequency")
                 _LOGGER.debug(self._platform.decoded_model["AC_Frequency"])
 
-                self._platform.decoded_model["AC_Frequency"],
+                self._platform.decoded_model["AC_Frequency"]
                 #return scale_factor(
                 #    self._platform.decoded_model["AC_Frequency"],
                 #    self._platform.decoded_model["AC_Frequency_SF"],
@@ -646,10 +648,11 @@ class ACVoltAmp(SolarEdgeSensorBase):
                 _LOGGER.debug(model_key)
                 _LOGGER.debug(self._phase)
 
-                return scale_factor(
-                    self._platform.decoded_model[model_key],
+                self._platform.decoded_model[model_key]
+#                return scale_factor(
+#                    self._platform.decoded_model[model_key],
 #                    self._platform.decoded_model["AC_VA_SF"],
-                )
+#                )
 
         except TypeError:
             return None
@@ -706,10 +709,11 @@ class ACVoltAmpReactive(SolarEdgeSensorBase):
                 _LOGGER.debug(model_key)
                 _LOGGER.debug(self._phase)
 
-                return scale_factor(
-                    self._platform.decoded_model[model_key],
+                self._platform.decoded_model[model_key]
+#                return scale_factor(
+#                    self._platform.decoded_model[model_key],
 #                    self._platform.decoded_model["AC_var_SF"],
-                )
+#                )
 
         except TypeError:
             return None
@@ -766,10 +770,11 @@ class ACPowerFactor(SolarEdgeSensorBase):
                 _LOGGER.debug(model_key)
                 _LOGGER.debug(self._phase)
 
-                return scale_factor(
-                    self._platform.decoded_model[model_key],
+                self._platform.decoded_model[model_key]
+#                return scale_factor(
+#                    self._platform.decoded_model[model_key],
 #                    self._platform.decoded_model["AC_PF_SF"],
-                )
+#                )
 
         except TypeError:
             return None
@@ -876,10 +881,11 @@ class ACEnergy(SolarEdgeSensorBase):
                 _LOGGER.debug(model_key)
                 _LOGGER.debug(self._phase)
 
-                value = scale_factor(
-                    self._platform.decoded_model[model_key],
+                value = self._platform.decoded_model[model_key]
+#                value = scale_factor(
+#                    self._platform.decoded_model[model_key],
 #                    self._platform.decoded_model["AC_Energy_WH_SF"],
-                )
+#                )
 
                 try:
                     return update_accum(self, value) * 0.001
@@ -922,11 +928,11 @@ class DCCurrent(SolarEdgeSensorBase):
 
 #            else:
                 _LOGGER.debug("I_DC_Current")
-
-                return scale_factor(
-                    self._platform.decoded_model["I_DC_Current"],
+                self._platform.decod#ed_model["I_DC_Current"]
+#                return scale_factor(
+#                    self._platform.decod#ed_model["I_DC_Current"],
 #                    self._platform.decoded_model["I_DC_Current_SF"],
-                )
+#                )
 
 #        except TypeError:
 #            return None
@@ -967,11 +973,12 @@ class DCVoltage(SolarEdgeSensorBase):
 
 #            else:
                 _LOGGER.debug("I_DC_Voltage")
+                self._platform.decoded_model["I_DC_Voltage"]
 
-                return scale_factor(
-                    self._platform.decoded_model["I_DC_Voltage"],
+#                return scale_factor(
+#                    self._platform.decoded_model["I_DC_Voltage"],
 #                    self._platform.decoded_model["I_DC_Voltage_SF"],
-                )
+#                )
 
 #        except TypeError:
             #return None
@@ -1015,10 +1022,11 @@ class DCPower(SolarEdgeSensorBase):
 #            else:
                 _LOGGER.debug("I_DC_Power")
 
-                return scale_factor(
-                    self._platform.decoded_model["I_DC_Power"],
+                self._platform.decoded_model["I_DC_Power"]
+#                return scale_factor(
+#                    self._platform.decoded_model["I_DC_Power"],
 #                    self._platform.decoded_model["I_DC_Power_SF"],
-                )
+#                )
 
         except TypeError:
             return None
@@ -1060,10 +1068,11 @@ class HeatSinkTemperature(SolarEdgeSensorBase):
 #                return None
 
 #            else:
-                return scale_factor(
-                    self._platform.decoded_model["I_Temp_Sink"],
+                self._platform.decoded_model["I_Temp_Sink"]
+#                return scale_factor(
+#                    self._platform.decoded_model["I_Temp_Sink"],
 #                    self._platform.decoded_model["I_Temp_SF"],
-                )
+#                )
 
         except TypeError:
             return None
@@ -1346,10 +1355,11 @@ class MeterVAhIE(SolarEdgeSensorBase):
                 _LOGGER.debug(model_key)
                 _LOGGER.debug(self._phase)
 
-                value = scale_factor(
-                    self._platform.decoded_model[model_key],
+                value = self._platform.decoded_model[model_key]
+#                value = scale_factor(
+#                    self._platform.decoded_model[model_key],
  #                   self._platform.decoded_model["M_VAh_SF"],
-                )
+ #               )
 
                 try:
                     return update_accum(self, value, value)
@@ -1427,10 +1437,11 @@ class MetervarhIE(SolarEdgeSensorBase):
                 _LOGGER.debug(model_key)
                 _LOGGER.debug(self._phase)
 
-                value = scale_factor(
-                    self._platform.decoded_model[model_key],
+                value = self._platform.decoded_model[model_key]
+#                value = scale_factor(
+#                    self._platform.decoded_model[model_key],
  #                   self._platform.decoded_model["M_varh_SF"],
-                )
+#                )
 
                 try:
                     return update_accum(self, value, value)
