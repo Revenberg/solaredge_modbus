@@ -163,6 +163,7 @@ class SolarEdgeModbusMultiHub:
 
         except ModbusReadError as e:
             ##await self.disconnect()
+            _LOGGER.debug("---------------1---------------------------")
             raise HubInitFailed(f"{e}")
 
         except DeviceInvalid as e:
@@ -175,17 +176,21 @@ class SolarEdgeModbusMultiHub:
             for inverter in self.inverters:
                 _LOGGER.debug(f"inverter: {inverter}")
                 await self._hass.async_add_executor_job(inverter.read_modbus_data)
-
+            _LOGGER.debug("---------------------2---------------------")
+                
         except ModbusReadError as e:
             #await self.disconnect()
+            _LOGGER.debug("--------------------------3----------------")
             raise HubInitFailed(f"Read error: {e}")
 
         except DeviceInvalid as e:
             #await self.disconnect()
+            _LOGGER.debug("---------------------------4---------------")
             raise HubInitFailed(f"Invalid device: {e}")
 
         except ConnectionException as e:
             #await self.disconnect()
+            _LOGGER.debug("-------------------------------5-----------")
             raise HubInitFailed(f"Connection failed: {e}")
 
         self.initalized = True
