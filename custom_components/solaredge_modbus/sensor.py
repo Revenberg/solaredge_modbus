@@ -74,7 +74,6 @@ async def async_setup_entry(
         _LOGGER.debug("====================== 08 ======")
         entities.append(ACCurrentSensor(inverter, config_entry, coordinator, "C"))
         _LOGGER.debug("====================== 09 ======")
-        entities.append(VoltageSensor(inverter, config_entry, coordinator))
         _LOGGER.debug("====================== 10 ======")
         entities.append(VoltageSensor(inverter, config_entry, coordinator, "AB"))
         _LOGGER.debug("====================== 11 ======")
