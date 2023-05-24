@@ -417,8 +417,8 @@ class VoltageSensor(SolarEdgeSensorBase):
     def entity_registry_enabled_default(self) -> bool:
         _LOGGER.debug("==========  entity_registry_enabled_default ================")
         _LOGGER.debug(self._phase)
-        if self._phase is None:
-            raise NotImplementedError
+        #if self._phase is None:
+        #    raise NotImplementedError
 
         return True
 

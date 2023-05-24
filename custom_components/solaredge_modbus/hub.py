@@ -571,7 +571,7 @@ class SolarEdgeInverter:
                                             functioncode=functioncode, signed=signed)
         return rc
 
-    def getValueString(self, addr, functioncode=3):
+    def getValueString(self, addr, functioncode=3, number_of_registers=4):
         rc = self.hub._client.read_string(addr, functioncode=functioncode)
         return rc
 
