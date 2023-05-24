@@ -946,7 +946,7 @@ class DCCurrent(SolarEdgeSensorBase):
 
 #            else:
         _LOGGER.debug(model_key)
-        self._platform.decoded_model[model_key]
+        return self._platform.decoded_model[model_key]
 #                return scale_factor(
 #                    self._platform.decod#ed_model["I_DC_Current"],
 #                    self._platform.decoded_model["I_DC_Current_SF"],
@@ -1034,7 +1034,7 @@ class DCPower(SolarEdgeSensorBase):
 #            else:
         _LOGGER.debug("I_DC_Power")
 
-        self._platform.decoded_model["I_DC_Power"]
+        return self._platform.decoded_model["I_DC_Power"]
 #                return scale_factor(
 #                    self._platform.decoded_model["I_DC_Power"],
 #                    self._platform.decoded_model["I_DC_Power_SF"],
@@ -1081,7 +1081,7 @@ class HeatSinkTemperature(SolarEdgeSensorBase):
 
 #            else:
         _LOGGER.debug("I_Temp_Sink")
-        self._platform.decoded_model["I_Temp_Sink"]
+        return self._platform.decoded_model["I_Temp_Sink"]
 #                return scale_factor(
 #                    self._platform.decoded_model["I_Temp_Sink"],
 #                    self._platform.decoded_model["I_Temp_SF"],
