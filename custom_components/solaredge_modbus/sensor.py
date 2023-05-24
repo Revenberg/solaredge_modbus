@@ -142,10 +142,13 @@ class SolarEdgeSensorBase(CoordinatorEntity, SensorEntity):
     def available(self) -> bool:
         return self._platform.online
 
+    @property
+    def state(self) -> bool:
+        return self._platform.online
+    
     @callback
     def _handle_coordinator_update(self) -> None:
         self.async_write_ha_state()
-
 
 class SolarEdgeDevice(SolarEdgeSensorBase):
     entity_category = EntityCategory.DIAGNOSTIC
