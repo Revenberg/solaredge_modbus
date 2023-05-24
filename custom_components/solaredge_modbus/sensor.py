@@ -120,7 +120,7 @@ async def async_setup_entry(
 
 class SolarEdgeSensorBase(CoordinatorEntity, SensorEntity):
     should_poll = False
-    suggested_display_precision = 2
+    suggested_display_precision = 3
     _attr_has_entity_name = True
 
     def __init__(self, platform, config_entry, coordinator):
@@ -383,9 +383,9 @@ class ACCurrentSensor(SolarEdgeSensorBase):
 #        except TypeError:
 #            return None
 
-    @property
-    def suggested_display_precision(self):
-        return abs(self._platform.decoded_model["AC_Current_SF"])
+#    @property
+#    def suggested_display_precision(self):
+#        return abs(self._platform.decoded_model["AC_Current_SF"])
 
 class VoltageSensor(SolarEdgeSensorBase):
     device_class = SensorDeviceClass.VOLTAGE
@@ -562,7 +562,6 @@ class ACFrequency(SolarEdgeSensorBase):
     device_class = SensorDeviceClass.FREQUENCY
     state_class = SensorStateClass.MEASUREMENT
     native_unit_of_measurement = UnitOfFrequency.HERTZ
-    suggested_display_precision = 2
     
     def __init__(self, platform, config_entry, coordinator):
         super().__init__(platform, config_entry, coordinator)
@@ -794,7 +793,7 @@ class ACEnergy(SolarEdgeSensorBase):
     device_class = SensorDeviceClass.ENERGY
     state_class = SensorStateClass.TOTAL_INCREASING
     native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
-    suggested_display_precision = 3
+#    suggested_display_precision = 3
 
     def __init__(self, platform, config_entry, coordinator, phase: str = None):
         super().__init__(platform, config_entry, coordinator)
