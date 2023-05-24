@@ -619,13 +619,13 @@ class SolarEdgeInverter:
                 ("AC_Voltage_CA", self.getValueRegister(3035, numberOfDecimals=1, 
                                         functioncode=4, signed=False)),
 
-                ("dc_voltage1", self.getValueRegister(3031, numberOfDecimals=1, 
+                ("DC_Voltage1", self.getValueRegister(3031, numberOfDecimals=1, 
                                         functioncode=4, signed=False)),
-                ("dc_current1", self.getValueRegister(3022, functioncode=4, 
+                ("DC_Current1", self.getValueRegister(3022, functioncode=4, 
                                         signed=False)),
-                ("dc_voltage2", self.getValueRegister(3023, numberOfDecimals=1, 
+                ("DC_Voltage2", self.getValueRegister(3023, numberOfDecimals=1, 
                                         functioncode=4, signed=False)),
-                ("dc_current2", self.getValueRegister(3024, functioncode=4, 
+                ("DC_Current2", self.getValueRegister(3024, functioncode=4, 
                                         signed=False)),
 
 #                ("AC_Voltage_AN", decoder.decode_16bit_uint()),

@@ -29,15 +29,15 @@ from .const import (
     DEVICE_STATUS,
     DEVICE_STATUS_TEXT,
     DOMAIN,
-    ENERGY_VOLT_AMPERE_HOUR,
-    ENERGY_VOLT_AMPERE_REACTIVE_HOUR,
+#    ENERGY_VOLT_AMPERE_HOUR,
+#    ENERGY_VOLT_AMPERE_REACTIVE_HOUR,
     METER_EVENTS,
-    MMPPT_EVENTS,
+#    MMPPT_EVENTS,
 #    RRCR_STATUS,
 #    SUNSPEC_DID,
 #    SUNSPEC_SF_RANGE,
 #    VENDOR_STATUS,
-    BatteryLimit,
+#    BatteryLimit,
 #    SunSpecAccum,
     SunSpecNotImpl,
 )
@@ -98,14 +98,18 @@ async def async_setup_entry(
         _LOGGER.debug("====================== 20 ======")
         entities.append(ACEnergy(inverter, config_entry, coordinator))
         _LOGGER.debug("====================== 21 ======")
-        entities.append(DCCurrent(inverter, config_entry, coordinator))
+        entities.append(DCCurrent(inverter, config_entry, coordinator, "1"))
         _LOGGER.debug("====================== 22 ======")
-        entities.append(DCVoltage(inverter, config_entry, coordinator))
+        entities.append(DCCurrent(inverter, config_entry, coordinator, "2"))
+        _LOGGER.debug("====================== 22 ======")
+        entities.append(DCVoltage(inverter, config_entry, coordinator, "1"))
+        _LOGGER.debug("====================== 23 ======")
+        entities.append(DCVoltage(inverter, config_entry, coordinator, "2"))
         _LOGGER.debug("====================== 23 ======")
         entities.append(DCPower(inverter, config_entry, coordinator))
-        _LOGGER.debug("====================== 24 ======")
-        entities.append(HeatSinkTemperature(inverter, config_entry, coordinator))
         _LOGGER.debug("====================== 25 ======")
+        entities.append(HeatSinkTemperature(inverter, config_entry, coordinator))
+        _LOGGER.debug("====================== 26 ======")
         #entities.append(SolarEdgeActivePowerLimit(inverter, config_entry, coordinator))
         #entities.append(SolarEdgeCosPhi(inverter, config_entry, coordinator))
     
@@ -414,8 +418,8 @@ class VoltageSensor(SolarEdgeSensorBase):
         if self._phase is None:
             raise NotImplementedError
 
-        elif self._phase in ["LN", "LL", "AB"]:
-            return True
+       # elif self._phase in ["LN", "LL", "AB"]:
+       #     return True
 
 #        elif self._platform.decoded_model["C_SunSpec_DID"] in [
 #            103,
@@ -431,7 +435,7 @@ class VoltageSensor(SolarEdgeSensorBase):
 #            return True
 
         else:
-            return False
+            return True
 
     @property
     def name(self) -> str:
@@ -447,7 +451,7 @@ class VoltageSensor(SolarEdgeSensorBase):
         else:
             model_key = f"AC_Voltage_{self._phase.upper()}"
 
-        try:
+#        try:
 #            if (
 #                self._platform.decoded_model[model_key] == 
 # self.SUNSPEC_NOT_IMPL
@@ -459,18 +463,18 @@ class VoltageSensor(SolarEdgeSensorBase):
 #                return None
 
 #            else:
-                _LOGGER.debug(model_key)
-                _LOGGER.debug(self._phase)
+        _LOGGER.debug(model_key)
+        _LOGGER.debug(self._phase)
 
-                self._platform.decoded_model[model_key]
+        self._platform.decoded_model[model_key]
 #                return scale_factor(
 #                    self._platform.decoded_model[model_key],
                   #  self._platform.decoded_model["AC_Voltage_SF"],
 #                    self._platform.decoded_model["AC_Voltage_AB"],
 #                )
 
-        except TypeError:
-            return None
+#        except TypeError:
+#            return None
 
 #    @property
 #    def suggested_display_precision(self):
@@ -902,20 +906,32 @@ class DCCurrent(SolarEdgeSensorBase):
     native_unit_of_measurement = UnitOfElectricCurrent.AMPERE
     icon = "mdi:current-dc"
 
-    def __init__(self, platform, config_entry, coordinator):
+    def __init__(self, platform, config_entry, coordinator, phase: str = None):
         super().__init__(platform, config_entry, coordinator)
         """Initialize the sensor."""
-
+        self._phase = phase
+        
     @property
     def unique_id(self) -> str:
-        return f"{self._platform.uid_base}_dc_current"
+        if self._phase is None:
+            return f"{self._platform.uid_base}_dc_current"
+        else:
+            return f"{self._platform.uid_base}_dc_current_{self._phase.lower()}"
 
     @property
     def name(self) -> str:
-        return "DC Current"
-
+        if self._phase is None:
+            return "DC Current"
+        else:
+            return f"DC Current {self._phase.upper()}"
+           
     @property
     def native_value(self):
+        if self._phase is None:
+            model_key = "DC_Current"
+        else:
+            model_key = f"DC_Current_{self._phase.upper()}"
+
 #        try:
 #            if (
 #                self._platform.decoded_model["I_DC_Current"] == SunSpecNotImpl.UINT16
@@ -927,8 +943,8 @@ class DCCurrent(SolarEdgeSensorBase):
 #                return None
 
 #            else:
-                _LOGGER.debug("I_DC_Current")
-                self._platform.decoded_model["I_DC_Current"]
+        _LOGGER.debug(model_key)
+        self._platform.decoded_model[model_key]
 #                return scale_factor(
 #                    self._platform.decod#ed_model["I_DC_Current"],
 #                    self._platform.decoded_model["I_DC_Current_SF"],
@@ -947,41 +963,35 @@ class DCVoltage(SolarEdgeSensorBase):
     state_class = SensorStateClass.MEASUREMENT
     native_unit_of_measurement = UnitOfElectricPotential.VOLT
 
-    def __init__(self, platform, config_entry, coordinator):
+    def __init__(self, platform, config_entry, coordinator, phase: str = None):
         super().__init__(platform, config_entry, coordinator)
         """Initialize the sensor."""
+        self._phase = phase
+
 
     @property
     def unique_id(self) -> str:
-        return f"{self._platform.uid_base}_dc_voltage"
+        if self._phase is None:
+            return f"{self._platform.uid_base}_dc_voltage"
+        else:
+            return f"{self._platform.uid_base}_dc_voltage_{self._phase.lower()}"
 
     @property
     def name(self) -> str:
-        return "DC Voltage"
-
+        if self._phase is None:
+            return "DC Voltage"
+        else:
+            return f"DC Voltage {self._phase.upper()}"
+           
     @property
     def native_value(self):
-#        try:
-#            if (
-#                self._platform.decoded_model["I_DC_Voltage"] == SunSpecNotImpl.UINT16
-#                or self._platform.decoded_model["I_DC_Voltage_SF"]
-#                == SunSpecNotImpl.INT16
-#                or self._platform.decoded_model["I_DC_Voltage_SF"]
-#                not in SUNSPEC_SF_RANGE
-#            ):
-#                return None
-
-#            else:
-                _LOGGER.debug("I_DC_Voltage")
-                self._platform.decoded_model["I_DC_Voltage"]
-
-#                return scale_factor(
-#                    self._platform.decoded_model["I_DC_Voltage"],
-#                    self._platform.decoded_model["I_DC_Voltage_SF"],
-#                )
-
-#        except TypeError:
-            #return None
+        if self._phase is None:
+            model_key = "DC_Voltage"
+        else:
+            model_key = f"DC_Voltage_{self._phase.upper()}"
+    
+        _LOGGER.debug(model_key)
+        self._platform.decoded_model[model_key]
 
 #    @property
 #    def suggested_display_precision(self):
@@ -1238,642 +1248,3 @@ class MeterEvents(SolarEdgeSensorBase):
         attrs["events"] = str(m_events_active)
 
         return attrs
-
-
-class SolarEdgeMMPPTEvents(SolarEdgeSensorBase):
-    entity_category = EntityCategory.DIAGNOSTIC
-
-    def __init__(self, platform, config_entry, coordinator):
-        super().__init__(platform, config_entry, coordinator)
-        """Initialize the sensor."""
-
-    @property
-    def unique_id(self) -> str:
-        return f"{self._platform.uid_base}_mmppt_events"
-
-    @property
-    def name(self) -> str:
-        return "MMPPT Events"
-
-    @property
-    def native_value(self):
-        _LOGGER.debug("mmpt_events")
-
-        try:
-            if self._platform.decoded_model["mmppt_Events"] == SunSpecNotImpl.UINT32:
-                return None
-
-            else:
-                return self._platform.decoded_model["mmppt_Events"]
-
-        except KeyError:
-            return None
-
-    @property
-    def extra_state_attributes(self):
-        attrs = {}
-        mmppt_events_active = []
-
-        if int(str(self._platform.decoded_model["mmppt_Events"])) == 0x0:
-            attrs["events"] = str(mmppt_events_active)
-        else:
-            for i in range(0, 31):
-                try:
-                    if int(str(self._platform.decoded_model["mmppt_Events"])) & (
-                        1 << i
-                    ):
-                        mmppt_events_active.append(MMPPT_EVENTS[i])
-                except KeyError:
-                    pass
-
-        attrs["events"] = str(mmppt_events_active)
-        attrs["bits"] = f"{int(self._platform.decoded_model['mmppt_Events']):032b}"
-
-        return attrs
-
-
-class MeterVAhIE(SolarEdgeSensorBase):
-    device_class = SensorDeviceClass.ENERGY
-    state_class = SensorStateClass.TOTAL_INCREASING
-    native_unit_of_measurement = ENERGY_VOLT_AMPERE_HOUR
-
-    def __init__(self, platform, config_entry, coordinator, phase: str = None):
-        super().__init__(platform, config_entry, coordinator)
-        """Initialize the sensor."""
-        self._phase = phase
-        self.last = None
-
-    @property
-    def icon(self) -> str:
-        if self._phase is None:
-            return None
-
-        elif re.match("import", self._phase.lower()):
-            return "mdi:transmission-tower-export"
-
-        elif re.match("export", self._phase.lower()):
-            return "mdi:transmission-tower-import"
-
-        else:
-            return None
-
-    @property
-    def unique_id(self) -> str:
-        if self._phase is None:
-            raise NotImplementedError
-        else:
-            return f"{self._platform.uid_base}_" f"{self._phase.lower()}_vah"
-
-    @property
-    def entity_registry_enabled_default(self) -> bool:
-        return False
-
-    @property
-    def name(self) -> str:
-        if self._phase is None:
-            raise NotImplementedError
-        else:
-            return f"{re.sub('_', ' ', self._phase)} VAh"
-
-    @property
-    def native_value(self):
-        if self._phase is None:
-            raise NotImplementedError
-        else:
-            model_key = f"M_VAh_{self._phase}"
-
-        try:
-#            if (
-#                self._platform.decoded_model[model_key] == SunSpecAccum.NA32
-#                or self._platform.decoded_model[model_key] > SunSpecAccum.LIMIT32
-#                or self._platform.decoded_model["M_VAh_SF"] == SunSpecNotImpl.INT16
-#                or self._platform.decoded_model["M_VAh_SF"] not in SUNSPEC_SF_RANGE
-#            ):
-#                return None
-
-#            else:
-                _LOGGER.debug(model_key)
-                _LOGGER.debug(self._phase)
-
-                value = self._platform.decoded_model[model_key]
-#                value = scale_factor(
-#                    self._platform.decoded_model[model_key],
- #                   self._platform.decoded_model["M_VAh_SF"],
- #               )
-
-                try:
-                    return update_accum(self, value, value)
-                except Exception:
-                    return None
-
-        except TypeError:
-            return None
-
-#    @property
-#    def suggested_display_precision(self):
-#        return abs(self._platform.decoded_model["M_VAh_SF"])
-
-
-class MetervarhIE(SolarEdgeSensorBase):
-    device_class = SensorDeviceClass.ENERGY
-    state_class = SensorStateClass.TOTAL_INCREASING
-    native_unit_of_measurement = ENERGY_VOLT_AMPERE_REACTIVE_HOUR
-
-    def __init__(self, platform, config_entry, coordinator, phase: str = None):
-        super().__init__(platform, config_entry, coordinator)
-        """Initialize the sensor."""
-        self._phase = phase
-        self.last = None
-
-    @property
-    def icon(self) -> str:
-        if self._phase is None:
-            return None
-
-        elif re.match("import", self._phase.lower()):
-            return "mdi:transmission-tower-export"
-
-        elif re.match("export", self._phase.lower()):
-            return "mdi:transmission-tower-import"
-
-        else:
-            return None
-
-    @property
-    def unique_id(self) -> str:
-        if self._phase is None:
-            raise NotImplementedError
-        else:
-            return f"{self._platform.uid_base}_{self._phase.lower()}_varh"
-
-    @property
-    def entity_registry_enabled_default(self) -> bool:
-        return False
-
-    @property
-    def name(self) -> str:
-        if self._phase is None:
-            raise NotImplementedError
-        else:
-            return f"{re.sub('_', ' ', self._phase)} varh"
-
-    @property
-    def native_value(self):
-        if self._phase is None:
-            raise NotImplementedError
-        else:
-            model_key = f"M_varh_{self._phase}"
-
-        try:
-#            if (
-#                self._platform.decoded_model[model_key] == SunSpecAccum.NA32
-#                or self._platform.decoded_model[model_key] > SunSpecAccum.LIMIT32
-#                or self._platform.decoded_model["M_varh_SF"] == SunSpecNotImpl.INT16
-#                or self._platform.decoded_model["M_varh_SF"] not in SUNSPEC_SF_RANGE
-#            ):
-#                return None
-
-#            else:
-                _LOGGER.debug(model_key)
-                _LOGGER.debug(self._phase)
-
-                value = self._platform.decoded_model[model_key]
-#                value = scale_factor(
-#                    self._platform.decoded_model[model_key],
- #                   self._platform.decoded_model["M_varh_SF"],
-#                )
-
-                try:
-                    return update_accum(self, value, value)
-                except Exception:
-                    return None
-
-        except TypeError:
-            return None
-
-#    @property
-#    def suggested_display_precision(self):
-#        return abs(self._platform.decoded_model["M_varh_SF"])
-
-
-class SolarEdgeBatteryAvgTemp(HeatSinkTemperature):
-    suggested_display_precision = 1
-
-    @property
-    def unique_id(self) -> str:
-        return f"{self._platform.uid_base}_avg_temp"
-
-    @property
-    def name(self) -> str:
-        return "Average Temperature"
-
-    @property
-    def native_value(self):
-        try:
-            if (
-                float_to_hex(self._platform.decoded_model["B_Temp_Average"])
-                == hex(SunSpecNotImpl.FLOAT32)
-                or self._platform.decoded_model["B_Temp_Average"] < BatteryLimit.Tmin
-                or self._platform.decoded_model["B_Temp_Average"] > BatteryLimit.Tmax
-            ):
-                return None
-
-            else:
-                return self._platform.decoded_model["B_Temp_Average"]
-
-        except TypeError:
-            return None
-
-
-class SolarEdgeBatteryMaxTemp(HeatSinkTemperature):
-    suggested_display_precision = 1
-
-    @property
-    def unique_id(self) -> str:
-        return f"{self._platform.uid_base}_max_temp"
-
-    @property
-    def name(self) -> str:
-        return "Max Temperature"
-
-    @property
-    def entity_registry_enabled_default(self) -> bool:
-        return False
-
-    @property
-    def native_value(self):
-        try:
-            _LOGGER.debug("B_Temo_max")
-
-            if (
-                float_to_hex(self._platform.decoded_model["B_Temp_Max"])
-                == hex(SunSpecNotImpl.FLOAT32)
-                or self._platform.decoded_model["B_Temp_Max"] < BatteryLimit.Tmin
-                or self._platform.decoded_model["B_Temp_Max"] > BatteryLimit.Tmax
-            ):
-                return None
-
-            else:
-                return self._platform.decoded_model["B_Temp_Max"]
-
-        except TypeError:
-            return None
-
-
-class SolarEdgeBatteryVoltage(DCVoltage):
-    suggested_display_precision = 2
-
-    @property
-    def native_value(self):
-        _LOGGER.debug("B_DC_Voltage")
-
-        try:
-            if (
-                float_to_hex(self._platform.decoded_model["B_DC_Voltage"])
-                == hex(SunSpecNotImpl.FLOAT32)
-                or self._platform.decoded_model["B_DC_Voltage"] < BatteryLimit.Vmin
-                or self._platform.decoded_model["B_DC_Voltage"] > BatteryLimit.Vmax
-            ):
-                return None
-
-            elif self._platform.decoded_model["B_Status"] in [0]:
-                return None
-
-            else:
-                return self._platform.decoded_model["B_DC_Voltage"]
-
-        except TypeError:
-            return None
-
-
-class SolarEdgeBatteryCurrent(DCCurrent):
-    suggested_display_precision = 2
-
-    @property
-    def native_value(self):
-        _LOGGER.debug("B_DV_Current")
-
-        try:
-            if (
-                float_to_hex(self._platform.decoded_model["B_DC_Current"])
-                == hex(SunSpecNotImpl.FLOAT32)
-                or self._platform.decoded_model["B_DC_Current"] < BatteryLimit.Amin
-                or self._platform.decoded_model["B_DC_Current"] > BatteryLimit.Amax
-            ):
-                return None
-
-            elif self._platform.decoded_model["B_Status"] in [0]:
-                return None
-
-            else:
-                return self._platform.decoded_model["B_DC_Current"]
-
-        except TypeError:
-            return None
-
-
-class SolarEdgeBatteryPower(DCPower):
-    suggested_display_precision = 2
-    icon = "mdi:lightning-bolt"
-
-    @property
-    def native_value(self):
-        _LOGGER.debug("B_DC_POWER")
-
-        try:
-            if (
-                float_to_hex(self._platform.decoded_model["B_DC_Power"])
-                == hex(SunSpecNotImpl.FLOAT32)
-                or float_to_hex(self._platform.decoded_model["B_DC_Power"])
-                == "0xff7fffff"
-                or float_to_hex(self._platform.decoded_model["B_DC_Power"])
-                == "0x7f7fffff"
-            ):
-                return None
-
-            elif self._platform.decoded_model["B_Status"] in [0]:
-                return None
-
-            else:
-                return self._platform.decoded_model["B_DC_Power"]
-
-        except TypeError:
-            return None
-
-
-class SolarEdgeBatteryEnergyExport(SolarEdgeSensorBase):
-    device_class = SensorDeviceClass.ENERGY
-    state_class = SensorStateClass.TOTAL_INCREASING
-    native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
-    suggested_display_precision = 3
-    icon = "mdi:battery-charging-20"
-
-    def __init__(self, platform, config_entry, coordinator):
-        super().__init__(platform, config_entry, coordinator)
-        """Initialize the sensor."""
-        self._last = None
-
-    @property
-    def unique_id(self) -> str:
-        return f"{self._platform.uid_base}_energy_export"
-
-    @property
-    def name(self) -> str:
-        return "Energy Export"
-
-    @property
-    def native_value(self):
-        _LOGGER.debug("B_export_engergy_WH")
-
-        try:
-            if self._platform.decoded_model[
-                "B_Export_Energy_WH"
-            ] == 0xFFFFFFFFFFFFFFFF or (
-                self._platform.decoded_model["B_Export_Energy_WH"] == 0x0
-                and not self._platform.allow_battery_energy_reset
-            ):
-                return None
-
-            else:
-                try:
-                    if self._last is None:
-                        self._last = 0
-
-                    if self._platform.decoded_model["B_Export_Energy_WH"] >= self._last:
-                        self._last = self._platform.decoded_model["B_Export_Energy_WH"]
-
-                        return (
-                            self._platform.decoded_model["B_Export_Energy_WH"] * 0.001
-                        )
-
-                    else:
-                        if self._platform.allow_battery_energy_reset:
-                            _LOGGER.debug(
-                                (
-                                    "Battery Export Energy went backwards: "
-                                    f"{self._platform.decoded_model['B_Export_Energy_WH']} "  # noqa: E501
-                                    f"< {self._last}"
-                                )
-                            )
-
-                            if (
-                                self._platform.decoded_model["B_Export_Energy_WH"]
-                                == 0x0
-                            ):
-                                self._last = None
-
-                        return None
-
-                except OverflowError:
-                    return None
-
-        except TypeError:
-            return None
-
-
-class SolarEdgeBatteryEnergyImport(SolarEdgeSensorBase):
-    device_class = SensorDeviceClass.ENERGY
-    state_class = SensorStateClass.TOTAL_INCREASING
-    native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
-    suggested_display_precision = 3
-    icon = "mdi:battery-charging-100"
-
-    def __init__(self, platform, config_entry, coordinator):
-        super().__init__(platform, config_entry, coordinator)
-        """Initialize the sensor."""
-        self._last = None
-
-    @property
-    def unique_id(self) -> str:
-        return f"{self._platform.uid_base}_energy_import"
-
-    @property
-    def name(self) -> str:
-        return "Energy Import"
-
-    @property
-    def native_value(self):
-        _LOGGER.debug("B_Imprt_energy_wh")
-
-        try:
-            if self._platform.decoded_model[
-                "B_Import_Energy_WH"
-            ] == 0xFFFFFFFFFFFFFFFF or (
-                self._platform.decoded_model["B_Import_Energy_WH"] == 0x0
-                and not self._platform.allow_battery_energy_reset
-            ):
-                return None
-
-            else:
-                try:
-                    if self._last is None:
-                        self._last = 0
-
-                    if self._platform.decoded_model["B_Import_Energy_WH"] >= self._last:
-                        self._last = self._platform.decoded_model["B_Import_Energy_WH"]
-
-                        return (
-                            self._platform.decoded_model["B_Import_Energy_WH"] * 0.001
-                        )
-
-                    else:
-                        if self._platform.allow_battery_energy_reset:
-                            _LOGGER.debug(
-                                (
-                                    "Battery Import Energy went backwards: "
-                                    f"{self._platform.decoded_model['B_Import_Energy_WH']} "  # noqa: E501
-                                    f"< {self._last}"
-                                )
-                            ),
-
-                            if (
-                                self._platform.decoded_model["B_Import_Energy_WH"]
-                                == 0x0
-                            ):
-                                self._last = None
-
-                        return None
-
-                except OverflowError:
-                    return None
-
-        except TypeError:
-            return None
-
-
-class SolarEdgeBatteryMaxEnergy(SolarEdgeSensorBase):
-    device_class = SensorDeviceClass.ENERGY_STORAGE
-    state_class = SensorStateClass.MEASUREMENT
-    native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
-    suggested_display_precision = 3
-
-    def __init__(self, platform, config_entry, coordinator):
-        super().__init__(platform, config_entry, coordinator)
-        """Initialize the sensor."""
-
-    @property
-    def unique_id(self) -> str:
-        return f"{self._platform.uid_base}_max_energy"
-
-    @property
-    def name(self) -> str:
-        return "Maximum Energy"
-
-    @property
-    def native_value(self):
-        _LOGGER.debug("B_Energy_max")
-
-        if (
-            float_to_hex(self._platform.decoded_model["B_Energy_Max"])
-            == hex(SunSpecNotImpl.FLOAT32)
-            or self._platform.decoded_model["B_Energy_Max"] < 0
-            or self._platform.decoded_model["B_Energy_Max"]
-            > self._platform.decoded_common["B_RatedEnergy"]
-        ):
-            return None
-
-        else:
-            return self._platform.decoded_model["B_Energy_Max"] * 0.001
-
-
-class SolarEdgeBatteryAvailableEnergy(SolarEdgeSensorBase):
-    device_class = SensorDeviceClass.ENERGY_STORAGE
-    state_class = SensorStateClass.MEASUREMENT
-    native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
-    suggested_display_precision = 3
-
-    def __init__(self, platform, config_entry, coordinator):
-        super().__init__(platform, config_entry, coordinator)
-        """Initialize the sensor."""
-
-    @property
-    def unique_id(self) -> str:
-        return f"{self._platform.uid_base}_avail_energy"
-
-    @property
-    def name(self) -> str:
-        return "Available Energy"
-
-    @property
-    def native_value(self):
-        if (
-            float_to_hex(self._platform.decoded_model["B_Energy_Available"])
-            == hex(SunSpecNotImpl.FLOAT32)
-            or self._platform.decoded_model["B_Energy_Available"] < 0
-            or self._platform.decoded_model["B_Energy_Available"]
-            > (
-                self._platform.decoded_common["B_RatedEnergy"]
-                * self._platform.battery_rating_adjust
-            )
-        ):
-            return None
-
-        else:
-            return self._platform.decoded_model["B_Energy_Available"] * 0.001
-
-
-class SolarEdgeBatterySOH(SolarEdgeSensorBase):
-    state_class = SensorStateClass.MEASUREMENT
-    entity_category = EntityCategory.DIAGNOSTIC
-    native_unit_of_measurement = PERCENTAGE
-    suggested_display_precision = 0
-    icon = "mdi:battery-heart-outline"
-
-    def __init__(self, platform, config_entry, coordinator):
-        super().__init__(platform, config_entry, coordinator)
-        """Initialize the sensor."""
-
-    @property
-    def unique_id(self) -> str:
-        return f"{self._platform.uid_base}_battery_soh"
-
-    @property
-    def name(self) -> str:
-        return "State of Health"
-
-    @property
-    def native_value(self):
-        _LOGGER.debug("B_SOH")
-
-        if (
-            float_to_hex(self._platform.decoded_model["B_SOH"])
-            == hex(SunSpecNotImpl.FLOAT32)
-            or self._platform.decoded_model["B_SOH"] < 0
-            or self._platform.decoded_model["B_SOH"] > 100
-        ):
-            return None
-        else:
-            return self._platform.decoded_model["B_SOH"]
-
-
-class SolarEdgeBatterySOE(SolarEdgeSensorBase):
-    device_class = SensorDeviceClass.BATTERY
-    state_class = SensorStateClass.MEASUREMENT
-    native_unit_of_measurement = PERCENTAGE
-    suggested_display_precision = 0
-
-    def __init__(self, platform, config_entry, coordinator):
-        super().__init__(platform, config_entry, coordinator)
-        """Initialize the sensor."""
-
-    @property
-    def unique_id(self) -> str:
-        return f"{self._platform.uid_base}_battery_soe"
-
-    @property
-    def name(self) -> str:
-        return "State of Energy"
-
-    @property
-    def native_value(self):
-        _LOGGER.debug("B_SOE")
-
-        if (
-            float_to_hex(self._platform.decoded_model["B_SOE"])
-            == hex(SunSpecNotImpl.FLOAT32)
-            or self._platform.decoded_model["B_SOE"] < 0
-            or self._platform.decoded_model["B_SOE"] > 100
-        ):
-            return None
-        else:
-            return self._platform.decoded_model["B_SOE"]
