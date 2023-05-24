@@ -591,10 +591,20 @@ class SolarEdgeInverter:
 
         self.decoded_model = OrderedDict(
             [
+                ("C_SunSpec_DID", self.getValueRegister(3000, functioncode=4, 
+                                        signed=False)),
+                ("AC_output_type", self.getValueRegister(3003, functioncode=4, 
+                                        signed=False)),
+                ("DC_input_type", self.getValueRegister(3004, functioncode=4, 
+                                        signed=False)),
+                
 #                ("C_SunSpec_DID", decoder.decode_16bit_uint()),
 #                ("C_SunSpec_Length", decoder.decode_16bit_uint()),
                 ("AC_Current", self.getValueRegister(3005, functioncode=4, 
                                         signed=False)),
+                ("AC_Current1", self.getValueRegister(3006, functioncode=4, 
+                                        signed=False)),
+                
                 ("AC_Current_A", self.getValueRegister(3036, numberOfDecimals=1, 
                                         functioncode=4, signed=False)),
                 ("AC_Current_B", self.getValueRegister(3037, numberOfDecimals=1, 
