@@ -637,7 +637,7 @@ class SolarEdgeInverter:
 #                ("AC_Power_SF", decoder.decode_16bit_int()),
                 ("AC_Frequency", self.getValueRegister(3042, numberOfDecimals=2, 
                                                 functioncode=4, signed=False)),
-#                ("AC_Frequency_SF", decoder.decode_16bit_int()),
+                ("AC_Frequency_SF", 2),
 #                ("AC_VA", decoder.decode_16bit_int()),
 #                ("AC_VA_SF", decoder.decode_16bit_int()),
 #                ("AC_var", decoder.decode_16bit_int()),
