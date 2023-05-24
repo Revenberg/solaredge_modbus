@@ -362,7 +362,7 @@ class ACCurrentSensor(SolarEdgeSensorBase):
         _LOGGER.debug(self._platform.decoded_model[model_key])
         _LOGGER.debug("========= 4 ==================")
         
-        try:
+#        try:
 #            if (
 #                self._platform.decoded_model[model_key] == 
 # self.SUNSPEC_NOT_IMPL
@@ -373,14 +373,15 @@ class ACCurrentSensor(SolarEdgeSensorBase):
 #            ):
 #                return None
 
+        self._platform.decoded_model[model_key]
 #            else:
-                return scale_factor(
-                    self._platform.decoded_model[model_key],
-                    self._platform.decoded_model["AC_Current_SF"],
-                )
+#                return scale_factor(
+#                self._platform.decoded_model[model_key],
+#                    self._platform.decoded_model["AC_Current_SF"],
+#                )
 
-        except TypeError:
-            return None
+#        except TypeError:
+#            return None
 
     @property
     def suggested_display_precision(self):
@@ -561,7 +562,8 @@ class ACFrequency(SolarEdgeSensorBase):
     device_class = SensorDeviceClass.FREQUENCY
     state_class = SensorStateClass.MEASUREMENT
     native_unit_of_measurement = UnitOfFrequency.HERTZ
-
+    suggested_display_precision = 2
+    
     def __init__(self, platform, config_entry, coordinator):
         super().__init__(platform, config_entry, coordinator)
         """Initialize the sensor."""
