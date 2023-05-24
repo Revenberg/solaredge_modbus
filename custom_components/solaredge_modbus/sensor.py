@@ -1109,7 +1109,7 @@ class StatusVendor(SolarEdgeSensorBase):
     #            return str(self._platform.decoded_model["I_Status_Vendor"])
 
    #     except TypeError:
-        return None
+        return str(self._platform.decoded_model["I_Status_Vendor"])
 
     #@property
     #def extra_state_attributes(self):
