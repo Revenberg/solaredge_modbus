@@ -80,11 +80,8 @@ async def async_setup_entry(
         _LOGGER.debug("====================== 11 ======")
         entities.append(VoltageSensor(inverter, config_entry, coordinator, "CA"))
         _LOGGER.debug("====================== 12 ======")
-        entities.append(VoltageSensor(inverter, config_entry, coordinator, "AN"))
         _LOGGER.debug("====================== 13 ======")
-        entities.append(VoltageSensor(inverter, config_entry, coordinator, "BN"))
         _LOGGER.debug("====================== 14 ======")
-        entities.append(VoltageSensor(inverter, config_entry, coordinator, "CN"))
         _LOGGER.debug("====================== 15 ======")
         entities.append(ACPower(inverter, config_entry, coordinator))
         _LOGGER.debug("====================== 16 ======")
@@ -394,6 +391,8 @@ class VoltageSensor(SolarEdgeSensorBase):
         super().__init__(platform, config_entry, coordinator)
         """Initialize the sensor."""
         self._phase = phase
+        _LOGGER.debug("==========================")
+        _LOGGER.debug(self._phase)
 
 #        if self._platform.decoded_model["C_SunSpec_DID"] in [101, 102, 103]:
 #            self.SUNSPEC_NOT_IMPL = SunSpecNotImpl.UINT16
@@ -438,6 +437,8 @@ class VoltageSensor(SolarEdgeSensorBase):
 
     @property
     def name(self) -> str:
+        _LOGGER.debug("==========================")
+        _LOGGER.debug(self._phase)
         if self._phase is None:
             return "AC Voltage"
         else:
@@ -462,6 +463,7 @@ class VoltageSensor(SolarEdgeSensorBase):
 #                return None
 
 #            else:
+        _LOGGER.debug("==========================")
         _LOGGER.debug(model_key)
         _LOGGER.debug(self._phase)
 
@@ -997,7 +999,7 @@ class DCVoltage(SolarEdgeSensorBase):
             model_key = f"DC_Voltage_{self._phase.upper()}"
     
         _LOGGER.debug(model_key)
-        self._platform.decoded_model[model_key]
+        return self._platform.decoded_model[model_key]
 
 #    @property
 #    def suggested_display_precision(self):
