@@ -891,8 +891,7 @@ class DCCurrent(SolarEdgeSensorBase):
 #                return None
 
 #            else:
-                _LOGGER.debug(model_key)
-                _LOGGER.debug(self._phase)
+                _LOGGER.debug("I_DC_Current")
 
                 return scale_factor(
                     self._platform.decoded_model["I_DC_Current"],
@@ -937,8 +936,7 @@ class DCVoltage(SolarEdgeSensorBase):
 #                return None
 
 #            else:
-                _LOGGER.debug(model_key)
-                _LOGGER.debug(self._phase)
+                _LOGGER.debug("I_DC_Voltage")
 
                 return scale_factor(
                     self._platform.decoded_model["I_DC_Voltage"],
