@@ -120,7 +120,7 @@ async def async_setup_entry(
 
 class SolarEdgeSensorBase(CoordinatorEntity, SensorEntity):
     should_poll = False
-    suggested_display_precision = 3
+    #suggested_display_precision = 3
     _attr_has_entity_name = True
 
     def __init__(self, platform, config_entry, coordinator):
@@ -294,6 +294,7 @@ class ACCurrentSensor(SolarEdgeSensorBase):
     device_class = SensorDeviceClass.CURRENT
     state_class = SensorStateClass.MEASUREMENT
     native_unit_of_measurement = UnitOfElectricCurrent.AMPERE
+    suggested_display_precision = 1
 
     def __init__(self, platform, config_entry, coordinator, phase: str = None):
         super().__init__(platform, config_entry, coordinator)
@@ -383,14 +384,11 @@ class ACCurrentSensor(SolarEdgeSensorBase):
 #        except TypeError:
 #            return None
 
-#    @property
-#    def suggested_display_precision(self):
-#        return abs(self._platform.decoded_model["AC_Current_SF"])
-
 class VoltageSensor(SolarEdgeSensorBase):
     device_class = SensorDeviceClass.VOLTAGE
     state_class = SensorStateClass.MEASUREMENT
     native_unit_of_measurement = UnitOfElectricPotential.VOLT
+    suggested_display_precision = 0
 
     def __init__(self, platform, config_entry, coordinator, phase: str = None):
         super().__init__(platform, config_entry, coordinator)
@@ -486,6 +484,7 @@ class ACPower(SolarEdgeSensorBase):
     state_class = SensorStateClass.MEASUREMENT
     native_unit_of_measurement = UnitOfPower.WATT
     icon = "mdi:solar-power"
+    suggested_display_precision = 1
 
     def __init__(self, platform, config_entry, coordinator, phase: str = None):
         super().__init__(platform, config_entry, coordinator)
@@ -611,6 +610,7 @@ class ACVoltAmp(SolarEdgeSensorBase):
     device_class = SensorDeviceClass.APPARENT_POWER
     state_class = SensorStateClass.MEASUREMENT
     native_unit_of_measurement = UnitOfApparentPower.VOLT_AMPERE
+    suggested_display_precision = 0
 
     def __init__(self, platform, config_entry, coordinator, phase: str = None):
         super().__init__(platform, config_entry, coordinator)
@@ -672,6 +672,7 @@ class ACVoltAmpReactive(SolarEdgeSensorBase):
     device_class = SensorDeviceClass.REACTIVE_POWER
     state_class = SensorStateClass.MEASUREMENT
     native_unit_of_measurement = POWER_VOLT_AMPERE_REACTIVE
+    suggested_display_precision = 2
 
     def __init__(self, platform, config_entry, coordinator, phase: str = None):
         super().__init__(platform, config_entry, coordinator)
@@ -733,6 +734,7 @@ class ACPowerFactor(SolarEdgeSensorBase):
     device_class = SensorDeviceClass.POWER_FACTOR
     state_class = SensorStateClass.MEASUREMENT
     native_unit_of_measurement = PERCENTAGE
+    suggested_display_precision = 1
 
     def __init__(self, platform, config_entry, coordinator, phase: str = None):
         super().__init__(platform, config_entry, coordinator)
@@ -794,7 +796,7 @@ class ACEnergy(SolarEdgeSensorBase):
     device_class = SensorDeviceClass.ENERGY
     state_class = SensorStateClass.TOTAL_INCREASING
     native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
-#    suggested_display_precision = 3
+    suggested_display_precision = 3
 
     def __init__(self, platform, config_entry, coordinator, phase: str = None):
         super().__init__(platform, config_entry, coordinator)
@@ -907,6 +909,7 @@ class DCCurrent(SolarEdgeSensorBase):
     state_class = SensorStateClass.MEASUREMENT
     native_unit_of_measurement = UnitOfElectricCurrent.AMPERE
     icon = "mdi:current-dc"
+    suggested_display_precision = 1
 
     def __init__(self, platform, config_entry, coordinator, phase: str = None):
         super().__init__(platform, config_entry, coordinator)
@@ -964,6 +967,7 @@ class DCVoltage(SolarEdgeSensorBase):
     device_class = SensorDeviceClass.VOLTAGE
     state_class = SensorStateClass.MEASUREMENT
     native_unit_of_measurement = UnitOfElectricPotential.VOLT
+    suggested_display_precision = 1
 
     def __init__(self, platform, config_entry, coordinator, phase: str = None):
         super().__init__(platform, config_entry, coordinator)
@@ -1005,6 +1009,7 @@ class DCPower(SolarEdgeSensorBase):
     state_class = SensorStateClass.MEASUREMENT
     native_unit_of_measurement = UnitOfPower.WATT
     icon = "mdi:solar-power"
+    suggested_display_precision = 3
 
     def __init__(self, platform, config_entry, coordinator):
         super().__init__(platform, config_entry, coordinator)
@@ -1052,6 +1057,7 @@ class HeatSinkTemperature(SolarEdgeSensorBase):
     device_class = SensorDeviceClass.TEMPERATURE
     state_class = SensorStateClass.MEASUREMENT
     native_unit_of_measurement = UnitOfTemperature.CELSIUS
+    suggested_display_precision = 1
 
     def __init__(self, platform, config_entry, coordinator):
         super().__init__(platform, config_entry, coordinator)
