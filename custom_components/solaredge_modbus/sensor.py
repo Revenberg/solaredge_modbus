@@ -449,6 +449,8 @@ class VoltageSensor(SolarEdgeSensorBase):
 
     @property
     def native_value(self):
+        _LOGGER.debug("========== native_value 1 ================")
+        _LOGGER.debug(self._phase)
         if self._phase is None:
             model_key = "AC_Voltage"
         else:
@@ -466,9 +468,11 @@ class VoltageSensor(SolarEdgeSensorBase):
 #                return None
 
 #            else:
-        _LOGGER.debug("========== native_value ================")
+        _LOGGER.debug("========== native_value 2 ================")
         _LOGGER.debug(model_key)
         _LOGGER.debug(self._phase)
+        _LOGGER.debug(self._platform.decoded_model)
+        _LOGGER.debug(self._platform.decoded_model[model_key])
 
         return self._platform.decoded_model[model_key]
 #                return scale_factor(
