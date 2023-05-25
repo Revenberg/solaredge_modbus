@@ -392,7 +392,7 @@ class VoltageSensorBC(SolarEdgeSensorBase):
 
     @property
     def name(self) -> str:
-        return f"AC Voltage BC"
+        return "AC Voltage BC"
 
     @property
     def native_value(self):
