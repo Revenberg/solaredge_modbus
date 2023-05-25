@@ -367,7 +367,7 @@ class SolarEdgeInverter:
         self.model = "SolarEdge"
         #self.option = self.decoded_common["C_Option"]
         #self.fw_version = self.decoded_common["C_Version"]
-        self.fw_version = self.decoded_common["C_SunSpec_DID"]
+        self.fw_version = int(self.decoded_common["C_SunSpec_DID"])
         #self.serial = self.decoded_common["C_SerialNumber"]
         self.serial = self.decoded_common["SN"]
         self.device_address = f"{self.hub.host}:{self.hub.port}"
