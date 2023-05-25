@@ -81,6 +81,7 @@ async def async_setup_entry(
         _LOGGER.debug("====================== 13 ======")
         entities.append(VoltageSensor(inverter, config_entry, coordinator, "AB"))
         _LOGGER.debug("====================== 11 ======")
+        entities.append(VoltageSensorBC(inverter, config_entry, coordinator))
         _LOGGER.debug("====================== 14 ======")
         _LOGGER.debug("====================== 15 ======")
         entities.append(ACPower(inverter, config_entry, coordinator))
@@ -369,6 +370,33 @@ class VoltageSensor(SolarEdgeSensorBase):
             model_key = "AC_Voltage"
         else:
             model_key = f"AC_Voltage_{self._phase.upper()}"
+
+        _LOGGER.debug(model_key)
+        _LOGGER.debug(self._phase)
+
+        return self._platform.decoded_model[model_key]
+
+class VoltageSensorBC(SolarEdgeSensorBase):
+    device_class = SensorDeviceClass.VOLTAGE
+    state_class = SensorStateClass.MEASUREMENT
+    native_unit_of_measurement = UnitOfElectricPotential.VOLT
+    suggested_display_precision = 0
+
+    def __init__(self, platform, config_entry, coordinator, phase: str = None):
+        super().__init__(platform, config_entry, coordinator)
+        """Initialize the sensor."""        
+
+    @property
+    def unique_id(self) -> str:
+        return f"{self._platform.uid_base}_ac_voltage_bc"
+
+    @property
+    def name(self) -> str:
+        return f"AC Voltage BC"
+
+    @property
+    def native_value(self):
+        model_key = "AC_Voltage_BC"
 
         _LOGGER.debug(model_key)
         _LOGGER.debug(self._phase)
