@@ -368,7 +368,7 @@ class SolarEdgeInverter:
         #self.manufacturer = self.decoded_common["C_Manufacturer"]
         self.manufacturer = "SolarEdge"
         #self.model = self.decoded_common["C_Model"]
-        self.model = "SolarEdge"
+        self.model = "Solis RS485"
         #self.option = self.decoded_common["C_Option"]
         #self.fw_version = self.decoded_common["C_Version"]
                
@@ -383,7 +383,7 @@ class SolarEdgeInverter:
 
         self._device_info = {
             "identifiers": {(DOMAIN, int(self.decoded_common["C_SunSpec_DID"]))},
-            "name": "SolarEdge RS485",
+            "name": self.device_address,
             "manufacturer": "SolarEdge",
             "model": self.model,
             "sw_version": self.fw_version,
