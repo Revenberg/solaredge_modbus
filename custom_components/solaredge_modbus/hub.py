@@ -139,7 +139,7 @@ class SolarEdgeModbusMultiHub:
             new_inverter = SolarEdgeInverter(inverter_unit_id, self)
             await self._hass.async_add_executor_job(new_inverter.init_device)
             self.inverters.append(new_inverter)
-
+            
         except ModbusReadError as e:
             ##await self.disconnect()
             _LOGGER.debug("---------------1---------------------------")
@@ -359,14 +359,19 @@ class SolarEdgeInverter:
         self.advanced_power_control = None
         self.site_limit_control = None
         self.manufacturer = "SolarEdge"
-
+        
+        self.decoded_common = hub.decoded_common
+        
     def init_device(self) -> None:
+        
         #self.manufacturer = self.decoded_common["C_Manufacturer"]
         self.manufacturer = "SolarEdge"
         #self.model = self.decoded_common["C_Model"]
         self.model = "SolarEdge"
         #self.option = self.decoded_common["C_Option"]
         #self.fw_version = self.decoded_common["C_Version"]
+        
+        _LOGGER.debug("read_modbus_data")
         self.fw_version = int(self.decoded_common["C_SunSpec_DID"])
         #self.serial = self.decoded_common["C_SerialNumber"]
         self.serial = self.decoded_common["SN"]
