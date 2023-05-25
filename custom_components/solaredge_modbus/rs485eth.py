@@ -18,6 +18,10 @@
 import struct
 import sys
 import socket
+import logging
+
+_LOGGER = logging.getLogger(__name__)
+_LOGGER.setLevel(logging.DEBUG)
 
 if sys.version > "3":
     import binascii
@@ -194,13 +198,28 @@ class Instrument:
 
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(1)
+        _LOGGER.debug(self.eth_address)
+        _LOGGER.debug(self.eth_port)
+    
         sock.connect((self.eth_address, self.eth_port))
+        
+        _LOGGER.debug("send 1")
+        
         sock.send(request)
+        _LOGGER.debug("send 2")
         answer = sock.recv(1024)
+        _LOGGER.debug("close")
+
         sock.close()
+
+        _LOGGER.debug("answer")
+        _LOGGER.debug(answer)
 
         if sys.version_info[0] > 2:
             answer = str(answer, encoding="latin1")
+
+        _LOGGER.debug("answer")
+        _LOGGER.debug(answer)
 
         if not answer:
             raise NoResponseError("No communication with the instrument (no answer)")
