@@ -32,7 +32,6 @@ _ASCII_HEADER = ":"
 _ASCII_FOOTER = "\r\n"
 _BYTEPOSITION_FOR_ASCII_HEADER = 0  # Relative to plain response
 _BYTEPOSITION_FOR_SLAVEADDRESS = 0  # Relative to (stripped) response
-_BYTEPOSITION_FOR_FUNCTIONCODE = 1  # Relative to (stripped) response
 
 # ############### #
 # Named constants #
@@ -92,7 +91,6 @@ class Instrument:
     def _generic_command(
         self,
         registeraddress,
-        functioncode=4,
         value=None,
         numberOfDecimals=0,
         number_of_registers=0,
@@ -104,7 +102,6 @@ class Instrument:
         """Perform generic command for reading and writing registers and bits.
 
         Args:
-            functioncode (int): Modbus function code.
             registeraddress (int): The register address (use decimal numbers, not hex).
             value (numerical or string or None or list of int): The value to store in
             the register. Depends on payloadformat.
@@ -133,11 +130,10 @@ class Instrument:
         )
         
         # Communicate with instrument
-        payload_from_slave = self._perform_command(functioncode, payload_to_slave)
+        payload_from_slave = self._perform_command(payload_to_slave)
         # Parse response payload
         return _parse_payload(
             payload_from_slave,
-            functioncode,
             registeraddress,
             value,
             numberOfDecimals,
@@ -148,12 +144,10 @@ class Instrument:
             payloadformat,
         )
 
-    def _perform_command(self, functioncode, payload_to_slave):
-        """Perform the command having the *functioncode*.
+    def _perform_command(self, payload_to_slave):
+        """Perform the command having the .
 
         Args:
-            functioncode (int): The function code for the command to be performed.
-            Can for example be 'Write register' = 16.
             payload_to_slave (str): Data to be transmitted to the slave (will be
             embedded in slaveaddress, CRC etc)
 
@@ -170,7 +164,7 @@ class Instrument:
 
         # Build request
         request = _embed_payload(
-            self.address, self.mode, functioncode, payload_to_slave
+            self.address, self.mode, payload_to_slave
         )
 
         # Calculate number of bytes to read
@@ -178,14 +172,14 @@ class Instrument:
         if self.precalculate_read_size:
             with contextlib.suppress(Exception):
                 number_of_bytes_to_read = _predict_response_size(
-                    self.mode, functioncode, payload_to_slave
+                    self.mode, payload_to_slave
                 )
 
         # Communicate
         response = self._communicate(request, number_of_bytes_to_read)
         # Extract payload
         payload_from_slave = _extract_payload(
-            response, self.address, self.mode, functioncode
+            response, self.address, self.mode
         )
         return payload_from_slave
 
@@ -264,13 +258,12 @@ def _parse_payload(
             registerdata, numberOfDecimals, signed=signed
         )
 
-def _embed_payload(slaveaddress, mode, functioncode, payloaddata):
+def _embed_payload(slaveaddress, mode, payloaddata):
     """Build a request from the slaveaddress, the function code and the payload data.
 
     Args:
         slaveaddress (int): The address of the slave.
         mode (str): The modbus protcol mode (MODE_RTU or MODE_ASCII)
-        functioncode (int): The function code for the command to be performed.
         Can for example be 16 (Write register).
         payloaddata (str): The byte string to be sent to the slave.
 
@@ -281,20 +274,20 @@ def _embed_payload(slaveaddress, mode, functioncode, payloaddata):
         ValueError, TypeError.
 
     The resulting request has the format:
-     * RTU Mode: slaveaddress byte + functioncode byte + payloaddata + CRC
+     * RTU Mode: slaveaddress byte + 4 byte + payloaddata + CRC
      (which is two bytes).
-     * ASCII Mode: header (:) + slaveaddress (2 characters) + functioncode
+     * ASCII Mode: header (:) + slaveaddress (2 characters) + 4
        (2 characters) + payloaddata + LRC (which is two characters) + footer (CRLF)
 
     The LRC or CRC is calculated from the byte string made up of slaveaddress +
-    functioncode + payloaddata.
+    4 + payloaddata.
     The header, LRC/CRC, and footer are excluded from the calculation.
 
     """
 
     first_part = (
         _num_to_onebyte_string(slaveaddress)
-        + _num_to_onebyte_string(functioncode)
+        + _num_to_onebyte_string(4)
         + payloaddata
     )
 
@@ -310,7 +303,7 @@ def _embed_payload(slaveaddress, mode, functioncode, payloaddata):
 
     return request
 
-def _extract_payload(response, slaveaddress, mode, functioncode):
+def _extract_payload(response, slaveaddress, mode):
     """Extract the payload data part from the slave's response.
 
     Args:
@@ -318,7 +311,6 @@ def _extract_payload(response, slaveaddress, mode, functioncode):
         This is different for RTU and ASCII.
         slaveaddress (int): The adress of the slave. Used here for error checking only.
         mode (str): The modbus protcol mode (MODE_RTU or MODE_ASCII)
-        functioncode (int): Used here for error checking only.
 
     Returns:
         The payload part of the *response* string. Conversion from Modbus ASCII
@@ -328,13 +320,13 @@ def _extract_payload(response, slaveaddress, mode, functioncode):
         ValueError, TypeError, ModbusException (or subclasses).
 
     Raises an exception if there is any problem with the received address,
-    the functioncode or the CRC.
+    the 4 or the CRC.
 
     The received response should have the format:
 
-    * RTU Mode: slaveaddress byte + functioncode byte + payloaddata + CRC
+    * RTU Mode: slaveaddress byte + 4 byte + payloaddata + CRC
     (which is two bytes)
-    * ASCII Mode: header (:) + slaveaddress byte + functioncode byte +
+    * ASCII Mode: header (:) + slaveaddress byte + 4 byte +
       payloaddata + LRC (which is two characters) + footer (CRLF)
 
     For development purposes, this function can also be used to extract the payload
@@ -427,14 +419,6 @@ def _extract_payload(response, slaveaddress, mode, functioncode):
             + f"The response is: {response!r}"
         )
 
-    # Check function code
-    received_functioncode = ord(response[_BYTEPOSITION_FOR_FUNCTIONCODE])
-    if received_functioncode != functioncode:
-        raise InvalidResponseError(
-            f"Wrong functioncode: {received_functioncode} instead of {functioncode}. "
-            + f"The response is: {response!r}"
-        )
-
     # Read data payload
     first_databyte_number = NUMBER_OF_RESPONSE_STARTBYTES
 
@@ -446,12 +430,11 @@ def _extract_payload(response, slaveaddress, mode, functioncode):
     payload = response[first_databyte_number:last_databyte_number]
     return payload
 
-def _predict_response_size(mode, functioncode, payload_to_slave):
+def _predict_response_size(mode, payload_to_slave):
     """Calculate the number of bytes that should be received from the slave.
 
     Args:
       mode (str): The modbus protcol mode (MODE_RTU or MODE_ASCII)
-      functioncode (int): Modbus function code.
       payload_to_slave (str): The raw request that is to be sent to the slave
       (not hex encoded string)
 
@@ -462,7 +445,6 @@ def _predict_response_size(mode, functioncode, payload_to_slave):
         ValueError, TypeError.
 
     """
-    MIN_PAYLOAD_LENGTH = 4  # For implemented functioncodes here
     BYTERANGE_FOR_GIVEN_SIZE = slice(2, 4)  # Within the payload
 
     NUMBER_OF_PAYLOAD_BYTES_IN_WRITE_CONFIRMATION = 4
@@ -476,31 +458,13 @@ def _predict_response_size(mode, functioncode, payload_to_slave):
     NUMBER_OF_ASCII_RESPONSE_ENDBYTES = 4
 
     # Calculate payload size
-    if functioncode in [5, 6, 15, 16]:
-        response_payload_size = NUMBER_OF_PAYLOAD_BYTES_IN_WRITE_CONFIRMATION
-
-    elif functioncode in [1, 2, 3, 4]:
-        given_size = _twobyte_string_to_num(payload_to_slave[BYTERANGE_FOR_GIVEN_SIZE])
-        if functioncode in [1, 2]:
-            # Algorithm from MODBUS APPLICATION PROTOCOL SPECIFICATION V1.1b
-            number_of_inputs = given_size
-            response_payload_size = (
-                NUMBER_OF_PAYLOAD_BYTES_FOR_BYTECOUNTFIELD
-                + number_of_inputs // 8
-                + (1 if number_of_inputs % 8 else 0)
-            )
-
-        elif functioncode in [3, 4]:
-            number_of_registers = given_size
-            response_payload_size = (
-                NUMBER_OF_PAYLOAD_BYTES_FOR_BYTECOUNTFIELD
-                + number_of_registers * _NUMBER_OF_BYTES_PER_REGISTER
-            )
-
-    else:
-        raise ValueError(
-            f"Wrong functioncode: {functioncode}. The payload is: {payload_to_slave!r}"
-        )
+    given_size = _twobyte_string_to_num(payload_to_slave[BYTERANGE_FOR_GIVEN_SIZE])
+    
+    number_of_registers = given_size
+    response_payload_size = (
+        NUMBER_OF_PAYLOAD_BYTES_FOR_BYTECOUNTFIELD
+        + number_of_registers * _NUMBER_OF_BYTES_PER_REGISTER
+    )
 
     # Calculate number of bytes to read
     if mode == MODE_ASCII:
