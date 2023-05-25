@@ -271,7 +271,7 @@ class SolarEdgeModbusMultiHub:
         #with self._lock:
         if self._client is None:
             self._client = Instrument(eth_address=self._host,
-                                      eth_port=self._port, debug=False)
+                                      eth_port=self)
             # self._client = ModbusTcpClient(host=self._host, port=self._port)
 
             #await self._hass.async_add_executor_job(self._client.connect)
@@ -289,62 +289,6 @@ class SolarEdgeModbusMultiHub:
         self._online = False
         # #await self.disconnect()
         self._client = None
-
-    #def read_holding_registers(self, unit, address, count):
-    #    """Read holding registers."""
-    #    with self._lock:
-    #        kwargs = {"slave": unit} if unit else {}
-    #        return self._client.read_holding_registers(address, count, **kwargs)
-
-    def _write_registers(self):
-        """Write registers."""
-        with self._lock:
-            kwargs = {"slave": self._wr_unit} if self._wr_unit else {}
-            return self._client.write_registers(
-                self._wr_address, self._wr_payload, **kwargs
-            )
-
-    async def write_registers(self, unit, address, payload):
-        self._wr_unit = unit
-        self._wr_address = address
-        self._wr_payload = payload
-
-        if not self.is_socket_open():
-            await self.connect()
-
-        try:
-            result = await self._hass.async_add_executor_job(self._write_registers)
-
-        except ConnectionException as e:
-            _LOGGER.error(f"Write command failed: {e}")
-            self._online = False
-            ##await self.disconnect()
-
-        else:
-            if result.isError():
-                if type(result) is ModbusIOException:
-                    _LOGGER.error("Write command failed: No response from device.")
-                    self._online = False
-                    ##await self.disconnect()
-
-                elif type(result) is ExceptionResponse:
-                    if result.exception_code == ModbusExceptions.IllegalAddress:
-                        _LOGGER.error(
-                            (
-                                "Write command failed: "
-                                f"Illegal address {hex(self._wr_address)}"
-                            ),
-                        )
-                        self._online = False
-                        ##await self.disconnect()
-
-                else:
-                    raise ModbusWriteError(result)
-
-        if self._sleep_after_write > 0:
-            _LOGGER.debug(f"Sleeping {self._sleep_after_write} seconds after write.")
-            await asyncio.sleep(self._sleep_after_write)
-
 
 class SolarEdgeInverter:
     def __init__(self, device_id: int, hub: SolarEdgeModbusMultiHub) -> None:
@@ -390,20 +334,31 @@ class SolarEdgeInverter:
             #"hw_version": self.option,
         }
 
-    def getValueLong(self, addr, functioncode=0, signed=False):
-        rc = self.hub._client.read_long(addr, functioncode=functioncode, 
-                        signed=signed)
-        return rc
+    def getValueLong(self, addr, signed=False):
+        return self.hub._client._generic_command(
+            registeraddress=addr,
+            number_of_registers=2,
+            signed=signed,
+            byteorder=0,
+            payloadformat="long",
+        )
 
-    def getValueRegister(self, addr, numberOfDecimals=0, functioncode=0, signed=False):
-        rc = self.hub._client.read_register(addr, numberOfDecimals=numberOfDecimals,
-                                            functioncode=functioncode, signed=signed)
-        return rc
-
-    def getValueString(self, addr, functioncode=3, number_of_registers=4):
-        rc = self.hub._client.read_string(addr, functioncode=functioncode,
-                                          number_of_registers=number_of_registers)
-        return rc
+    def getValueRegister(self, addr, numberOfDecimals=0, signed=False):
+        return self.hub._client._generic_command(
+            registeraddress=addr,
+            numberOfDecimals=numberOfDecimals,
+            number_of_registers=1,
+            signed=signed,
+            payloadformat="register",
+        )
+        
+#    def getValueString(self, addr, functioncode=3, number_of_registers=4):
+#        return self.hub._client._generic_command(
+#            functioncode=functioncode,
+#            registeraddress=addr,
+#            number_of_registers=number_of_registers,
+#            payloadformat="string",
+#        )
 
     def round(self, floatval):
         return round(floatval, 2)
@@ -412,7 +367,7 @@ class SolarEdgeInverter:
         _LOGGER.debug("read_modbus_data")
 
         try:
-            C_SunSpec_DID = self.getValueRegister(3000, functioncode=4,
+            C_SunSpec_DID = self.getValueRegister(3000, 
                                         signed=False)
 
         except ConnectionException as e:
@@ -423,7 +378,7 @@ class SolarEdgeInverter:
         self.decoded_common = OrderedDict(
             [
                 ("C_SunSpec_DID", C_SunSpec_DID),
-                ("SN", self.getValueRegister(3062, functioncode=4, signed=False)),
+                ("SN", self.getValueRegister(3062, signed=False)),
                 
             ]
         )
@@ -435,59 +390,59 @@ class SolarEdgeInverter:
 
         self.decoded_model = OrderedDict(
             [
-                ("AC_Power", self.getValueLong(3005, functioncode=4,
+                ("AC_Power", self.getValueLong(3005, 
                                                signed=False)),
-                ("AC_Current", self.getValueRegister(3006, functioncode=4,
+                ("AC_Current", self.getValueRegister(3006, 
                                         signed=False)),
-                ("I_DC_Power", self.getValueRegister(3008, functioncode=4,
+                ("I_DC_Power", self.getValueRegister(3008, 
                                                 signed=False)),
                 
-                ("AC_Energy_WH", 0),
+                ("AC_Energy_WH",  self.getValueRegister(3009, 
+                                                    signed=False)),
                 
-                ("ac_lifetimeproduction", self.getValueLong(3008, functioncode=4,
+                ("ac_lifetimeproduction", self.getValueLong(3008, 
                                                     signed=False)),
-                ("ac_totalenergy",  self.getValueRegister(3009, functioncode=4,
+                
+                ("ac_monthenergy",  self.getValueRegister(3011, 
                                                     signed=False)),
-                ("ac_monthenergy",  self.getValueRegister(3011, functioncode=4, 
+                ("ac_lastmonth",  self.getValueRegister(3013, 
                                                     signed=False)),
-                ("ac_lastmonth",  self.getValueRegister(3013, functioncode=4, 
+                ("ac_yearenergy",  self.getValueRegister(3017, 
                                                     signed=False)),
-                ("ac_yearenergy",  self.getValueRegister(3017, functioncode=4,
-                                                    signed=False)),
-                ("ac_lastyear",  self.getValueRegister(3019, functioncode=4, 
+                ("ac_lastyear",  self.getValueRegister(3019, 
                                                     signed=False)),
                 
                 ("generatedtoday", self.getValueRegister(3014, numberOfDecimals=1,
-                                             functioncode=4, signed=False)),
+                                              signed=False)),
                 ("generatedyesterday", self.getValueRegister(3015, numberOfDecimals=1,
-                                                    functioncode=4, signed=False)),
-                ("ac_power_output", self.getValueLong(3004, functioncode=4, 
+                                                    signed=False)),
+                ("ac_power_output", self.getValueLong(3004,  
                                                     signed=False)),
                 
                 ("DC_Voltage_1", self.getValueRegister(3021, numberOfDecimals=1,
-                                        functioncode=4, signed=False)),
-                ("DC_Current_1", self.getValueRegister(3022, functioncode=4,
+                                        signed=False)),
+                ("DC_Current_1", self.getValueRegister(3022, 
                                         signed=False)),
                 ("DC_Voltage_2", self.getValueRegister(3023, numberOfDecimals=1,
-                                        functioncode=4, signed=False)),
-                ("DC_Current_2", self.getValueRegister(3024, functioncode=4,
+                                         signed=False)),
+                ("DC_Current_2", self.getValueRegister(3024, 
                                         signed=False)),
                 ("AC_Voltage_AB", self.getValueRegister(3033, numberOfDecimals=1,
-                                        functioncode=4, signed=False)),
+                                         signed=False)),
                 ("AC_Voltage_BC", self.getValueRegister(3034, numberOfDecimals=1,
-                                        functioncode=4, signed=False)),
+                                         signed=False)),
                 ("AC_Voltage_CA", self.getValueRegister(3035, numberOfDecimals=1,
-                                        functioncode=4, signed=False)),
+                                         signed=False)),
                 ("AC_Current_A", self.getValueRegister(3036, numberOfDecimals=1,
-                                        functioncode=4, signed=False)),
+                                         signed=False)),
                 ("AC_Current_B", self.getValueRegister(3037, numberOfDecimals=1,
-                                        functioncode=4, signed=False)),
+                                         signed=False)),
                 ("AC_Current_C", self.getValueRegister(3038, numberOfDecimals=1,
-                                        functioncode=4, signed=False)),
+                                         signed=False)),
                 ("I_Temp_Sink", self.getValueRegister(3041, numberOfDecimals=1,
-                                                functioncode=4, signed=True)),
+                                                 signed=True)),
                 ("AC_Frequency", self.getValueRegister(3042, numberOfDecimals=2,
-                                                functioncode=4, signed=False)),
+                                                 signed=False)),
                 ("I_Status", 3),
                 ("I_Status_Vendor", 3),
             ]
@@ -495,10 +450,6 @@ class SolarEdgeInverter:
         _LOGGER.debug(f"Inverter: {self.decoded_common}")
         _LOGGER.debug(f"Inverter: {self.decoded_model}")
  
-    async def write_registers(self, address, payload):
-        """Write inverter register."""
-        await self.hub.write_registers(self.inverter_unit_id, address, payload)
-
     @property
     def online(self) -> bool:
         """Device is online."""

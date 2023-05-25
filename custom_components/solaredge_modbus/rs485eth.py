@@ -15,45 +15,24 @@
 #   limitations under the License.
 #
 
-__license__ = "Apache License, Version 2.0"
-__status__ = "Production"
-__version__ = "1.0.0"
-
-import os
 import struct
 import sys
-import time
 import socket
 import contextlib
 
 if sys.version > "3":
     import binascii
 
-# Allow long also in Python3
-# http://python3porting.com/noconv.html
 if sys.version > "3":
     long = int
 
 _NUMBER_OF_BYTES_BEFORE_REGISTERDATA = 1  # Within the payload
 _NUMBER_OF_BYTES_PER_REGISTER = 2
-_MAX_NUMBER_OF_REGISTERS_TO_WRITE = 123
-_MAX_NUMBER_OF_REGISTERS_TO_READ = 125
-_MAX_NUMBER_OF_BITS_TO_WRITE = 1968  # 0x7B0
-_MAX_NUMBER_OF_BITS_TO_READ = 2000  # 0x7D0
-_MAX_numberOfDecimals = 10  # Some instrument might store 0.00000154 Ampere as 154 etc
-_MAX_BYTEORDER_VALUE = 3
-_SECONDS_TO_MILLISECONDS = 1000
-_BITS_PER_BYTE = 8
 _ASCII_HEADER = ":"
 _ASCII_FOOTER = "\r\n"
 _BYTEPOSITION_FOR_ASCII_HEADER = 0  # Relative to plain response
 _BYTEPOSITION_FOR_SLAVEADDRESS = 0  # Relative to (stripped) response
 _BYTEPOSITION_FOR_FUNCTIONCODE = 1  # Relative to (stripped) response
-_BYTEPOSITION_FOR_SLAVE_ERROR_CODE = 2  # Relative to (stripped) response
-_BITNUMBER_FUNCTIONCODE_ERRORINDICATION = 7
-
-# Several instrument instances can share the same serialport
-_latest_read_times = {}  # Key: port name (str), value: timestamp (float)
 
 # ############### #
 # Named constants #
@@ -67,22 +46,9 @@ BYTEORDER_BIG_SWAP = 2
 BYTEORDER_LITTLE_SWAP = 3
 
 # Replace with enum when Python3 only
-_PAYLOADFORMAT_BIT = "bit"
-_PAYLOADFORMAT_BITS = "bits"
-_PAYLOADFORMAT_FLOAT = "float"
 _PAYLOADFORMAT_LONG = "long"
 _PAYLOADFORMAT_REGISTER = "register"
 _PAYLOADFORMAT_REGISTERS = "registers"
-_PAYLOADFORMAT_STRING = "string"
-_ALL_PAYLOADFORMATS = [
-    _PAYLOADFORMAT_BIT,
-    _PAYLOADFORMAT_BITS,
-    _PAYLOADFORMAT_FLOAT,
-    _PAYLOADFORMAT_LONG,
-    _PAYLOADFORMAT_REGISTER,
-    _PAYLOADFORMAT_REGISTERS,
-    _PAYLOADFORMAT_STRING,
-]
 
 # ######################## #
 # Modbus instrument object #
@@ -113,860 +79,20 @@ class Instrument:
         slaveaddress=1,
         mode=MODE_RTU,
         close_port_after_each_call=False,
-        debug=False,
     ):
-        """Initialize instrument and open corresponding serial port."""
         self.address = slaveaddress
-        """Slave address (int). Most often set by the constructor
-        (see the class documentation). """
-
         self.mode = mode
-        """Slave mode (str), can be MODE_RTU or MODE_ASCII.
-        Most often set by the constructor (see the class documentation).
-
-        Changing this will not affect how other instruments use the same serial port.
-
-        New in version 0.6.
-        """
-
         self.precalculate_read_size = True
-        """If this is :const:`False`, the serial port reads until timeout
-        instead of just reading a specific number of bytes. Defaults to :const:`True`.
-
-        Changing this will not affect how other instruments use the same serial port.
-
-        New in version 0.5.
-        """
-
-        self.debug = debug
-        """Set this to :const:`True` to print the communication details.
-        Defaults to :const:`False`.
-
-        Most often set by the constructor (see the class documentation).
-
-        Changing this will not affect how other instruments use the same serial port.
-        """
-
         self.clear_buffers_before_each_transaction = True
-        """If this is :const:`True`, the serial port read and write buffers are
-        cleared before each request to the instrument, to avoid cumulative byte
-        sync errors across multiple messages. Defaults to :const:`True`.
-
-        Changing this will not affect how other instruments use the same serial port.
-
-        New in version 1.0.
-        """
-
         self.close_port_after_each_call = close_port_after_each_call
-        """If this is :const:`True`, the serial port will be closed after each
-        call. Defaults to :const:`False`.
-
-        Changing this will not affect how other instruments use the same serial port.
-
-        Most often set by the constructor (see the class documentation).
-        """
-
         self.handle_local_echo = False
-        """Set to to :const:`True` if your RS-485 adaptor has local echo enabled.
-        Then the transmitted message will immeadiately appear at the receive
-        line of the RS-485 adaptor. MinimalModbus will then read and discard
-        this data, before reading the data from the slave.
-        Defaults to :const:`False`.
-
-        """
-
         self.eth_address = eth_address
         self.eth_port = eth_port
 
-    def __repr__(self):
-        """Give string representation of the :class:`.Instrument` object."""
-        template = (
-            f"{self.__module__}.{self.__class__.__name__}<id=0x{id(self):x}, "
-            + "address={self.address}, mode={self.mode}, close_port_after_each_call"
-            + "={self.close_port_after_each_call}, "
-            + f"precalculate_read_size={self.precalculate_read_size}, "
-            + "clear_buffers_before_each_transaction="
-            + f"{self.clear_buffers_before_each_transaction}, "
-            + f"handle_local_echo={self.handle_local_echo}, debug={self.debug}>"
-        )
-        return template
-
-    # ################################# #
-    #  Methods for talking to the slave #
-    # ################################# #
-
-    def read_bit(self, registeraddress, functioncode=2):
-        """Read one bit from the slave (instrument).
-
-        This is for a bit that has its individual address in the instrument.
-
-        Args:
-            registeraddress (int): The slave register address (use decimal numbers,
-            not hex). functioncode (int): Modbus function code. Can be 1 or 2.
-
-        Returns:
-            The bit value 0 or 1 (int).
-
-        Raises:
-            TypeError, ValueError, ModbusException,
-            serial.SerialException (inherited from IOError)
-
-        """
-        _check_functioncode(functioncode, [1, 2])
-        rc = None
-        retry = 3
-        while retry > 0:
-            try:
-                rc = self._generic_command(
-                    functioncode,
-                    registeraddress,
-                    number_of_bits=1,
-                    payloadformat=_PAYLOADFORMAT_BIT,
-                )
-                retry = 0
-            except Exception:
-                retry = retry - 1
-
-        return rc
-
-    def write_bit(self, registeraddress, value, functioncode=5):
-        """Write one bit to the slave (instrument).
-
-        This is for a bit that has its individual address in the instrument.
-
-        Args:
-            registeraddress (int): The slave register address (use decimal numbers,
-            not hex).
-            value (int or bool): 0 or 1, or True or False
-            functioncode (int): Modbus function code. Can be 5 or 15.
-
-        Returns:
-            None
-
-        Raises:
-            TypeError, ValueError, ModbusException,
-            serial.SerialException (inherited from IOError)
-
-        """
-        _check_functioncode(functioncode, [5, 15])
-        _check_int(value, minvalue=0, maxvalue=1, description="input value")
-        self._generic_command(
-            functioncode,
-            registeraddress,
-            value,
-            number_of_bits=1,
-            payloadformat=_PAYLOADFORMAT_BIT,
-        )
-
-    def read_bits(self, registeraddress, number_of_bits, functioncode=2):
-        """Read multiple bits from the slave (instrument).
-
-        This is for bits that have individual addresses in the instrument.
-
-        Args:
-            registeraddress (int): The slave register start address
-            (use decimal numbers, not hex).
-            number_of_bits (int): Number of bits to read
-            functioncode (int): Modbus function code. Can be 1 or 2.
-
-        Returns:
-            A list of bit values 0 or 1 (int). The first value in the list is for
-            the bit at the given address.
-
-        Raises:
-            TypeError, ValueError, ModbusException,
-            serial.SerialException (inherited from IOError)
-
-        """
-        _check_functioncode(functioncode, [1, 2])
-        _check_int(
-            number_of_bits,
-            minvalue=1,
-            maxvalue=_MAX_NUMBER_OF_BITS_TO_READ,
-            description="number of bits",
-        )
-        return self._generic_command(
-            functioncode,
-            registeraddress,
-            number_of_bits=number_of_bits,
-            payloadformat=_PAYLOADFORMAT_BITS,
-        )
-
-    def write_bits(self, registeraddress, values):
-        """Write multiple bits to the slave (instrument).
-
-        This is for bits that have individual addresses in the instrument.
-
-        Uses Modbus functioncode 15.
-
-        Args:
-            registeraddress (int): The slave register start address (use decimal
-            numbers, not hex).
-            values (list of int or bool): 0 or 1, or True or False. The first value
-            in the list is for the bit at the given address.
-
-        Returns:
-            None
-
-        Raises:
-            TypeError, ValueError, ModbusException,
-            serial.SerialException (inherited from IOError)
-
-        """
-        if not isinstance(values, list):
-            raise TypeError(
-                f'The "values parameter" must be a list. Given: {values}'
-            )
-        # Note: The content of the list is checked at content conversion.
-        _check_int(
-            len(values),
-            minvalue=1,
-            maxvalue=_MAX_NUMBER_OF_BITS_TO_WRITE,
-            description="length of input list",
-        )
-
-        self._generic_command(
-            15,
-            registeraddress,
-            values,
-            number_of_bits=len(values),
-            payloadformat=_PAYLOADFORMAT_BITS,
-        )
-
-    def read_register(
-        self, registeraddress, numberOfDecimals=0, functioncode=3, signed=False
-    ):
-        """Read an integer from one 16-bit register in the slave, possibly scaling it.
-
-        The slave register can hold integer values in the range 0 to 65535
-        ("Unsigned INT16").
-
-        Args:
-            registeraddress (int): The slave register address (use decimal numbers,
-            not hex).
-            numberOfDecimals (int): The number of decimals for content conversion.
-            functioncode (int): Modbus function code. Can be 3 or 4.
-            signed (bool): Whether the data should be interpreted as unsigned or
-            signed.
-
-        .. note:: The parameter numberOfDecimals was named numberOfDecimals
-                  before MinimalModbus 1.0
-
-        If a value of 77.0 is stored internally in the slave register as 770,
-        then use ``numberOfDecimals=1`` which will divide the received data by 10
-        before returning the value.
-
-        Similarly ``numberOfDecimals=2`` will divide the received data by 100 before
-        returning the value.
-
-        Some manufacturers allow negative values for some registers. Instead of
-        an allowed integer range 0 to 65535, a range -32768 to 32767 is allowed.
-        This is implemented as any received value in the upper range (32768 to
-        65535) is interpreted as negative value (in the range -32768 to -1).
-
-        Use the parameter ``signed=True`` if reading from a register that can hold
-        negative values. Then upper range data will be automatically converted into
-        negative return values (two's complement).
-
-        ============== ================== ================ ===============
-        ``signed``     Data type in slave Alternative name Range
-        ============== ================== ================ ===============
-        :const:`False` Unsigned INT16     Unsigned short   0 to 65535
-        :const:`True`  INT16              Short            -32768 to 32767
-        ============== ================== ================ ===============
-
-        Returns:
-            The register data in numerical value (int or float).
-
-        Raises:
-            TypeError, ValueError, ModbusException,
-            serial.SerialException (inherited from IOError)
-
-        """
-        _check_functioncode(functioncode, [3, 4])
-        _check_int(
-            numberOfDecimals,
-            minvalue=0,
-            maxvalue=_MAX_numberOfDecimals,
-            description="number of decimals",
-        )
-        _check_bool(signed, description="signed")
-        return self._generic_command(
-            functioncode,
-            registeraddress,
-            numberOfDecimals=numberOfDecimals,
-            number_of_registers=1,
-            signed=signed,
-            payloadformat=_PAYLOADFORMAT_REGISTER,
-        )
-
-    def write_register(
-        self,
-        registeraddress,
-        value,
-        numberOfDecimals=0,
-        functioncode=16,
-        signed=False,
-    ):
-        """Write an integer to one 16-bit register in the slave, possibly scaling it.
-
-        The slave register can hold integer values in the range 0 to
-        65535 ("Unsigned INT16").
-
-        Args:
-            registeraddress (int): The slave register address  (use decimal numbers,
-            not hex).
-            value (int or float): The value to store in the slave register (might be
-            scaled before sending).
-            numberOfDecimals (int): The number of decimals for content conversion.
-            functioncode (int): Modbus function code. Can be 6 or 16.
-            signed (bool): Whether the data should be interpreted as unsigned or signed.
-
-        .. note:: The parameter numberOfDecimals was named numberOfDecimals
-                  before MinimalModbus 1.0
-
-        To store for example ``value=77.0``, use ``numberOfDecimals=1`` if the slave
-        register will hold it as 770 internally. This will multiply ``value``
-        by 10 before sending it to the slave register.
-
-        Similarly ``numberOfDecimals=2`` will multiply ``value`` by 100 before sending
-        it to the slave register.
-
-        As the largest number that can be written to a register is 0xFFFF = 65535,
-        the ``value`` and ``numberOfDecimals`` should max be 65535 when combined.
-        So when using ``numberOfDecimals=3`` the maximum ``value`` is 65.535.
-
-        For discussion on negative values, the range and on alternative names,
-        see :meth:`.read_register`.
-
-        Use the parameter ``signed=True`` if writing to a register that can hold
-        negative values. Then negative input will be automatically converted into
-        upper range data (two's complement).
-
-        Returns:
-            None
-
-        Raises:
-            TypeError, ValueError, ModbusException,
-            serial.SerialException (inherited from IOError)
-
-        """
-        _check_functioncode(functioncode, [6, 16])
-        _check_int(
-            numberOfDecimals,
-            minvalue=0,
-            maxvalue=_MAX_numberOfDecimals,
-            description="number of decimals",
-        )
-        _check_bool(signed, description="signed")
-        _check_numerical(value, description="input value")
-
-        self._generic_command(
-            functioncode,
-            registeraddress,
-            value,
-            numberOfDecimals=numberOfDecimals,
-            number_of_registers=1,
-            signed=signed,
-            payloadformat=_PAYLOADFORMAT_REGISTER,
-        )
-
-    def read_long(
-        self, registeraddress, functioncode=3, signed=False, byteorder=BYTEORDER_BIG
-    ):
-        """Read a long integer (32 bits) from the slave.
-
-        Long integers (32 bits = 4 bytes) are stored in two consecutive 16-bit
-        registers in the slave.
-
-        Args:
-            registeraddress (int): The slave register start address (use decimal
-            numbers, not hex).
-            functioncode (int): Modbus function code. Can be 3 or 4.
-            signed (bool): Whether the data should be interpreted as unsigned or
-            signed.
-            byteorder (int): How multi-register data should be interpreted. Defaults
-            to BYTEORDER_BIG.
-
-        ============== ================== ================ ==========================
-        ``signed``     Data type in slave Alternative name Range
-        ============== ================== ================ ==========================
-        :const:`False` Unsigned INT32     Unsigned long    0 to 4294967295
-        :const:`True`  INT32              Long             -2147483648 to 2147483647
-        ============== ================== ================ ==========================
-
-        Returns:
-            The numerical value (int).
-
-        Raises:
-            TypeError, ValueError, ModbusException,
-            serial.SerialException (inherited from IOError)
-
-        """
-        _check_functioncode(functioncode, [3, 4])
-        _check_bool(signed, description="signed")
-        return self._generic_command(
-            functioncode,
-            registeraddress,
-            number_of_registers=2,
-            signed=signed,
-            byteorder=byteorder,
-            payloadformat=_PAYLOADFORMAT_LONG,
-        )
-
-    def write_long(self, registeraddress, value, signed=False,
-                   byteorder=BYTEORDER_BIG):
-        """Write a long integer (32 bits) to the slave.
-
-        Long integers (32 bits = 4 bytes) are stored in two consecutive 16-bit
-        registers in the slave.
-
-        Uses Modbus function code 16.
-
-        For discussion on number of bits, number of registers, the range
-        and on alternative names, see :meth:`.read_long`.
-
-        Args:
-            registeraddress (int): The slave register start address
-            (use decimal numbers, not hex).
-            value (int or long): The value to store in the slave.
-            signed (bool): Whether the data should be interpreted as unsigned
-            or signed.
-            byteorder (int): How multi-register data should be interpreted. Defaults
-            to BYTEORDER_BIG.
-
-        Returns:
-            None
-
-        Raises:
-            TypeError, ValueError, ModbusException,
-            serial.SerialException (inherited from IOError)
-
-        """
-        MAX_VALUE_LONG = 4294967295  # Unsigned INT32
-        MIN_VALUE_LONG = -2147483648  # INT32
-
-        _check_int(
-            value,
-            minvalue=MIN_VALUE_LONG,
-            maxvalue=MAX_VALUE_LONG,
-            description="input value",
-        )
-        _check_bool(signed, description="signed")
-        self._generic_command(
-            16,
-            registeraddress,
-            value,
-            number_of_registers=2,
-            signed=signed,
-            byteorder=byteorder,
-            payloadformat=_PAYLOADFORMAT_LONG,
-        )
-
-    def read_float(
-        self,
-        registeraddress,
-        functioncode=3,
-        number_of_registers=2,
-        byteorder=BYTEORDER_BIG,
-    ):
-        r"""Read a floating point number from the slave.
-
-        Floats are stored in two or more consecutive 16-bit registers in the slave.
-        The encoding is according to the standard IEEE 754.
-
-        There are differences in the byte order used by different manufacturers.
-        A floating point value of 1.0 is encoded (in single precision) as 3f800000
-        (hex). In this implementation the data will be sent as ``'\x3f\x80'``
-        and ``'\x00\x00'`` to two consecutetive registers by default. Make sure to
-        test that it makes sense for your instrument. If not, change the ``byteorder``
-        argument.
-
-        Args:
-            registeraddress (int): The slave register start address
-            (use decimal numbers, not hex).
-            functioncode (int): Modbus function code. Can be 3 or 4.
-            number_of_registers (int): The number of registers allocated for the float.
-            Can be 2 or 4. byteorder (int): How multi-register data should be
-            interpreted. Defaults to BYTEORDER_BIG.
-
-        .. note:: The parameter number_of_registers was named numberOfRegisters
-                  before MinimalModbus 1.0
-
-        Returns:
-            The numerical value (float).
-
-        Raises:
-            TypeError, ValueError, ModbusException,
-            serial.SerialException (inherited from IOError)
-
-        """
-        _check_functioncode(functioncode, [3, 4])
-        _check_int(
-            number_of_registers,
-            minvalue=2,
-            maxvalue=4,
-            description="number of registers",
-        )
-        return self._generic_command(
-            functioncode,
-            registeraddress,
-            number_of_registers=number_of_registers,
-            byteorder=byteorder,
-            payloadformat=_PAYLOADFORMAT_FLOAT,
-        )
-
-    def write_float(
-        self, registeraddress, value, number_of_registers=2, byteorder=BYTEORDER_BIG
-    ):
-        """Write a floating point number to the slave.
-
-        Floats are stored in two or more consecutive 16-bit registers in the slave.
-
-        Uses Modbus function code 16.
-
-        For discussion on precision, number of registers and on byte order,
-        see :meth:`.read_float`.
-
-        Args:
-            registeraddress (int): The slave register start address
-            (use decimal numbers, not hex).
-            value (float or int): The value to store in the slave
-            number_of_registers (int): The number of registers allocated for the float.
-            Can be 2 or 4.
-            byteorder (int): How multi-register data should be interpreted. Defaults to
-            BYTEORDER_BIG.
-
-        .. note:: The parameter number_of_registers was named numberOfRegisters
-                  before MinimalModbus 1.0
-
-        Returns:
-            None
-
-        Raises:
-            TypeError, ValueError, ModbusException,
-            serial.SerialException (inherited from IOError)
-
-        """
-        _check_numerical(value, description="input value")
-        _check_int(
-            number_of_registers,
-            minvalue=2,
-            maxvalue=4,
-            description="number of registers",
-        )
-        self._generic_command(
-            16,
-            registeraddress,
-            value,
-            number_of_registers=number_of_registers,
-            byteorder=byteorder,
-            payloadformat=_PAYLOADFORMAT_FLOAT,
-        )
-
-    def read_string(self, registeraddress, number_of_registers=16, functioncode=3):
-        """Read an ASCII string from the slave.
-
-        Each 16-bit register in the slave are interpreted as two characters
-        (each 1 byte = 8 bits). For example 16 consecutive registers can hold 32
-        characters (32 bytes).
-
-        International characters (Unicode/UTF-8) are not supported.
-
-        Args:
-            registeraddress (int): The slave register start address
-            (use decimal numbers, not hex).
-            number_of_registers (int): The number of registers allocated for the string.
-            functioncode (int): Modbus function code. Can be 3 or 4.
-
-        .. note:: The parameter number_of_registers was named numberOfRegisters
-                  before MinimalModbus 1.0
-
-        Returns:
-            The string (str).
-
-        Raises:
-            TypeError, ValueError, ModbusException,
-            serial.SerialException (inherited from IOError)
-
-        """
-        _check_functioncode(functioncode, [3, 4])
-        _check_int(
-            number_of_registers,
-            minvalue=1,
-            maxvalue=_MAX_NUMBER_OF_REGISTERS_TO_READ,
-            description="number of registers for read string",
-        )
-        return self._generic_command(
-            functioncode,
-            registeraddress,
-            number_of_registers=number_of_registers,
-            payloadformat=_PAYLOADFORMAT_STRING,
-        )
-
-    def write_string(self, registeraddress, textstring, number_of_registers=16):
-        """Write an ASCII string to the slave.
-
-        Each 16-bit register in the slave are interpreted as two characters
-        (each 1 byte = 8 bits). For example 16 consecutive registers can hold 32
-        characters (32 bytes).
-
-        Uses Modbus function code 16.
-
-        International characters (Unicode/UTF-8) are not supported.
-
-        Args:
-            registeraddress (int): The slave register start address
-            (use decimal numbers, not hex).
-            textstring (str): The string to store in the slave, must be ASCII.
-            number_of_registers (int): The number of registers allocated for
-            the string.
-
-        .. note:: The parameter number_of_registers was named numberOfRegisters
-                  before MinimalModbus 1.0
-
-        If the ``textstring`` is longer than the ``2*number_of_registers``,
-        an error is raised.
-        Shorter strings are padded with spaces.
-
-        Returns:
-            None
-
-        Raises:
-            TypeError, ValueError, ModbusException,
-            serial.SerialException (inherited from IOError)
-
-        """
-        _check_int(
-            number_of_registers,
-            minvalue=1,
-            maxvalue=_MAX_NUMBER_OF_REGISTERS_TO_WRITE,
-            description="number of registers for write string",
-        )
-        _check_string(
-            textstring,
-            "input string",
-            minlength=1,
-            maxlength=2 * number_of_registers,
-            force_ascii=True,
-        )
-        self._generic_command(
-            16,
-            registeraddress,
-            textstring,
-            number_of_registers=number_of_registers,
-            payloadformat=_PAYLOADFORMAT_STRING,
-        )
-
-    def read_registers(self, registeraddress, number_of_registers, functioncode=3):
-        """Read integers from 16-bit registers in the slave.
-
-        The slave registers can hold integer values in the range 0 to
-        65535 ("Unsigned INT16").
-
-        Args:
-            registeraddress (int): The slave register start address
-            (use decimal numbers, not hex).
-            number_of_registers (int): The number of registers to read,
-            max 125 registers.
-            functioncode (int): Modbus function code. Can be 3 or 4.
-
-        .. note:: The parameter number_of_registers was named numberOfRegisters
-                  before MinimalModbus 1.0
-
-        Any scaling of the register data, or converting it to negative number
-        (two's complement) must be done manually.
-
-        Returns:
-            The register data (a list of int). The first value in the list is for
-            the register at the given address.
-
-        Raises:
-            TypeError, ValueError, ModbusException,
-            serial.SerialException (inherited from IOError)
-
-        """
-        _check_functioncode(functioncode, [3, 4])
-        _check_int(
-            number_of_registers,
-            minvalue=1,
-            maxvalue=_MAX_NUMBER_OF_REGISTERS_TO_READ,
-            description="number of registers",
-        )
-        return self._generic_command(
-            functioncode,
-            registeraddress,
-            number_of_registers=number_of_registers,
-            payloadformat=_PAYLOADFORMAT_REGISTERS,
-        )
-
-    def write_registers(self, registeraddress, values):
-        """Write integers to 16-bit registers in the slave.
-
-        The slave register can hold integer values in the range 0 to
-        65535 ("Unsigned INT16").
-
-        Uses Modbus function code 16.
-
-        The number of registers that will be written is defined by the length of
-        the ``values`` list.
-
-        Args:
-            registeraddress (int): The slave register start address
-            (use decimal numbers, not hex).
-            values (list of int): The values to store in the slave registers,
-            max 123 values. The first value in the list is for the register at
-            the given address.
-
-        .. note:: The parameter number_of_registers was named numberOfRegisters
-                  before MinimalModbus 1.0
-
-        Any scaling of the register data, or converting it to negative number
-        (two's complement) must be done manually.
-
-        Returns:
-            None
-
-        Raises:
-            TypeError, ValueError, ModbusException,
-            serial.SerialException (inherited from IOError)
-
-        """
-        if not isinstance(values, list):
-            raise TypeError(
-                f'The "values parameter" must be a list. Given: {values!r}'
-            )
-        _check_int(
-            len(values),
-            minvalue=1,
-            maxvalue=_MAX_NUMBER_OF_REGISTERS_TO_WRITE,
-            description="length of input list",
-        )
-        # Note: The content of the list is checked at content conversion.
-
-        self._generic_command(
-            16,
-            registeraddress,
-            values,
-            number_of_registers=len(values),
-            payloadformat=_PAYLOADFORMAT_REGISTERS,
-        )
-
-    def _check_functioncode_generic(
-        self,
-        functioncode,
-        value=None,
-        number_of_registers=0,
-        number_of_bits=0,
-        payloadformat=None,
-        number_of_register_bytes=1
-    ):
-        """Check_functioncode."""
-        if functioncode in [1, 2, 5, 15] and number_of_registers:
-            raise ValueError(
-                "The number_of_registers is not valid for this function code. "
-                + f"number_of_registers: {number_of_registers!r}, "
-                + "functioncode {funct""ioncode}."
-            )
-        if functioncode in [3, 4, 16] and not number_of_registers:
-            raise ValueError(
-                "The number_of_registers must be > 0 for functioncode "
-                + f"{functioncode}."
-            )
-        if functioncode == 6 and number_of_registers != 1:
-            raise ValueError(
-                "The number_of_registers must be 1 for functioncode 6. "
-                + f"Given: {number_of_registers}."
-            )
-        if (
-            functioncode == 16
-            and payloadformat == _PAYLOADFORMAT_REGISTER
-            and number_of_registers != 1
-        ):
-            raise ValueError(
-                "Wrong number_of_registers when writing to a "
-                + f"single register. Given {number_of_registers!r}."
-            )
-            # Note: For function code 16 there is checking also in the content
-            # conversion functions.
-
-        # Check combinations: Value
-        if functioncode in [5, 6, 15, 16] and value is None:
-            raise ValueError(
-                "The input value must be given for this function code. "
-                + f"Given {value!r} and {functioncode!r}."
-            )
-        if functioncode in [1, 2, 3, 4] and value is not None:
-            raise ValueError(
-                "The input value should not be given for this function code. "
-                + f"Given {value!r} and {functioncode!r}."
-            )
-
-        # Check combinations: Value for numerical
-        if functioncode == 16 and payloadformat in [
-            _PAYLOADFORMAT_REGISTER,
-            _PAYLOADFORMAT_FLOAT,
-            _PAYLOADFORMAT_LONG,
-        ]:
-            _check_numerical(value, description="input value")
-        if functioncode == 6 and payloadformat == _PAYLOADFORMAT_REGISTER:
-            _check_numerical(value, description="input value")
-
-        # Check combinations: Value for string
-        if functioncode == 16 and payloadformat == _PAYLOADFORMAT_STRING:
-            _check_string(
-                value, "input string", minlength=1, maxlength=number_of_register_bytes
-            )
-            # Note: The string might be padded later, so the length might be shorter
-            # than number_of_register_bytes.
-
-        # Check combinations: Value for registers
-        if functioncode == 16 and payloadformat == _PAYLOADFORMAT_REGISTERS:
-            if not isinstance(value, list):
-                raise TypeError(
-                    "The value parameter for payloadformat REGISTERS must be a list. "
-                    + f"Given {value!r}."
-                )
-
-            if len(value) != number_of_registers:
-                raise ValueError(
-                    "The list length does not match number of registers. "
-                    + f"List: {value!r},  "
-                    + "Number of registers: {number_of_registers!r}."
-                )
-
-        # Check combinations: Value for bit
-        if functioncode in [5, 15] and payloadformat == _PAYLOADFORMAT_BIT:
-            _check_int(
-                value,
-                minvalue=0,
-                maxvalue=1,
-                description="input value for payload format BIT",
-            )
-
-        # Check combinations: Value for bits
-        if functioncode == 15 and payloadformat == _PAYLOADFORMAT_BITS:
-            if not isinstance(value, list):
-                raise TypeError(
-                    "The value parameter for payloadformat BITS must be a list. "
-                    + f"Given {value!r}."
-                )
-
-            if len(value) != number_of_bits:
-                raise ValueError(
-                    "The list length does not match number of bits. "
-                    + f"List: {value!r},  "
-                    + "Number of registers: {number_of_registers!r}."
-                )
-
-    # ############### #
-    # Generic command #
-    # ############### #
-
     def _generic_command(
         self,
-        functioncode,
         registeraddress,
+        functioncode=4,
         value=None,
         numberOfDecimals=0,
         number_of_registers=0,
@@ -992,12 +118,6 @@ class Instrument:
             byteorder (int): How multi-register data should be interpreted.
             payloadformat (None or string): Any of the _PAYLOADFORMAT_* values
 
-        If a value of 77.0 is stored internally in the slave register as 770,
-        then use ``numberOfDecimals=1`` which will divide the received data
-        from the slave by 10 before returning the value. Similarly
-        ``numberOfDecimals=2`` will divide the received data by 100 before returning
-        the value. Same functionality is also used when writing data to the slave.
-
         Returns:
             The register data in numerical value (int or float), or the bit value 0 or
             1 (int), or ``None``.
@@ -1007,132 +127,11 @@ class Instrument:
             serial.SerialException (inherited from IOError)
 
         """
-        ALL_ALLOWED_FUNCTIONCODES = [1, 2, 3, 4, 5, 6, 15, 16]
-        ALLOWED_FUNCTIONCODES = {}
-        ALLOWED_FUNCTIONCODES[_PAYLOADFORMAT_BIT] = [1, 2, 5, 15]
-        ALLOWED_FUNCTIONCODES[_PAYLOADFORMAT_BITS] = [1, 2, 15]
-        ALLOWED_FUNCTIONCODES[_PAYLOADFORMAT_REGISTER] = [3, 4, 6, 16]
-        ALLOWED_FUNCTIONCODES[_PAYLOADFORMAT_FLOAT] = [3, 4, 16]
-        ALLOWED_FUNCTIONCODES[_PAYLOADFORMAT_STRING] = [3, 4, 16]
-        ALLOWED_FUNCTIONCODES[_PAYLOADFORMAT_LONG] = [3, 4, 16]
-        ALLOWED_FUNCTIONCODES[_PAYLOADFORMAT_REGISTERS] = [3, 4, 16]
-
-        # Check input values
-        _check_functioncode(functioncode, ALL_ALLOWED_FUNCTIONCODES)
-        _check_registeraddress(registeraddress)
-        _check_int(
-            numberOfDecimals,
-            minvalue=0,
-            maxvalue=_MAX_numberOfDecimals,
-            description="number of decimals",
-        )
-        _check_int(
-            number_of_registers,
-            minvalue=0,
-            maxvalue=max(
-                _MAX_NUMBER_OF_REGISTERS_TO_READ, _MAX_NUMBER_OF_REGISTERS_TO_WRITE
-            ),
-            description="number of registers",
-        )
-        _check_int(
-            number_of_bits,
-            minvalue=0,
-            maxvalue=max(_MAX_NUMBER_OF_BITS_TO_READ, _MAX_NUMBER_OF_BITS_TO_WRITE),
-            description="number of bits",
-        )
-        _check_bool(signed, description="signed")
-        _check_int(
-            byteorder,
-            minvalue=0,
-            maxvalue=_MAX_BYTEORDER_VALUE,
-            description="byteorder",
-        )
-
-        if payloadformat not in _ALL_PAYLOADFORMATS:
-            if not isinstance(payloadformat, str):
-                raise TypeError(
-                    f"The payload format should be a string. Given: {payloadformat!r}"
-                )
-            raise ValueError(
-                f"Wrong payload format variable. Given: {payloadformat!r}"
-            )
-
-        number_of_register_bytes = number_of_registers * _NUMBER_OF_BYTES_PER_REGISTER
-
-        # Check combinations: Payload format and functioncode
-        if functioncode not in ALLOWED_FUNCTIONCODES[payloadformat]:
-            raise ValueError(
-                "Wrong functioncode for payloadformat "
-                + f"{payloadformat!r}. Given: {functioncode!r}."
-            )
-
-        # Check combinations: signed
-        if signed:
-            if payloadformat not in [_PAYLOADFORMAT_REGISTER, _PAYLOADFORMAT_LONG]:
-                raise ValueError(
-                    'The "signed" parameter can not be used for this payload format. '
-                    + f"Given format: {payloadformat!r}.")
-
-        # Check combinations: numberOfDecimals
-        if numberOfDecimals > 0:
-            if payloadformat != _PAYLOADFORMAT_REGISTER:
-                raise ValueError(
-                    'The "numberOfDecimals" parameter can not be used for this '
-                    + 'payload format. '
-                    + f"Given format: {payloadformat!r}."
-                )
-
-        # Check combinations: byteorder
-        if byteorder:
-            if payloadformat not in [_PAYLOADFORMAT_FLOAT, _PAYLOADFORMAT_LONG]:
-                raise ValueError(
-                    'The "byteorder" parameter can not be used for this '
-                    + 'payload format. '
-                    + f"Given format: {payloadformat!r}."
-                )
-
-        # Check combinations: number of bits
-        if payloadformat == _PAYLOADFORMAT_BIT:
-            if number_of_bits != 1:
-                raise ValueError(
-                    "For BIT payload format the number of bits should be 1. "
-                    + f"Given: {number_of_bits!r}."
-                )
-        elif payloadformat == _PAYLOADFORMAT_BITS:
-            if number_of_bits < 1:
-                raise ValueError(
-                    "For BITS payload format the number of bits should be at least 1."
-                    + f"Given: {number_of_bits!r}."
-                )
-        elif number_of_bits:
-            raise ValueError(
-                "The number_of_bits parameter is wrong for payload format "
-                + f"{payloadformat!r}. Given: {number_of_bits!r}."
-            )
-
-        # Check combinations: Number of registers
-        self._check_functioncode_generic(
-            functioncode,
-            value,
-            number_of_registers,
-            number_of_bits,
-            payloadformat,
-            number_of_register_bytes
-        )
-
         # Create payload
-        payload_to_slave = _create_payload(
-            functioncode,
-            registeraddress,
-            value,
-            numberOfDecimals,
-            number_of_registers,
-            number_of_bits,
-            signed,
-            byteorder,
-            payloadformat,
+        payload_to_slave = _num_to_twobyte_string(registeraddress) + _num_to_twobyte_string(
+            number_of_registers
         )
-
+        
         # Communicate with instrument
         payload_from_slave = self._perform_command(functioncode, payload_to_slave)
         # Parse response payload
@@ -1148,10 +147,6 @@ class Instrument:
             byteorder,
             payloadformat,
         )
-
-    # #################################### #
-    # Communication implementation details #
-    # #################################### #
 
     def _perform_command(self, functioncode, payload_to_slave):
         """Perform the command having the *functioncode*.
@@ -1170,15 +165,8 @@ class Instrument:
             TypeError, ValueError, ModbusException,
             serial.SerialException (inherited from IOError)
 
-        Makes use of the :meth:`_communicate` method. The request is generated
-        with the :func:`_embed_payload` function, and the parsing of the
-        response is done with the :func:`_extract_payload` function.
-
         """
         DEFAULT_NUMBER_OF_BYTES_TO_READ = 1000
-
-        _check_functioncode(functioncode, None)
-        _check_string(payload_to_slave, description="payload")
 
         # Build request
         request = _embed_payload(
@@ -1201,13 +189,12 @@ class Instrument:
         )
         return payload_from_slave
 
-    def _communicate(self, request, number_of_bytes_to_read):
+    def _communicate(self, request):
         """Talk to the slave via a serial port.
 
         Args:
             request (str): The raw request that is to be sent to the slave.
-            number_of_bytes_to_read (int): number of bytes to read
-
+            
         Returns:
             The raw data (string) returned from the slave.
 
@@ -1215,44 +202,20 @@ class Instrument:
             TypeError, ValueError, ModbusException,
             serial.SerialException (inherited from IOError)
 
-        Note that the answer might have strange ASCII control signs, which
-        makes it difficult to print it in the promt (messes up a bit).
-        Use repr() to make the string printable (shows ASCII values for control signs.)
-
-        Will block until reaching *number_of_bytes_to_read* or timeout.
-
-        If the attribute :attr:`Instrument.debug` is :const:`True`, the communication
-        details are printed.
-
-        If the attribute :attr:`Instrument.close_port_after_each_call` is
-        :const:`True` the serial port is closed after each call.
         """
-        _check_string(request, minlength=1, description="request")
-        _check_int(number_of_bytes_to_read)
-
-        if sys.version_info[0] > 2:
-            request = bytes(
-                request, encoding="latin1"
-            )  # Convert types to make it Python3 compatible
-
-        # Write request
-#        latest_write_time = _now()
-#        self.serial.write(request)
+        
+        request = bytes(
+            request, encoding="latin1"
+        )  # Convert types to make it Python3 compatible
 
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(1)
-## Connect to an IP with Port, could be a URL
         sock.connect((self.eth_address, self.eth_port))
-
         sock.send(request)
-## Send some data, this method can be called multiple times
-
         answer = sock.recv(1024)
-## Close the socket connection, no more data transmission
         sock.close()
 
         if sys.version_info[0] > 2:
-            # Convert types to make it Python3 compatible
             answer = str(answer, encoding="latin1")
 
         if not answer:
@@ -1260,39 +223,11 @@ class Instrument:
 
         return answer
 
-    # For backward compatibility
-    _performCommand = _perform_command
-
-# ########## #
-# Exceptions #
-# ########## #
-
-
 class ModbusException(IOError):
     """Base class for Modbus communication exceptions.
 
     Inherits from IOError, which is an alias for OSError in Python3.
     """
-
-
-class SlaveReportedException(ModbusException):
-    """Base class for exceptions that the slave (instrument) reports."""
-
-
-class SlaveDeviceBusyError(SlaveReportedException):
-    """The slave is busy processing some command."""
-
-
-class NegativeAcknowledgeError(SlaveReportedException):
-    """The slave can not fulfil the programming request.
-
-    This typically happens when using function code 13 or 14 decimal.
-    """
-
-
-class IllegalRequestError(SlaveReportedException):
-    """The slave has received an illegal request."""
-
 
 class MasterReportedException(ModbusException):
     """Base class for exceptions that the master (computer) detects."""
@@ -1302,141 +237,32 @@ class NoResponseError(MasterReportedException):
     """No response from the slave."""
 
 
-class LocalEchoError(MasterReportedException):
-    """There is some problem with the local echo."""
-
-
 class InvalidResponseError(MasterReportedException):
     """The response does not fulfill the Modbus standad, for example wrong checksum."""
 
 
-# ################ #
-# Payload handling #
-# ################ #
-
-
-def _create_payload(
-    functioncode,
-    registeraddress,
-    value,
-    numberOfDecimals,
-    number_of_registers,
-    number_of_bits,
-    signed,
-    byteorder,
-    payloadformat,
-):
-    """Create the payload.
-
-    Error checking should have been done before calling this function.
-
-    For argument descriptions, see the _generic_command() method.
-
-    """
-    if functioncode in [1, 2]:
-        return _num_to_twobyte_string(registeraddress) + _num_to_twobyte_string(
-            number_of_bits
-        )
-    if functioncode in [3, 4]:
-        return _num_to_twobyte_string(registeraddress) + _num_to_twobyte_string(
-            number_of_registers
-        )
-    if functioncode == 5:
-        return _num_to_twobyte_string(registeraddress) + _bit_to_bytestring(value)
-    if functioncode == 6:
-        return _num_to_twobyte_string(registeraddress) + _num_to_twobyte_string(
-            value, numberOfDecimals, signed=signed
-        )
-    if functioncode == 15:
-        if payloadformat == _PAYLOADFORMAT_BIT:
-            bitlist = [value]
-        else:
-            bitlist = value
-        return (
-            _num_to_twobyte_string(registeraddress)
-            + _num_to_twobyte_string(number_of_bits)
-            + _num_to_onebyte_string(
-                _calculate_number_of_bytes_for_bits(number_of_bits)
-            )
-            + _bits_to_bytestring(bitlist)
-        )
-    if functioncode == 16:
-        if payloadformat == _PAYLOADFORMAT_REGISTER:
-            registerdata = _num_to_twobyte_string(
-                value, numberOfDecimals, signed=signed
-            )
-        elif payloadformat == _PAYLOADFORMAT_STRING:
-            registerdata = _textstring_to_bytestring(value, number_of_registers)
-        elif payloadformat == _PAYLOADFORMAT_LONG:
-            registerdata = _long_to_bytestring(
-                value, signed, number_of_registers, byteorder
-            )
-        elif payloadformat == _PAYLOADFORMAT_FLOAT:
-            registerdata = _float_to_bytestring(value, number_of_registers, byteorder)
-        elif payloadformat == _PAYLOADFORMAT_REGISTERS:
-            registerdata = _valuelist_to_bytestring(value, number_of_registers)
-
-        assert len(registerdata) == number_of_registers * _NUMBER_OF_BYTES_PER_REGISTER
-
-        return (
-            _num_to_twobyte_string(registeraddress)
-            + _num_to_twobyte_string(number_of_registers)
-            + _num_to_onebyte_string(len(registerdata))
-            + registerdata
-        )
-    raise ValueError("Wrong function code: " + str(functioncode))
-
-
 def _parse_payload(
     payload,
-    functioncode,
-    registeraddress,
-    value,
     numberOfDecimals,
     number_of_registers,
-    number_of_bits,
     signed,
     byteorder,
     payloadformat,
 ):
-    _check_response_payload(
-        payload,
-        functioncode,
-        registeraddress,
-        value,
-        numberOfDecimals,
-        number_of_registers,
-        number_of_bits,
-        signed,
-        byteorder,
-        payloadformat,
-    )
-    if functioncode in [1, 2]:
-        registerdata = payload[_NUMBER_OF_BYTES_BEFORE_REGISTERDATA:]
-        if payloadformat == _PAYLOADFORMAT_BIT:
-            return _bytestring_to_bits(registerdata, number_of_bits)[0]
-        elif payloadformat == _PAYLOADFORMAT_BITS:
-            return _bytestring_to_bits(registerdata, number_of_bits)
-    if functioncode in [3, 4]:
-        registerdata = payload[_NUMBER_OF_BYTES_BEFORE_REGISTERDATA:]
-        if payloadformat == _PAYLOADFORMAT_STRING:
-            return _bytestring_to_textstring(registerdata, number_of_registers)
+    registerdata = payload[_NUMBER_OF_BYTES_BEFORE_REGISTERDATA:]
+    
+    if payloadformat == _PAYLOADFORMAT_LONG:
+        return _bytestring_to_long(
+            registerdata, signed, number_of_registers, byteorder
+        )
 
-        elif payloadformat == _PAYLOADFORMAT_LONG:
-            return _bytestring_to_long(
-                registerdata, signed, number_of_registers, byteorder
-            )
+    if payloadformat == _PAYLOADFORMAT_REGISTERS:
+        return _bytestring_to_valuelist(registerdata, number_of_registers)
 
-        elif payloadformat == _PAYLOADFORMAT_FLOAT:
-            return _bytestring_to_float(registerdata, number_of_registers, byteorder)
-
-        elif payloadformat == _PAYLOADFORMAT_REGISTERS:
-            return _bytestring_to_valuelist(registerdata, number_of_registers)
-
-        elif payloadformat == _PAYLOADFORMAT_REGISTER:
-            return _twobyte_string_to_num(
-                registerdata, numberOfDecimals, signed=signed
-            )
+    elif payloadformat == _PAYLOADFORMAT_REGISTER:
+        return _twobyte_string_to_num(
+            registerdata, numberOfDecimals, signed=signed
+        )
 
 def _embed_payload(slaveaddress, mode, functioncode, payloaddata):
     """Build a request from the slaveaddress, the function code and the payload data.
@@ -1465,10 +291,6 @@ def _embed_payload(slaveaddress, mode, functioncode, payloaddata):
     The header, LRC/CRC, and footer are excluded from the calculation.
 
     """
-    _check_slaveaddress(slaveaddress)
-    _check_mode(mode)
-    _check_functioncode(functioncode, None)
-    _check_string(payloaddata, description="payload")
 
     first_part = (
         _num_to_onebyte_string(slaveaddress)
@@ -1487,7 +309,6 @@ def _embed_payload(slaveaddress, mode, functioncode, payloaddata):
         request = first_part + _calculate_crc_string(first_part)
 
     return request
-
 
 def _extract_payload(response, slaveaddress, mode, functioncode):
     """Extract the payload data part from the slave's response.
@@ -1528,11 +349,7 @@ def _extract_payload(response, slaveaddress, mode, functioncode):
     MINIMAL_RESPONSE_LENGTH_RTU = NUMBER_OF_RESPONSE_STARTBYTES + NUMBER_OF_CRC_BYTES
     MINIMAL_RESPONSE_LENGTH_ASCII = 9
     # Argument validity testing (ValueError/TypeError at lib programming error)
-    _check_string(response, description="response")
-    _check_slaveaddress(slaveaddress)
-    _check_mode(mode)
-    _check_functioncode(functioncode, None)
-
+    
     plainresponse = response
 
     # Validate response length
@@ -1610,9 +427,6 @@ def _extract_payload(response, slaveaddress, mode, functioncode):
             + f"The response is: {response!r}"
         )
 
-    # Check if slave indicates error
-    _check_response_slaveerrorcode(response)
-
     # Check function code
     received_functioncode = ord(response[_BYTEPOSITION_FOR_FUNCTIONCODE])
     if received_functioncode != functioncode:
@@ -1631,12 +445,6 @@ def _extract_payload(response, slaveaddress, mode, functioncode):
 
     payload = response[first_databyte_number:last_databyte_number]
     return payload
-
-
-# ###################################### #
-# Serial communication utility functions #
-# ###################################### #
-
 
 def _predict_response_size(mode, functioncode, payload_to_slave):
     """Calculate the number of bytes that should be received from the slave.
@@ -1666,11 +474,6 @@ def _predict_response_size(mode, functioncode, payload_to_slave):
     NUMBER_OF_RTU_RESPONSE_ENDBYTES = 2
     NUMBER_OF_ASCII_RESPONSE_STARTBYTES = 5
     NUMBER_OF_ASCII_RESPONSE_ENDBYTES = 4
-
-    # Argument validity testing
-    _check_mode(mode)
-    _check_functioncode(functioncode, None)
-    _check_string(payload_to_slave, description="payload", minlength=MIN_PAYLOAD_LENGTH)
 
     # Calculate payload size
     if functioncode in [5, 6, 15, 16]:
@@ -1713,41 +516,6 @@ def _predict_response_size(mode, functioncode, payload_to_slave):
             + NUMBER_OF_RTU_RESPONSE_ENDBYTES
         )
 
-
-def _calculate_minimum_silent_period(baudrate):
-    """Calculate the silent period length between messages.
-
-    It should correspond to the time to send 3.5 characters.
-
-    Args:
-        baudrate (numerical): The baudrate for the serial port
-
-    Returns:
-        The number of seconds (float) that should pass between each message on the bus.
-
-    Raises:
-        ValueError, TypeError.
-
-    """
-    # Avoid division by zero
-    _check_numerical(baudrate, minvalue=1, description="baudrate")
-
-    BITTIMES_PER_CHARACTERTIME = 11
-    MINIMUM_SILENT_CHARACTERTIMES = 3.5
-    MINIMUM_SILENT_TIME_SECONDS = 0.00175  # See Modbus standard
-
-    bittime = 1 / float(baudrate)
-    return max(
-        bittime * BITTIMES_PER_CHARACTERTIME * MINIMUM_SILENT_CHARACTERTIMES,
-        MINIMUM_SILENT_TIME_SECONDS,
-    )
-
-
-# ########################## #
-# String and num conversions #
-# ########################## #
-
-
 def _num_to_onebyte_string(inputvalue):
     """Convert a numerical value to a one-byte string.
 
@@ -1761,10 +529,8 @@ def _num_to_onebyte_string(inputvalue):
         TypeError, ValueError
 
     """
-    _check_int(inputvalue, minvalue=0, maxvalue=0xFF)
 
     return chr(inputvalue)
-
 
 def _num_to_twobyte_string(value, numberOfDecimals=0, lsb_first=False, signed=False):
     r"""Convert a numerical value to a two-byte string, possibly scaling it.
@@ -1809,16 +575,6 @@ def _num_to_twobyte_string(value, numberOfDecimals=0, lsb_first=False, signed=Fa
         why the resulting string is ``\x03\x02``, which has the length 2.
 
     """
-    _check_numerical(value, description="inputvalue")
-    _check_int(
-        numberOfDecimals,
-        minvalue=0,
-        maxvalue=_MAX_numberOfDecimals,
-        description="number of decimals",
-    )
-    _check_bool(lsb_first, description="lsb_first")
-    _check_bool(signed, description="signed parameter")
-
     multiplier = 10 ** numberOfDecimals
     integer = int(float(value) * multiplier)
 
@@ -1834,7 +590,6 @@ def _num_to_twobyte_string(value, numberOfDecimals=0, lsb_first=False, signed=Fa
     outstring = _pack(formatcode, integer)
     assert len(outstring) == 2
     return outstring
-
 
 def _twobyte_string_to_num(bytestring, numberOfDecimals=0, signed=False):
     r"""Convert a two-byte string to a numerical value, possibly scaling it.
@@ -1866,15 +621,6 @@ def _twobyte_string_to_num(bytestring, numberOfDecimals=0, signed=False):
         770 (dec). If ``numberOfDecimals = 1``, then this is converted to 77.0 (float).
 
     """
-    _check_string(bytestring, minlength=2, maxlength=2, description="bytestring")
-    _check_int(
-        numberOfDecimals,
-        minvalue=0,
-        maxvalue=_MAX_numberOfDecimals,
-        description="number of decimals",
-    )
-    _check_bool(signed, description="signed parameter")
-
     formatcode = ">"  # Big-endian
     if signed:
         formatcode += "h"  # (Signed) short (2 bytes)
@@ -1887,55 +633,6 @@ def _twobyte_string_to_num(bytestring, numberOfDecimals=0, signed=False):
         return fullregister
     divisor = 10 ** numberOfDecimals
     return fullregister / float(divisor)
-
-
-def _long_to_bytestring(
-    value, signed=False, number_of_registers=2, byteorder=BYTEORDER_BIG
-):
-    """Convert a long integer to a bytestring.
-
-    Long integers (32 bits = 4 bytes) are stored in two consecutive 16-bit registers
-    in the slave.
-
-    Args:
-        value (int): The numerical value to be converted.
-        signed (bool): Whether large positive values should be interpreted
-        as negative values.
-        number_of_registers (int): Should be 2. For error checking only.
-        byteorder (int): How multi-register data should be interpreted.
-
-    Returns:
-        A bytestring (4 bytes).
-
-    Raises:
-        TypeError, ValueError
-
-    """
-    _check_int(value, description="inputvalue")
-    _check_bool(signed, description="signed parameter")
-    _check_int(
-        number_of_registers, minvalue=2, maxvalue=2, description="number of registers"
-    )
-    _check_int(
-        byteorder, minvalue=0, maxvalue=_MAX_BYTEORDER_VALUE, description="byteorder"
-    )
-
-    if byteorder in [BYTEORDER_BIG, BYTEORDER_BIG_SWAP]:
-        formatcode = ">"
-    else:
-        formatcode = "<"
-    if signed:
-        formatcode += "l"  # (Signed) long (4 bytes)
-    else:
-        formatcode += "L"  # Unsigned long (4 bytes)
-
-    outstring = _pack(formatcode, value)
-    if byteorder in [BYTEORDER_BIG_SWAP, BYTEORDER_LITTLE_SWAP]:
-        outstring = _swap(outstring)
-
-    assert len(outstring) == 4
-    return outstring
-
 
 def _bytestring_to_long(
     bytestring, signed=False, number_of_registers=2, byteorder=BYTEORDER_BIG
@@ -1959,14 +656,6 @@ def _bytestring_to_long(
         ValueError, TypeError
 
     """
-    _check_string(bytestring, "byte string", minlength=4, maxlength=4)
-    _check_bool(signed, description="signed parameter")
-    _check_int(
-        number_of_registers, minvalue=2, maxvalue=2, description="number of registers"
-    )
-    _check_int(
-        byteorder, minvalue=0, maxvalue=_MAX_BYTEORDER_VALUE, description="byteorder"
-    )
 
     if byteorder in [BYTEORDER_BIG, BYTEORDER_BIG_SWAP]:
         formatcode = ">"
@@ -1980,239 +669,6 @@ def _bytestring_to_long(
     if byteorder in [BYTEORDER_BIG_SWAP, BYTEORDER_LITTLE_SWAP]:
         bytestring = _swap(bytestring)
     return _unpack(formatcode, bytestring)
-
-
-def _float_to_bytestring(value, number_of_registers=2, byteorder=BYTEORDER_BIG):
-    r"""Convert a numerical value to a bytestring.
-
-    Floats are stored in two or more consecutive 16-bit registers in the slave. The
-    encoding is according to the standard IEEE 754.
-
-     A floating  point value of 1.0 is encoded (in single precision) as 3f800000 (hex).
-    This will give a byte string ``'\x3f\x80\x00\x00'`` (big endian).
-
-    Args:
-        value (float or int): The numerical value to be converted.
-        number_of_registers (int): Can be 2 or 4.
-        byteorder (int): How multi-register data should be interpreted.
-
-    Returns:
-        A bytestring (4 or 8 bytes).
-
-    Raises:
-        TypeError, ValueError
-
-    """
-    _check_numerical(value, description="inputvalue")
-    _check_int(
-        number_of_registers, minvalue=2, maxvalue=4, description="number of registers"
-    )
-    _check_int(
-        byteorder, minvalue=0, maxvalue=_MAX_BYTEORDER_VALUE, description="byteorder"
-    )
-
-    if byteorder in [BYTEORDER_BIG, BYTEORDER_BIG_SWAP]:
-        formatcode = ">"
-    else:
-        formatcode = "<"
-    if number_of_registers == 2:
-        formatcode += "f"  # Float (4 bytes)
-        lengthtarget = 4
-    elif number_of_registers == 4:
-        formatcode += "d"  # Double (8 bytes)
-        lengthtarget = 8
-    else:
-        raise ValueError(
-            f"Wrong number of registers! Given value is {number_of_registers!r}"
-        )
-
-    outstring = _pack(formatcode, value)
-    if byteorder in [BYTEORDER_BIG_SWAP, BYTEORDER_LITTLE_SWAP]:
-        outstring = _swap(outstring)
-    assert len(outstring) == lengthtarget
-    return outstring
-
-
-def _bytestring_to_float(bytestring, number_of_registers=2, byteorder=BYTEORDER_BIG):
-    """Convert a four-byte string to a float.
-
-    Floats are stored in two or more consecutive 16-bit registers in the slave.
-
-    For discussion on precision, number of bits, number of registers, the range, byte
-    order
-    and on alternative names, see :func:`minimalmodbus._float_to_bytestring`.
-
-    Args:
-        bytestring (str): A string of length 4 or 8.
-        number_of_registers (int): Can be 2 or 4.
-        byteorder (int): How multi-register data should be interpreted.
-
-    Returns:
-        A float.
-
-    Raises:
-        TypeError, ValueError
-
-    """
-    _check_string(bytestring, minlength=4, maxlength=8, description="bytestring")
-    _check_int(
-        number_of_registers, minvalue=2, maxvalue=4, description="number of registers"
-    )
-    _check_int(
-        byteorder, minvalue=0, maxvalue=_MAX_BYTEORDER_VALUE, description="byteorder"
-    )
-    number_of_bytes = _NUMBER_OF_BYTES_PER_REGISTER * number_of_registers
-
-    if byteorder in [BYTEORDER_BIG, BYTEORDER_BIG_SWAP]:
-        formatcode = ">"
-    else:
-        formatcode = "<"
-    if number_of_registers == 2:
-        formatcode += "f"  # Float (4 bytes)
-    elif number_of_registers == 4:
-        formatcode += "d"  # Double (8 bytes)
-    else:
-        raise ValueError(
-            f"Wrong number of registers! Given value is {number_of_registers!r}"
-        )
-
-    if len(bytestring) != number_of_bytes:
-        raise ValueError(
-            f"Wrong length of the byte string! Given value is {bytestring!r}, "
-            + f"and number_of_registers is {number_of_registers!r}."
-        )
-
-    if byteorder in [BYTEORDER_BIG_SWAP, BYTEORDER_LITTLE_SWAP]:
-        bytestring = _swap(bytestring)
-    return _unpack(formatcode, bytestring)
-
-
-def _textstring_to_bytestring(inputstring, number_of_registers=16):
-    """Convert a text string to a bytestring.
-
-    Each 16-bit register in the slave are interpreted as two characters
-    (1 byte = 8 bits).
-    For example 16 consecutive registers can hold 32 characters (32 bytes).
-
-    Not much of conversion is done, mostly error checking and string padding.
-    If the inputstring is shorter that the allocated space, it is padded with
-    spaces in the end.
-
-    Args:
-        inputstring (str): The string to be stored in the slave.
-        Max 2*number_of_registers characters.
-        number_of_registers (int): The number of registers allocated for the string.
-
-    Returns:
-        A bytestring (str).
-
-    Raises:
-        TypeError, ValueError
-
-    """
-    _check_int(
-        number_of_registers,
-        minvalue=1,
-        maxvalue=_MAX_NUMBER_OF_REGISTERS_TO_WRITE,
-        description="number of registers",
-    )
-    max_characters = _NUMBER_OF_BYTES_PER_REGISTER * number_of_registers
-    _check_string(inputstring, "input string", minlength=1, maxlength=max_characters)
-
-    bytestring = inputstring.ljust(max_characters)  # Pad with space
-    assert len(bytestring) == max_characters
-    return bytestring
-
-
-def _bytestring_to_textstring(bytestring, number_of_registers=16):
-    """Convert a bytestring to a text string.
-
-    Each 16-bit register in the slave are interpreted as two characters
-    (1 byte = 8 bits).
-    For example 16 consecutive registers can hold 32 characters (32 bytes).
-
-    Not much of conversion is done, mostly error checking.
-
-    Args:
-        bytestring (str): The string from the slave. Length =
-        2*number_of_registers
-        number_of_registers (int): The number of registers allocated for
-        the string.
-
-    Returns:
-        A the text string (str).
-
-    Raises:
-        TypeError, ValueError
-
-    """
-    _check_int(
-        number_of_registers,
-        minvalue=1,
-        maxvalue=_MAX_NUMBER_OF_REGISTERS_TO_READ,
-        description="number of registers",
-    )
-    max_characters = _NUMBER_OF_BYTES_PER_REGISTER * number_of_registers
-    _check_string(
-        bytestring, "byte string", minlength=max_characters, maxlength=max_characters
-    )
-
-    textstring = bytestring
-    return textstring
-
-
-def _valuelist_to_bytestring(valuelist, number_of_registers):
-    """Convert a list of numerical values to a bytestring.
-
-    Each element is 'unsigned INT16'.
-
-    Args:
-        valuelist (list of int): The input list. The elements should be
-        in the range 0 to 65535.
-        number_of_registers (int): The number of registers. For error checking.
-        Should equal the number of elements in valuelist.
-
-    Returns:
-        A bytestring (str). Length = 2*number_of_registers
-
-    Raises:
-        TypeError, ValueError
-
-    """
-    MINVALUE = 0
-    MAXVALUE = 0xFFFF
-
-    _check_int(number_of_registers, minvalue=1, description="number of registers")
-
-    if not isinstance(valuelist, list):
-        raise TypeError(
-            f"The valuelist parameter must be a list. Given {valuelist!r}."
-        )
-
-    for value in valuelist:
-        _check_int(
-            value,
-            minvalue=MINVALUE,
-            maxvalue=MAXVALUE,
-            description="elements in the input value list",
-        )
-
-    _check_int(
-        len(valuelist),
-        minvalue=number_of_registers,
-        maxvalue=number_of_registers,
-        description="length of the list",
-    )
-
-    number_of_bytes = _NUMBER_OF_BYTES_PER_REGISTER * number_of_registers
-
-    bytestring = ""
-    for value in valuelist:
-        bytestring += _num_to_twobyte_string(value, signed=False)
-
-    assert len(bytestring) == number_of_bytes
-    return bytestring
-
 
 def _bytestring_to_valuelist(bytestring, number_of_registers):
     """Convert a bytestring to a list of numerical values.
@@ -2230,12 +686,6 @@ def _bytestring_to_valuelist(bytestring, number_of_registers):
         TypeError, ValueError
 
     """
-    _check_int(number_of_registers, minvalue=1, description="number of registers")
-    number_of_bytes = _NUMBER_OF_BYTES_PER_REGISTER * number_of_registers
-    _check_string(
-        bytestring, "byte string", minlength=number_of_bytes, maxlength=number_of_bytes
-    )
-
     values = []
     for i in range(number_of_registers):
         offset = _NUMBER_OF_BYTES_PER_REGISTER * i
@@ -2243,18 +693,6 @@ def _bytestring_to_valuelist(bytestring, number_of_registers):
         values.append(_twobyte_string_to_num(substring))
 
     return values
-
-
-def _now():
-    """Return a timestamp for time duration measurements.
-
-    Returns a float, that increases with 1.0 per second.
-    The starting point is undefined.
-    """
-    if hasattr(time, "monotonic"):
-        return time.monotonic()
-    return time.time()
-
 
 def _pack(formatstring, value):
     """Pack a value into a bytestring.
@@ -2276,7 +714,6 @@ def _pack(formatstring, value):
     but bytestrings for Python2. This is compensated for automatically.
 
     """
-    _check_string(formatstring, description="formatstring", minlength=1)
 
     try:
         result = struct.pack(formatstring, value)
@@ -2293,7 +730,6 @@ def _pack(formatstring, value):
             result, encoding="latin1"
         )  # Convert types to make it Python3 compatible
     return result
-
 
 def _unpack(formatstring, packed):
     """Unpack a bytestring into a value.
@@ -2315,8 +751,6 @@ def _unpack(formatstring, packed):
     but bytestrings for Python2. This is compensated for automatically.
 
     """
-    _check_string(formatstring, description="formatstring", minlength=1)
-    _check_string(packed, description="packed string", minlength=1)
 
     if sys.version_info[0] > 2:
         packed = bytes(
@@ -2334,7 +768,6 @@ def _unpack(formatstring, packed):
         raise InvalidResponseError(errortext)
 
     return value
-
 
 def _swap(bytestring):
     """Swap characters pairwise in a string.
@@ -2359,9 +792,8 @@ def _swap(bytestring):
     )
     return "".join(templist)
 
-
 def _hexencode(bytestring, insert_spaces=False):
-    r"""Convert a byte string to a hex encoded string.
+    """Convert a byte string to a hex encoded string.
 
     For example 'J' will return '4A', and ``'\x04'`` will return '04'.
 
@@ -2378,8 +810,6 @@ def _hexencode(bytestring, insert_spaces=False):
         TypeError, ValueError
 
     """
-    _check_string(bytestring, description="byte string")
-
     separator = "" if not insert_spaces else " "
 
     # Use plain string formatting instead of binhex.hexlify,
@@ -2390,9 +820,8 @@ def _hexencode(bytestring, insert_spaces=False):
         byte_representions.append(f"{ord(char):02X}")
     return separator.join(byte_representions).strip()
 
-
 def _hexdecode(hexstring):
-    r"""Convert a hex encoded string to a byte string.
+    """Convert a hex encoded string to a byte string.
 
     For example '4A' will return 'J', and '04' will return ``'\x04'`` (which has
     length 1).
@@ -2413,8 +842,6 @@ def _hexdecode(hexstring):
     # from err but the Python2 interpreter will indicate SyntaxError.
     # Thus we need to live with this warning in Python3:
     # 'During handling of the above exception, another exception occurred'
-
-    _check_string(hexstring, description="hexstring")
 
     if len(hexstring) % 2 != 0:
         raise ValueError(
@@ -2438,275 +865,6 @@ def _hexdecode(hexstring):
             raise TypeError(
                 f"Hexdecode reported an error. Input hexstring: {hexstring}"
             )
-
-
-def _hexlify(bytestring):
-    """Convert a byte string to a hex encoded string, with spaces for easier reading.
-
-    This is just a facade for _hexencode() with insert_spaces = True.
-
-    See _hexencode() for details.
-
-    """
-    return _hexencode(bytestring, insert_spaces=True)
-
-
-def _calculate_number_of_bytes_for_bits(number_of_bits):
-    """Calculate number of full bytes required to house a number of bits.
-
-    Args:
-        number_of_bits (str): Number of bits
-
-    Error checking should have been done before.
-
-    Algorithm from MODBUS APPLICATION PROTOCOL SPECIFICATION V1.1b
-
-    """
-    result = number_of_bits // _BITS_PER_BYTE  # Integer division in Python2 and 3
-    if number_of_bits % _BITS_PER_BYTE:
-        result += 1
-    return result
-
-
-def _bit_to_bytestring(value):
-    """Create the bit pattern that is used for writing single bits.
-
-    Used for functioncode 5. The same value is sent back in the response
-    from the slave.
-
-    This is basically a storage of numerical constants.
-
-    Args:
-        value (int): can be 0 or 1
-
-    Returns:
-        The bit pattern (string).
-
-    Raises:
-        TypeError, ValueError
-
-    """
-    _check_int(value, minvalue=0, maxvalue=1, description="inputvalue")
-
-    if value == 0:
-        return "\x00\x00"
-    else:
-        return "\xff\x00"
-
-
-def _bits_to_bytestring(valuelist):
-    """Build a bytestring from a list of bits.
-
-    This is used for functioncode 15.
-
-    Args:
-        valuelist (list of int): 0 or 1
-
-    Returns a bytestring.
-
-    """
-    if not isinstance(valuelist, list):
-        raise TypeError(
-            f"The input should be a list. Given: {valuelist!r}"
-        )
-    for value in valuelist:
-        if value not in [0, 1, False, True]:
-            raise ValueError(
-                f"Wrong value in list of bits. Given: {value!r}"
-            )
-
-    list_position = 0
-    outputstring = ""
-    while list_position < len(valuelist):
-        sublist = valuelist[list_position : (list_position + _BITS_PER_BYTE)]
-
-        bytevalue = 0
-        for bitposition, value in enumerate(sublist):
-            bytevalue |= value << bitposition
-        outputstring += chr(bytevalue)
-
-        list_position += _BITS_PER_BYTE
-    return outputstring
-
-
-def _bytestring_to_bits(bytestring, number_of_bits):
-    """Parse bits from a bytestring.
-
-    This is used for parsing the bits in response messages for functioncode 1 and 2.
-
-    The first byte in the bytestring contains info on the addressed bit
-    (in LSB in that byte). Second bit from right contains info on the bit
-    on the next address.
-
-    Next byte in the bytestring contains data on next 8 bits. Might be padded with
-    zeros toward MSB.
-
-    Args:
-        bytestring (str): input string
-        number_of_bits (int): Number of bits to extract
-
-    Returns a list of values (0 or 1). The length of the list is equal to
-    number_of_bits.
-
-    """
-    expected_length = _calculate_number_of_bytes_for_bits(number_of_bits)
-    if len(bytestring) != expected_length:
-        raise ValueError(
-            f"Wrong length of bytestring. Expected is {expected_length} bytes"
-            + f" (for {number_of_bits} bits), actual is {len(bytestring)} bytes."
-        )
-    total_list = []
-    for character in bytestring:
-        bytevalue = ord(character)
-        for bitposition in range(_BITS_PER_BYTE):
-            bitvalue = (bytevalue & (1 << bitposition)) > 0
-            total_list.append(int(bitvalue))
-    return total_list[:number_of_bits]
-
-
-# ################### #
-# Number manipulation #
-# ################### #
-
-
-def _twos_complement(x, bits=16):
-    """Calculate the two's complement of an integer.
-
-    Then also negative values can be represented by an upper range of positive values.
-    See https://en.wikipedia.org/wiki/Two%27s_complement
-
-    Args:
-        x (int): input integer.
-        bits (int): number of bits, must be > 0.
-
-    Returns:
-        An int, that represents the two's complement of the input.
-
-    Example for bits=8:
-
-    ==== =======
-    x    returns
-    ==== =======
-    0    0
-    1    1
-    127  127
-    -128 128
-    -127 129
-    -1   255
-    ==== =======
-
-    """
-    _check_int(bits, minvalue=0, description="number of bits")
-    _check_int(x, description="input")
-    upperlimit = 2 ** (bits - 1) - 1
-    lowerlimit = -2 ** (bits - 1)
-    if x > upperlimit or x < lowerlimit:
-        raise ValueError(
-            "The input value is out of range. Given value is "
-            + f"{x}, but allowed range is {lowerlimit} to {upperlimit} "
-            + f"when using {bits} bits."
-        )
-
-    # Calculate two'2 complement
-    if x >= 0:
-        return x
-    return x + 2 ** bits
-
-
-def _from_twos_complement(x, bits=16):
-    """Calculate the inverse(?) of a two's complement of an integer.
-
-    Args:
-        x (int): input integer.
-        bits (int): number of bits, must be > 0.
-
-    Returns:
-        An int, that represents the inverse(?) of two's complement of the input.
-
-    Example for bits=8:
-
-    === =======
-    x   returns
-    === =======
-    0   0
-    1   1
-    127 127
-    128 -128
-    129 -127
-    255 -1
-    === =======
-
-    """
-    _check_int(bits, minvalue=0, description="number of bits")
-
-    _check_int(x, description="input")
-    upperlimit = 2 ** (bits) - 1
-    lowerlimit = 0
-    if x > upperlimit or x < lowerlimit:
-        raise ValueError(
-            "The input value is out of range. Given value is "
-            + f"{x}, but allowed range is {lowerlimit} to {upperlimit} when "
-            + f"using {bits} bits."
-        )
-
-    # Calculate inverse(?) of two'2 complement
-    limit = 2 ** (bits - 1) - 1
-    if x <= limit:
-        return x
-    return x - 2 ** bits
-
-
-# ################ #
-# Bit manipulation #
-# ################ #
-
-
-def _set_bit_on(x, bit_num):
-    """Set bit 'bit_num' to True.
-
-    Args:
-        x (int): The value before.
-        bit_num (int): The bit number that should be set to True.
-
-    Returns:
-        The value after setting the bit. This is an integer.
-
-    For example:
-        For x = 4 (dec) = 0100 (bin), setting bit number 0 results in 0101
-        (bin) = 5 (dec).
-
-    """
-    _check_int(x, minvalue=0, description="input value")
-    _check_int(bit_num, minvalue=0, description="bitnumber")
-
-    return x | (1 << bit_num)
-
-
-def _check_bit(x, bit_num):
-    """Check if bit 'bit_num' is set the input integer.
-
-    Args:
-        x (int): The input value.
-        bit_num (int): The bit number to be checked
-
-    Returns:
-        True or False
-
-    For example:
-        For x = 4 (dec) = 0100 (bin), checking bit number 2 results in True, and
-        checking bit number 3 results in False.
-
-    """
-    _check_int(x, minvalue=0, description="input value")
-    _check_int(bit_num, minvalue=0, description="bitnumber")
-
-    return (x & (1 << bit_num)) > 0
-
-
-# ######################## #
-# Error checking functions #
-# ######################## #
-
 
 _CRC16TABLE = (
     0,
@@ -3001,8 +1159,6 @@ def _calculate_crc_string(inputstring):
         A two-byte CRC string, where the least significant byte is first.
 
     """
-    _check_string(inputstring, description="input CRC string")
-
     # Preload a 16-bit register with ones
     register = 0xFFFF
 
@@ -3035,7 +1191,6 @@ def _calculate_lrc_string(inputstring):
     does not handle that conversion for transmission.
 
     """
-    _check_string(inputstring, description="input LRC string")
 
     register = 0
     for character in inputstring:
@@ -3044,626 +1199,3 @@ def _calculate_lrc_string(inputstring):
     lrc = ((register ^ 0xFF) + 1) & 0xFF
 
     return _num_to_onebyte_string(lrc)
-
-
-def _check_mode(mode):
-    """Check that the Modbus mode is valie.
-
-    Args:
-        mode (string): The Modbus mode (MODE_RTU or MODE_ASCII)
-
-    Raises:
-        TypeError, ValueError
-
-    """
-    if not isinstance(mode, str):
-        raise TypeError(f"The mode should be a string. Given: {mode!r}")
-
-    if mode not in [MODE_RTU, MODE_ASCII]:
-        raise ValueError(
-            "Unreconized Modbus mode given. Must be 'rtu' or 'ascii' but"
-            + f" {mode!r} was given."
-        )
-
-
-def _check_functioncode(functioncode, list_of_allowed_values=None):
-    """Check that the given functioncode is in the list_of_allowed_values.
-
-    Also verifies that 1 <= function code <= 127.
-
-    Args:
-        functioncode (int): The function code
-        list_of_allowed_values (list of int): Allowed values. Use *None* to
-        bypass this part of the checking.
-
-    Raises:
-        TypeError, ValueError
-
-    """
-    FUNCTIONCODE_MIN = 1
-    FUNCTIONCODE_MAX = 127
-
-    _check_int(
-        functioncode, FUNCTIONCODE_MIN, FUNCTIONCODE_MAX, description="functioncode"
-    )
-
-    if list_of_allowed_values is None:
-        return
-
-    if not isinstance(list_of_allowed_values, list):
-        raise TypeError(
-            "The list_of_allowed_values should be a list. Given:"
-            + f" {list_of_allowed_values!r}"
-        )
-
-    for value in list_of_allowed_values:
-        _check_int(
-            value,
-            FUNCTIONCODE_MIN,
-            FUNCTIONCODE_MAX,
-            description="functioncode inside list_of_allowed_values",
-        )
-
-    if functioncode not in list_of_allowed_values:
-        raise ValueError(
-            f"Wrong function code: {functioncode}, allowed values are "
-            + f"{list_of_allowed_values!r}"
-        )
-
-
-def _check_slaveaddress(slaveaddress):
-    """Check that the given slaveaddress is valid.
-
-    Args:
-        slaveaddress (int): The slave address
-
-    Raises:
-        TypeError, ValueError
-
-    """
-    SLAVEADDRESS_MAX = 255  # Allows usage also of reserved addresses
-    SLAVEADDRESS_MIN = 0
-
-    _check_int(
-        slaveaddress, SLAVEADDRESS_MIN, SLAVEADDRESS_MAX, description="slaveaddress"
-    )
-
-
-def _check_registeraddress(registeraddress):
-    """Check that the given registeraddress is valid.
-
-    Args:
-        registeraddress (int): The register address
-
-    Raises:
-        TypeError, ValueError
-
-    """
-    REGISTERADDRESS_MAX = 0xFFFF
-    REGISTERADDRESS_MIN = 0
-
-    _check_int(
-        registeraddress,
-        REGISTERADDRESS_MIN,
-        REGISTERADDRESS_MAX,
-        description="registeraddress",
-    )
-
-
-def _check_response_payload(
-    payload,
-    functioncode,
-    registeraddress,
-    value,
-    numberOfDecimals,
-    number_of_registers,
-    number_of_bits,
-    signed,
-    byteorder,  # Not used. For keeping same signature as _parse_payload()
-    payloadformat,  # Not used. For keeping same signature as _parse_payload()
-):
-    if functioncode in [1, 2, 3, 4]:
-        _check_response_bytecount(payload)
-
-    if functioncode in [5, 6, 15, 16]:
-        _check_response_registeraddress(payload, registeraddress)
-
-    if functioncode == 5:
-        _check_response_writedata(payload, _bit_to_bytestring(value))
-    elif functioncode == 6:
-        _check_response_writedata(
-            payload, _num_to_twobyte_string(value, numberOfDecimals, signed=signed)
-        )
-    elif functioncode == 15:
-        # response number of bits
-        _check_response_number_of_registers(payload, number_of_bits)
-
-    elif functioncode == 16:
-        _check_response_number_of_registers(payload, number_of_registers)
-    # Response for read bits
-    if functioncode in [1, 2]:
-        registerdata = payload[_NUMBER_OF_BYTES_BEFORE_REGISTERDATA:]
-        expected_number_of_bytes = _calculate_number_of_bytes_for_bits(number_of_bits)
-        if len(registerdata) != expected_number_of_bytes:
-            raise InvalidResponseError(
-                "The data length is wrong for payloadformat BIT/BITS."
-                + f" Expected: {expected_number_of_bytes} Actual: {len(registerdata)}."
-            )
-
-    # Response for read registers
-    if functioncode in [3, 4]:
-        registerdata = payload[_NUMBER_OF_BYTES_BEFORE_REGISTERDATA:]
-        number_of_register_bytes = number_of_registers * _NUMBER_OF_BYTES_PER_REGISTER
-        if len(registerdata) != number_of_register_bytes:
-            raise InvalidResponseError(
-                "The register data length is wrong. "
-                + f"Registerdata: {len(registerdata)!r} bytes. Expected:"
-                + f" {number_of_register_bytes!r}."
-            )
-
-
-def _check_response_slaveerrorcode(response):
-    """Check if the slave indicates an error.
-
-    Args:
-        response (string): Response from the slave
-
-    The response is in RTU format, but the checksum might be one or two bytes
-    depending on whether it was sent in RTU or ASCII mode.
-
-    Checking of type and length of the response should be done before calling
-    this functions.
-
-    Raises:
-        SlaveReportedException or subclass
-
-    """
-    NON_ERRORS = [5]
-    SLAVE_ERRORS = {
-        1: IllegalRequestError("Slave reported illegal function"),
-        2: IllegalRequestError("Slave reported illegal data address"),
-        3: IllegalRequestError("Slave reported illegal data value"),
-        4: SlaveReportedException("Slave reported device failure"),
-        6: SlaveDeviceBusyError("Slave reported device busy"),
-        7: NegativeAcknowledgeError("Slave reported negative acknowledge"),
-        8: SlaveReportedException("Slave reported memory parity error"),
-        10: SlaveReportedException("Slave reported gateway path unavailable"),
-        11: SlaveReportedException(
-            "Slave reported gateway target device failed to respond"
-        ),
-    }
-
-    if len(response) < _BYTEPOSITION_FOR_SLAVE_ERROR_CODE + 1:
-        return  # This check is also done before calling, do not raise exception here.
-
-    received_functioncode = ord(response[_BYTEPOSITION_FOR_FUNCTIONCODE])
-
-    if _check_bit(received_functioncode, _BITNUMBER_FUNCTIONCODE_ERRORINDICATION):
-        slave_error_code = ord(response[_BYTEPOSITION_FOR_SLAVE_ERROR_CODE])
-
-        if slave_error_code in NON_ERRORS:
-            return
-
-        error = SLAVE_ERRORS.get(
-            slave_error_code,
-            SlaveReportedException(
-                "Slave reported error code " + str(slave_error_code)
-            ),
-        )
-        raise error
-
-
-def _check_response_bytecount(payload):
-    """Check that the number of bytes as given in the response is correct.
-
-    The first byte in the payload indicates the length of the payload (first
-    byte not counted).
-
-    Args:
-        payload (string): The payload
-
-    Raises:
-        TypeError, ValueError, InvalidResponseError
-
-    """
-    POSITION_FOR_GIVEN_NUMBER = 0
-    NUMBER_OF_BYTES_TO_SKIP = 1
-
-    _check_string(
-        payload, minlength=1, description="payload"
-        , exception_type=InvalidResponseError
-    )
-
-    given_number_of_databytes = ord(payload[POSITION_FOR_GIVEN_NUMBER])
-    counted_number_of_databytes = len(payload) - NUMBER_OF_BYTES_TO_SKIP
-
-    if given_number_of_databytes != counted_number_of_databytes:
-        errortext = (
-            "Wrong given number of bytes in the response: "
-            + f"{given_number_of_databytes}, but counted is "
-            + f"{counted_number_of_databytes} as data payload length is"
-            + f" {len(payload)}. The data payload is: {payload!r}"
-        )
-        raise InvalidResponseError(errortext)
-
-
-def _check_response_registeraddress(payload, registeraddress):
-    """Check that the start adress as given in the response is correct.
-
-    The first two bytes in the payload holds the address value.
-
-    Args:
-        payload (string): The payload
-        registeraddress (int): What the register address actually shoud be
-        (use decimal numbers, not hex).
-
-    Raises:
-        TypeError, ValueError, InvalidResponseError
-
-    """
-    _check_string(
-        payload, minlength=2, description="payload"
-        , exception_type=InvalidResponseError
-    )
-    _check_registeraddress(registeraddress)
-
-    BYTERANGE_FOR_STARTADDRESS = slice(0, 2)
-
-    bytes_for_startaddress = payload[BYTERANGE_FOR_STARTADDRESS]
-    received_startaddress = _twobyte_string_to_num(bytes_for_startaddress)
-
-    if received_startaddress != registeraddress:
-        raise InvalidResponseError(
-            "Wrong given write start adress: "
-            + f"{received_startaddress}, but commanded is {registeraddress}. "
-            + f"The data payload is: {payload!r}"
-        )
-
-
-def _check_response_number_of_registers(payload, number_of_registers):
-    """Check that the number of written registers as given in the response is correct.
-
-    The bytes 2 and 3 (zero based counting) in the payload holds the value.
-
-    Args:
-        payload (string): The payload
-        number_of_registers (int): Number of registers that have been written
-
-    Raises:
-        TypeError, ValueError, InvalidResponseError
-
-    """
-    _check_string(
-        payload, minlength=4, description="payload"
-        , exception_type=InvalidResponseError
-    )
-    _check_int(
-        number_of_registers,
-        minvalue=1,
-        maxvalue=max(
-            _MAX_NUMBER_OF_REGISTERS_TO_READ, _MAX_NUMBER_OF_REGISTERS_TO_WRITE
-        ),
-        description="number of registers",
-    )
-
-    BYTERANGE_FOR_NUMBER_OF_REGISTERS = slice(2, 4)
-
-    bytes_for_mumber_of_registers = payload[BYTERANGE_FOR_NUMBER_OF_REGISTERS]
-    received_number_of_written_registers = _twobyte_string_to_num(
-        bytes_for_mumber_of_registers
-    )
-
-    if received_number_of_written_registers != number_of_registers:
-        raise InvalidResponseError(
-            "Wrong number of registers to write in the response: "
-            + "{received_number_of_written_registers}, but commanded is "
-            + f"{number_of_registers}. The data payload is: {payload!r}"
-        )
-
-
-def _check_response_writedata(payload, writedata):
-    """Check that the write data as given in the response is correct.
-
-    The bytes 2 and 3 (zero based counting) in the payload holds the write data.
-
-    Args:
-        payload (string): The payload
-        writedata (string): The data that should have been  written. Length
-        should be 2 bytes.
-
-    Raises:
-        TypeError, ValueError, InvalidResponseError
-
-    """
-    _check_string(
-        payload, minlength=4, description="payload"
-        , exception_type=InvalidResponseError
-    )
-    _check_string(writedata, minlength=2, maxlength=2, description="writedata")
-
-    BYTERANGE_FOR_WRITEDATA = slice(2, 4)
-
-    received_writedata = payload[BYTERANGE_FOR_WRITEDATA]
-
-    if received_writedata != writedata:
-        raise InvalidResponseError(
-            "Wrong write data in the response: "
-            + f"{received_writedata!r}, but commanded is {writedata!r}. "
-            + f"The data payload is: {payload!r}"
-        )
-
-def _check_string(
-    inputstring,
-    description,
-    minlength=0,
-    maxlength=None,
-    force_ascii=False,
-    exception_type=ValueError,
-):
-    """Check that the given string is valid.
-
-    Args:
-        inputstring (string): The string to be checked
-        description (string): Used in error messages for the checked inputstring
-        minlength (int): Minimum length of the string
-        maxlength (int or None): Maximum length of the string
-        force_ascii (bool): Enforce that the string is ASCII
-        exception_type (Exception): The type of exception to raise for length errors
-
-    The force_ascii argument is valid only for Python3, as all
-    strings are ASCII in Python2.
-
-    Raises:
-        TypeError, ValueError or the one given by exception_type
-
-    Uses the function :func:`_check_int` internally.
-
-    """
-    # Type checking
-    if type(description) is not str:
-        raise TypeError(
-            f"The description should be a string. Given: {description!r}"
-        )
-
-    if type(inputstring) is not str:
-        raise TypeError(
-            f"The {description} should be a string. Given: {inputstring!r}"
-        )
-
-    if not(type(maxlength) is int or maxlength is None):
-        raise TypeError(
-            f"The maxlength must be an integer or None. Given: {maxlength!r}"
-        )
-    try:
-        issubclass(exception_type, Exception)
-    except TypeError:
-        raise TypeError(
-            "The exception_type must be an exception class. "
-            + f"It not even a class. Given: {type(exception_type)!r}"
-        )
-    if not issubclass(exception_type, Exception):
-        raise TypeError(
-            "The exception_type must be an exception class. Given: "
-            + f"{type(exception_type)!r}"
-        )
-
-    # Check values
-    _check_int(minlength, minvalue=0, maxvalue=None, description="minlength")
-
-    if len(inputstring) < minlength:
-        raise exception_type(
-            "The {description} is too short: {len(inputstring)}, but minimum value "
-            + f"is {minlength}. Given: {inputstring!r}"
-        )
-
-    if maxlength is not None:
-        if maxlength < 0:
-            raise ValueError(
-                f"The maxlength must be positive. Given: {maxlength}"
-            )
-
-        if maxlength < minlength:
-            raise ValueError(
-                "The maxlength must not be smaller than minlength. Given: "
-                + f"{maxlength} and {minlength}"
-            )
-
-        if len(inputstring) > maxlength:
-            raise exception_type(
-                f"The {description} is too long: {len(inputstring)}, but "
-                + f"maximum value is {maxlength}. Given: {inputstring!r}"
-            )
-
-    if force_ascii and sys.version > "3":
-        try:
-            inputstring.encode("ascii")
-        except UnicodeEncodeError:
-            raise ValueError(
-                f"The {description} must be ASCII. Given: {inputstring!r}")
-
-
-def _check_int(inputvalue, minvalue=None, maxvalue=None, description="inputvalue"):
-    """Check that the given integer is valid.
-
-    Args:
-        inputvalue (int or long): The integer to be checked
-        minvalue (int or long, or None): Minimum value of the integer
-        maxvalue (int or long, or None): Maximum value of the integer
-        description (string): Used in error messages for the checked inputvalue
-
-    Raises:
-        TypeError, ValueError
-
-    Note: Can not use the function :func:`_check_string`, as that function uses this
-    function internally.
-
-    """
-    if type(description) is not str:
-        raise TypeError(
-            f"The description should be a string. Given: {description!r}"
-        )
-
-    if not (type(inputvalue) is int or type(inputvalue) is long):
-        raise TypeError(
-            f"The {description} must be an integer. Given: {inputvalue!r}"
-        )
-
-    if not (type(minvalue) is int or type(minvalue) is long or minvalue is None):
-        raise TypeError(
-            f"The minvalue must be an integer or None. Given: {minvalue!r}"
-        )
-
-    if not (type(maxvalue) is int or type(maxvalue) is long or maxvalue is None):
-        raise TypeError(
-            f"The maxvalue must be an integer or None. Given: {maxvalue!r}"
-        )
-
-    _check_numerical(inputvalue, minvalue, maxvalue, description)
-
-
-def _check_numerical(
-    inputvalue, minvalue=None, maxvalue=None, description="inputvalue"
-):
-    """Check that the given numerical value is valid.
-
-    Args:
-        inputvalue (numerical): The value to be checked.
-        minvalue (numerical): Minimum value  Use None to skip this part of the test.
-        maxvalue (numerical): Maximum value. Use None to skip this part of the test.
-        description (string): Used in error messages for the checked inputvalue
-
-    Raises:
-        TypeError, ValueError
-
-    Note: Can not use the function :func:`_check_string`, as it uses this function
-    internally.
-
-    """
-    # Type checking
-    if type(description) is not str:
-        raise TypeError(
-            f"The description should be a string. Given: {description!r}"
-        )
-
-    if not (type(inputvalue) is int or type(inputvalue) is long
-            or type(inputvalue) is  float):
-        raise TypeError(
-            f"The {description} must be numerical. Given: {inputvalue!r}"
-        )
-
-    if not (type(minvalue) is int or type(minvalue) is float or type(minvalue) is long
-            or minvalue is None):
-        raise TypeError(
-            f"The minvalue must be numeric or None. Given: {minvalue!r}"
-        )
-
-    if not (type(maxvalue) is int or type(maxvalue) is float
-            or type(maxvalue) is long or maxvalue is None):
-        raise TypeError(
-            f"The maxvalue must be numeric or None. Given: {maxvalue!r}"
-        )
-
-    # Consistency checking
-    if (minvalue is not None) and (maxvalue is not None):
-        if maxvalue < minvalue:
-            raise ValueError(
-                "The maxvalue must not be smaller than minvalue. "
-                + f"Given: {maxvalue} and {minvalue}, respectively."
-            )
-    # Value checking
-    if minvalue is not None:
-        if inputvalue < minvalue:
-            raise ValueError(
-                f"The {description} is too small: {inputvalue}, "
-                + f"but minimum value is {minvalue}."
-            )
-
-    if maxvalue is not None:
-        if inputvalue > maxvalue:
-            raise ValueError(
-                f"The {description} is too large: {inputvalue}, "
-                + f"but maximum value is {maxvalue}."
-            )
-
-
-def _check_bool(inputvalue, description="inputvalue"):
-    """Check that the given inputvalue is a boolean.
-
-    Args:
-        inputvalue (boolean): The value to be checked.
-        description (string): Used in error messages for the checked inputvalue.
-
-    Raises:
-        TypeError, ValueError
-
-    """
-    _check_string(description, minlength=1, description="description string")
-    if not isinstance(inputvalue, bool):
-        raise TypeError(
-            f"The {description} must be boolean. Given: {inputvalue!r}"
-        )
-
-
-#####################
-# Development tools #
-#####################
-
-
-def _print_out(inputstring):
-    """Print the inputstring. To make it compatible with Python2 and Python3.
-
-    Args:
-        inputstring (str): The string that should be printed.
-
-    Raises:
-        TypeError
-
-    """
-    _check_string(inputstring, description="string to print")
-
-    sys.stdout.write(inputstring + "\n")
-    sys.stdout.flush()
-
-
-def _get_diagnostic_string():
-    """Generate a diagnostic string, showing the module version, the platform etc.
-
-    Returns:
-        A descriptive string.
-
-    """
-    text = "\n## Diagnostic output from minimalmodbus ## \n\n"
-    text += "Minimalmodbus version: " + __version__ + "\n"
-    text += "Minimalmodbus status: " + __status__ + "\n"
-    text += "File name (with relative path): " + __file__ + "\n"
-    text += "Full file path: " + os.path.abspath(__file__) + "\n\n"
-    #text += "pySerial version: " + serial.VERSION + "\n"
-    #text += "pySerial full file path: " + os.path.abspath(serial.__file__) + "\n\n"
-    text += "Platform: " + sys.platform + "\n"
-    text += "Filesystem encoding: " + repr(sys.getfilesystemencoding()) + "\n"
-    text += "Byteorder: " + sys.byteorder + "\n"
-    text += "Python version: " + sys.version + "\n"
-    text += "Python version info: " + repr(sys.version_info) + "\n"
-    text += "Python flags: " + repr(sys.flags) + "\n"
-    text += "Python argv: " + repr(sys.argv) + "\n"
-    text += "Python prefix: " + repr(sys.prefix) + "\n"
-    text += "Python exec prefix: " + repr(sys.exec_prefix) + "\n"
-    text += "Python executable: " + repr(sys.executable) + "\n"
-    try:
-        text += "Long info: " + repr(sys.long_info) + "\n"
-    except Exception:
-        text += "Long info: (none)\n"  # For Python3 compatibility
-    try:
-        text += "Float repr style: " + repr(sys.float_repr_style) + "\n\n"
-    except Exception:
-        text += "Float repr style: (none) \n\n"  # For Python 2.6 compatibility
-    text += "Variable __name__: " + __name__ + "\n"
-    text += "Current directory: " + os.getcwd() + "\n\n"
-    text += "Python path: \n"
-    text += "\n".join(sys.path) + "\n"
-    text += "\n## End of diagnostic output ## \n"
-    return text
-
-
-# For backward compatibility
-_getDiagnosticString = _get_diagnostic_string
