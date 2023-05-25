@@ -359,19 +359,18 @@ class SolarEdgeInverter:
         self.advanced_power_control = None
         self.site_limit_control = None
         self.manufacturer = "SolarEdge"
-        
-        self.decoded_common = hub.decoded_common
-        
+               
     def init_device(self) -> None:
         
+        _LOGGER.debug("init_device")
+        self.read_modbus_data()
+                
         #self.manufacturer = self.decoded_common["C_Manufacturer"]
         self.manufacturer = "SolarEdge"
         #self.model = self.decoded_common["C_Model"]
         self.model = "SolarEdge"
         #self.option = self.decoded_common["C_Option"]
         #self.fw_version = self.decoded_common["C_Version"]
-        
-        _LOGGER.debug("read_modbus_data")
         self.fw_version = int(self.decoded_common["C_SunSpec_DID"])
         #self.serial = self.decoded_common["C_SerialNumber"]
         self.serial = self.decoded_common["SN"]
