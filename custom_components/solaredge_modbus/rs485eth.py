@@ -125,7 +125,8 @@ class Instrument:
 
         """
         # Create payload
-        payload_to_slave = _num_to_twobyte_string(registeraddress) + _num_to_twobyte_string(
+        payload_to_slave = _num_to_twobyte_string(registeraddress) 
+        f+ _num_to_twobyte_string(
             number_of_registers
         )
         
@@ -447,7 +448,6 @@ def _predict_response_size(mode, payload_to_slave):
     """
     BYTERANGE_FOR_GIVEN_SIZE = slice(2, 4)  # Within the payload
 
-    NUMBER_OF_PAYLOAD_BYTES_IN_WRITE_CONFIRMATION = 4
     NUMBER_OF_PAYLOAD_BYTES_FOR_BYTECOUNTFIELD = 1
 
     RTU_TO_ASCII_PAYLOAD_FACTOR = 2

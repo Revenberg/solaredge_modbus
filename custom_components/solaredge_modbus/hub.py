@@ -1,4 +1,3 @@
-import asyncio
 import logging
 import threading
 from collections import OrderedDict
@@ -11,9 +10,10 @@ from .rs485eth import Instrument
 try:
     #from pymodbus.client import ModbusTcpClient
     #from pymodbus.constants import Endian
-    from pymodbus.exceptions import ConnectionException, ModbusIOException
+    from pymodbus.exceptions import ConnectionException 
+    ##, ModbusIOException
     #from pymodbus.payload import BinaryPayloadDecoder
-    from pymodbus.pdu import ExceptionResponse, ModbusExceptions
+    ## from pymodbus.pdu import ExceptionResponse, ModbusExceptions
 except ImportError:
     raise ImportError("pymodbus is not installed, or pymodbus version is not supported")
 
