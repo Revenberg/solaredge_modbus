@@ -18,7 +18,6 @@
 import struct
 import sys
 import socket
-import contextlib
 
 if sys.version > "3":
     import binascii
@@ -159,7 +158,6 @@ class Instrument:
             serial.SerialException (inherited from IOError)
 
         """
-        DEFAULT_NUMBER_OF_BYTES_TO_READ = 1000
 
         # Build request
         request = _embed_payload(
