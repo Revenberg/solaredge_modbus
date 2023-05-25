@@ -341,13 +341,19 @@ class VoltageSensor(SolarEdgeSensorBase):
 
     @property
     def unique_id(self) -> str:
+        _LOGGER.debug("========= 44 ==================")
+        _LOGGER.debug(self._phase)
         if self._phase is None:
+            _LOGGER.debug(f"{self._platform.uid_base}_ac_voltage")
             return f"{self._platform.uid_base}_ac_voltage"
         else:
+            _LOGGER.debug(f"{self._platform.uid_base}_ac_voltage_{self._phase.lower()}")
             return f"{self._platform.uid_base}_ac_voltage_{self._phase.lower()}"
 
     @property
     def name(self) -> str:
+        _LOGGER.debug("========= 45 ==================")
+        _LOGGER.debug(self._phase)
         if self._phase is None:
             return "AC Voltage"
         else:
@@ -355,6 +361,8 @@ class VoltageSensor(SolarEdgeSensorBase):
 
     @property
     def native_value(self):
+        _LOGGER.debug("========= 46 ==================")
+        _LOGGER.debug(self._phase)
         if self._phase is None:
             model_key = "AC_Voltage"
         else:
