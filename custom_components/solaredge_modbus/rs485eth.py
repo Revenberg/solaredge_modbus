@@ -125,8 +125,7 @@ class Instrument:
 
         """
         # Create payload
-        payload_to_slave = _num_to_twobyte_string(registeraddress) 
-        f+ _num_to_twobyte_string(
+        payload_to_slave = _num_to_twobyte_string(registeraddress) + _num_to_twobyte_string(
             number_of_registers
         )
         
