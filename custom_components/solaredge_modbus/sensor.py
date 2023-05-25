@@ -385,19 +385,32 @@ class VoltageSensorBC(SolarEdgeSensorBase):
     def __init__(self, platform, config_entry, coordinator, phase: str = None):
         super().__init__(platform, config_entry, coordinator)
         """Initialize the sensor."""
-
+        _LOGGER.debug("========================")
+        _LOGGER.debug("========================")
+        _LOGGER.debug("========================")
+        
     @property
     def unique_id(self) -> str:
+        _LOGGER.debug("========================")
+        _LOGGER.debug("========================")
+        _LOGGER.debug("========================")
         return f"{self._platform.uid_base}_ac_voltage_bc"
 
     @property
     def name(self) -> str:
+        _LOGGER.debug("========================")
+        _LOGGER.debug("========================")
+        _LOGGER.debug("========================")
         return "AC Voltage BC"
 
     @property
     def native_value(self):
         model_key = "AC_Voltage_BC"
 
+        _LOGGER.debug("========================")
+        _LOGGER.debug("========================")
+        _LOGGER.debug("========================")
+        _LOGGER.debug("========================")
         _LOGGER.debug(model_key)
         _LOGGER.debug(self._phase)
 
