@@ -406,16 +406,13 @@ class SolarEdgeInverter:
 
         # https://ginlongsolis.freshdesk.com/helpdesk/attachments/36112313359
 
-        try:
-            SN_1 = self.getValueString(3061, functioncode=3)
-            SN_2 = self.getValueString(3062, functioncode=3)
-            SN_3 = self.getValueString(3063, functioncode=3)
-            SN_4 = self.getValueString(3064, functioncode=3)
+#        try:
+#            self.getValueString(3000, functioncode=3)
 
-        except ConnectionException as e:
-            _LOGGER.error(f"Connection error: {e}")
-            self._online = False
-            raise ModbusReadError(f"{e}")
+#        except ConnectionException as e:
+#            _LOGGER.error(f"Connection error: {e}")
+#            self._online = False
+#            raise ModbusReadError(f"{e}")
 
         self.decoded_model = OrderedDict(
             [
@@ -462,10 +459,6 @@ class SolarEdgeInverter:
                 ("SN", self.getValueRegister(3062, functioncode=4, signed=False)),
                 ("I_Status", 3),
                 ("I_Status_Vendor", 3),
-                ("SN_1", SN_1),
-                ("SN_2", SN_2),
-                ("SN_3", SN_3),
-                ("SN_4", SN_4),
             ]
         )
 
