@@ -41,7 +41,7 @@ from .const import (
 #    SunSpecAccum,
     #SunSpecNotImpl,
 )
-from .helpers import  update_accum
+#from .helpers import  update_accum
 # scale_factor, float_to_hex
 _LOGGER = logging.getLogger(__name__)
 _LOGGER.setLevel(logging.DEBUG)
@@ -497,7 +497,7 @@ class ACEnergy(SolarEdgeSensorBase):
         else:
             model_key = f"AC_Energy_WH_{self._phase}"
 
-        value = self._platform.decoded_model[model_key]
+        return self._platform.decoded_model[model_key]
 
 class DCCurrent(SolarEdgeSensorBase):
     device_class = SensorDeviceClass.CURRENT
