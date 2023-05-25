@@ -75,13 +75,12 @@ async def async_setup_entry(
         entities.append(ACCurrentSensor(inverter, config_entry, coordinator, "C"))
         _LOGGER.debug("====================== 09 ======")
         _LOGGER.debug("====================== 10 ======")
-        #entities.append(VoltageSensor(inverter, config_entry, coordinator, "BC"))
+        entities.append(VoltageSensor(inverter, config_entry, coordinator, "BC"))
         _LOGGER.debug("====================== 12 ======")
         entities.append(VoltageSensor(inverter, config_entry, coordinator, "CA"))
         _LOGGER.debug("====================== 13 ======")
         entities.append(VoltageSensor(inverter, config_entry, coordinator, "AB"))
         _LOGGER.debug("====================== 11 ======")
-        entities.append(VoltageSensorBC(inverter, config_entry, coordinator))
         _LOGGER.debug("====================== 14 ======")
         _LOGGER.debug("====================== 15 ======")
         entities.append(ACPower(inverter, config_entry, coordinator))
@@ -368,46 +367,6 @@ class VoltageSensor(SolarEdgeSensorBase):
         else:
             model_key = f"AC_Voltage_{self._phase.upper()}"
 
-        _LOGGER.debug(model_key)
-        _LOGGER.debug(self._phase)
-
-        return self._platform.decoded_model[model_key]
-
-class VoltageSensorBC(SolarEdgeSensorBase):
-    device_class = SensorDeviceClass.VOLTAGE
-    state_class = SensorStateClass.MEASUREMENT
-    native_unit_of_measurement = UnitOfElectricPotential.VOLT
-    suggested_display_precision = 0
-
-    def __init__(self, platform, config_entry, coordinator, phase: str = None):
-        super().__init__(platform, config_entry, coordinator)
-        """Initialize the sensor."""
-        _LOGGER.debug("========================")
-        _LOGGER.debug("=========__init__===============")
-        _LOGGER.debug("========================")
-        
-    @property
-    def unique_id(self) -> str:
-        _LOGGER.debug("========================")
-        _LOGGER.debug("==========unique_id==============")
-        _LOGGER.debug("========================")
-        return f"{self._platform.uid_base}_ac_voltage_bc"
-
-    @property
-    def name(self) -> str:
-        _LOGGER.debug("========================")
-        _LOGGER.debug("===========name=============")
-        _LOGGER.debug("========================")
-        return "AC Voltage BC"
-
-    @property
-    def native_value(self):
-        model_key = "AC_Voltage_BC"
-
-        _LOGGER.debug("========native_value================")
-        _LOGGER.debug("========================")
-        _LOGGER.debug("========================")
-        _LOGGER.debug("========================")
         _LOGGER.debug(model_key)
         _LOGGER.debug(self._phase)
 
