@@ -442,6 +442,8 @@ class SolarEdgeInverter:
                 ("I_DC_Power", self.getValueRegister(3008, functioncode=4,
                                                 signed=False)),
                 
+                ("AC_Energy_WH", 0),
+                
                 ("ac_lifetimeproduction", self.getValueLong(3008, functioncode=4,
                                                     signed=False)),
                 ("ac_totalenergy",  self.getValueRegister(3009, functioncode=4,
