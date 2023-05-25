@@ -31,7 +31,7 @@ from .const import (
     DOMAIN,
 #    ENERGY_VOLT_AMPERE_HOUR,
 #    ENERGY_VOLT_AMPERE_REACTIVE_HOUR,
-    METER_EVENTS,
+    #METER_EVENTS,
 #    MMPPT_EVENTS,
 #    RRCR_STATUS,
 #    SUNSPEC_DID,
@@ -39,7 +39,7 @@ from .const import (
 #    VENDOR_STATUS,
 #    BatteryLimit,
 #    SunSpecAccum,
-    SunSpecNotImpl,
+    #SunSpecNotImpl,
 )
 from .helpers import  update_accum
 # scale_factor, float_to_hex
@@ -75,7 +75,7 @@ async def async_setup_entry(
         entities.append(ACCurrentSensor(inverter, config_entry, coordinator, "C"))
         _LOGGER.debug("====================== 09 ======")
         _LOGGER.debug("====================== 10 ======")
-        entities.append(VoltageSensor(inverter, config_entry, coordinator, "BC"))
+        #entities.append(VoltageSensor(inverter, config_entry, coordinator, "BC"))
         _LOGGER.debug("====================== 12 ======")
         entities.append(VoltageSensor(inverter, config_entry, coordinator, "CA"))
         _LOGGER.debug("====================== 13 ======")
@@ -283,7 +283,6 @@ class Version(SolarEdgeSensorBase):
     def native_value(self):
         return self._platform.fw_version
 
-
 class ACCurrentSensor(SolarEdgeSensorBase):
     device_class = SensorDeviceClass.CURRENT
     state_class = SensorStateClass.MEASUREMENT
@@ -296,16 +295,6 @@ class ACCurrentSensor(SolarEdgeSensorBase):
         self._phase = phase
         _LOGGER.debug("__init__")
         _LOGGER.debug(phase)
-
-#        if self._platform.decoded_model["C_SunSpec_DID"] in [101, 102, 103]:
-#            self.SUNSPEC_NOT_IMPL = SunSpecNotImpl.UINT16
-#        elif self._platform.decoded_model["C_SunSpec_DID"] in [201, 202, 203, 204]:
-#            self.SUNSPEC_NOT_IMPL = SunSpecNotImpl.INT16
-#        else:
-#            raise RuntimeError(
-#                "ACCurrentSensor C_SunSpec_DID "
-#                f"{self._platform.decoded_model['C_SunSpec_DID']}"
-#            )
 
     @property
     def unique_id(self) -> str:
@@ -386,20 +375,20 @@ class VoltageSensorBC(SolarEdgeSensorBase):
         super().__init__(platform, config_entry, coordinator)
         """Initialize the sensor."""
         _LOGGER.debug("========================")
-        _LOGGER.debug("========================")
+        _LOGGER.debug("=========__init__===============")
         _LOGGER.debug("========================")
         
     @property
     def unique_id(self) -> str:
         _LOGGER.debug("========================")
-        _LOGGER.debug("========================")
+        _LOGGER.debug("==========unique_id==============")
         _LOGGER.debug("========================")
         return f"{self._platform.uid_base}_ac_voltage_bc"
 
     @property
     def name(self) -> str:
         _LOGGER.debug("========================")
-        _LOGGER.debug("========================")
+        _LOGGER.debug("===========name=============")
         _LOGGER.debug("========================")
         return "AC Voltage BC"
 
@@ -407,7 +396,7 @@ class VoltageSensorBC(SolarEdgeSensorBase):
     def native_value(self):
         model_key = "AC_Voltage_BC"
 
-        _LOGGER.debug("========================")
+        _LOGGER.debug("========native_value================")
         _LOGGER.debug("========================")
         _LOGGER.debug("========================")
         _LOGGER.debug("========================")
@@ -898,17 +887,7 @@ class SolarEdgeInverterStatus(SolarEdgeStatusSensor):
 
     @property
     def native_value(self):
-        try:
-            if self._platform.decoded_model["I_Status"] == SunSpecNotImpl.INT16:
-                return None
-
-            return str(DEVICE_STATUS[self._platform.decoded_model["I_Status"]])
-
-        except TypeError:
-            return None
-
-        except KeyError:
-            return None
+       return str(DEVICE_STATUS[self._platform.decoded_model["I_Status"]])
 
     @property
     def extra_state_attributes(self):
@@ -946,15 +925,7 @@ class StatusVendor(SolarEdgeSensorBase):
     def native_value(self):
         _LOGGER.debug("I_Status_Vendor")
 
-    #    try:
-    #        if self._platform.decoded_model["I_Status_Vendor"] == SunSpecNotImpl.INT16:
-    #            return None
-
-    #        else:
-    #            return str(self._platform.decoded_model["I_Status_Vendor"])
-
-   #     except TypeError:
-        return str(self._platform.decoded_model["I_Status_Vendor"])
+        return str(DEVICE_STATUS[self._platform.decoded_model["I_Status_Vendor"]])
 
     #@property
     #def extra_state_attributes(self):
@@ -971,53 +942,3 @@ class StatusVendor(SolarEdgeSensorBase):
 
     #    except KeyError:
     #        return None
-
-class MeterEvents(SolarEdgeSensorBase):
-    entity_category = EntityCategory.DIAGNOSTIC
-
-    def __init__(self, platform, config_entry, coordinator):
-        super().__init__(platform, config_entry, coordinator)
-        """Initialize the sensor."""
-
-    @property
-    def unique_id(self) -> str:
-        return f"{self._platform.uid_base}_meter_events"
-
-    @property
-    def name(self) -> str:
-        return "Meter Events"
-
-    @property
-    def native_value(self):
-        _LOGGER.debug("M_Events")
-
-        try:
-            if self._platform.decoded_model["M_Events"] == SunSpecNotImpl.UINT32:
-                return None
-
-            else:
-                return self._platform.decoded_model["M_Events"]
-
-        except TypeError:
-            return None
-
-    @property
-    def extra_state_attributes(self):
-        attrs = {}
-        m_events_active = []
-
-        if int(str(self._platform.decoded_model["M_Events"])) == 0x0:
-            attrs["events"] = str(m_events_active)
-        else:
-            for i in range(2, 31):
-                try:
-                    if int(str(self._platform.decoded_model["M_Events"])) & (1 << i):
-                        m_events_active.append(METER_EVENTS[i])
-
-                except KeyError:
-                    pass
-
-        attrs["bits"] = f"{int(self._platform.decoded_model['M_Events']):032b}"
-        attrs["events"] = str(m_events_active)
-
-        return attrs
