@@ -389,9 +389,9 @@ class SolarEdgeInverter:
             #"hw_version": self.option,
         }
 
-    def getValueLong(self, addr, numberOfDecimals=0, functioncode=0, signed=False):
+    def getValueLong(self, addr, functioncode=0, signed=False):
         rc = self.hub._client.read_long(addr, functioncode=functioncode, 
-                        numberOfDecimals=numberOfDecimals, signed=signed)
+                        signed=signed)
         return rc
 
     def getValueRegister(self, addr, numberOfDecimals=0, functioncode=0, signed=False):
