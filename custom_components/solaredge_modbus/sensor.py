@@ -110,7 +110,7 @@ async def async_setup_entry(
         _LOGGER.debug("====================== 26 ======")
         #entities.append(SolarEdgeActivePowerLimit(inverter, config_entry, coordinator))
         #entities.append(SolarEdgeCosPhi(inverter, config_entry, coordinator))
-    
+
     _LOGGER.debug(entities)
     if entities:
         async_add_entities(entities)
@@ -336,7 +336,7 @@ class ACCurrentSensor(SolarEdgeSensorBase):
         _LOGGER.debug("========= 3 ==================")
         _LOGGER.debug(self._platform.decoded_model[model_key])
         _LOGGER.debug("========= 4 ==================")
-        
+
         return self._platform.decoded_model[model_key]
 
 class VoltageSensor(SolarEdgeSensorBase):
@@ -384,7 +384,7 @@ class VoltageSensorBC(SolarEdgeSensorBase):
 
     def __init__(self, platform, config_entry, coordinator, phase: str = None):
         super().__init__(platform, config_entry, coordinator)
-        """Initialize the sensor."""        
+        """Initialize the sensor."""
 
     @property
     def unique_id(self) -> str:
@@ -447,7 +447,7 @@ class ACFrequency(SolarEdgeSensorBase):
     native_unit_of_measurement = UnitOfFrequency.HERTZ
     suggested_display_precision = 1
     entity_registry_enabled_default = True
-    
+
     def __init__(self, platform, config_entry, coordinator):
         super().__init__(platform, config_entry, coordinator)
         """Initialize the sensor."""
@@ -464,7 +464,7 @@ class ACFrequency(SolarEdgeSensorBase):
     def native_value(self):
 #        try:
 #            if (
-#                self._platform.decoded_model["AC_Frequency"] == 
+#                self._platform.decoded_model["AC_Frequency"] ==
 # SunSpecNotImpl.UINT16
 #                or self._platform.decoded_model["AC_Frequency_SF"]
 #                == SunSpecNotImpl.INT16
@@ -477,7 +477,7 @@ class ACFrequency(SolarEdgeSensorBase):
                 _LOGGER.debug("AC_Frequency")
                 _LOGGER.debug(self._platform.decoded_model["AC_Frequency"])
                 return self._platform.decoded_model["AC_Frequency"]
- 
+
                 #self._platform.decoded_model["AC_Frequency"]
                 #return scale_factor(
                 #    self._platform.decoded_model["AC_Frequency"],
@@ -710,7 +710,7 @@ class DCCurrent(SolarEdgeSensorBase):
         super().__init__(platform, config_entry, coordinator)
         """Initialize the sensor."""
         self._phase = phase
-        
+
     @property
     def unique_id(self) -> str:
         if self._phase is None:
@@ -724,7 +724,7 @@ class DCCurrent(SolarEdgeSensorBase):
             return "DC Current"
         else:
             return f"DC Current {self._phase.upper()}"
-           
+
     @property
     def native_value(self):
         if self._phase is None:
@@ -759,14 +759,14 @@ class DCVoltage(SolarEdgeSensorBase):
             return "DC Voltage"
         else:
             return f"DC Voltage {self._phase.upper()}"
-           
+
     @property
     def native_value(self):
         if self._phase is None:
             model_key = "DC_Voltage"
         else:
             model_key = f"DC_Voltage_{self._phase.upper()}"
-    
+
         _LOGGER.debug(model_key)
         return self._platform.decoded_model[model_key]
 
@@ -798,11 +798,11 @@ class DCPower(SolarEdgeSensorBase):
     def native_value(self):
         #try:
 #            if (
-#                self._platform.decoded_model["I_DC_Power"] == 
+#                self._platform.decoded_model["I_DC_Power"] ==
 # SunSpecNotImpl.INT16
-#                or self._platform.decoded_model["I_DC_Power_SF"] == 
+#                or self._platform.decoded_model["I_DC_Power_SF"] ==
 # SunSpecNotImpl.INT16
-#                or self._platform.decoded_model["I_DC_Power_SF"] 
+#                or self._platform.decoded_model["I_DC_Power_SF"]
 # not in SUNSPEC_SF_RANGE
 #            ):
 #                return None
@@ -864,7 +864,7 @@ class SolarEdgeStatusSensor(SolarEdgeSensorBase):
     def unique_id(self) -> str:
         _LOGGER.debug("unique_id")
         _LOGGER.debug(self._platform.uid_base)
-        
+
         return f"{self._platform.uid_base}_status"
 
     @property

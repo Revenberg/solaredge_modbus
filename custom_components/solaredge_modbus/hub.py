@@ -394,7 +394,8 @@ class SolarEdgeInverter:
         return rc
 
     def getValueString(self, addr, functioncode=3, number_of_registers=4):
-        rc = self.hub._client.read_string(addr, functioncode=functioncode, number_of_registers=number_of_registers)
+        rc = self.hub._client.read_string(addr, functioncode=functioncode, 
+                                          number_of_registers=number_of_registers)
         return rc
 
     def round(self, floatval):
