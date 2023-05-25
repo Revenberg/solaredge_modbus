@@ -367,16 +367,16 @@ class SolarEdgeInverter:
         self.model = "SolarEdge"
         #self.option = self.decoded_common["C_Option"]
         #self.fw_version = self.decoded_common["C_Version"]
-        self.fw_version = 1234
+        self.fw_version = self.decoded_common["C_SunSpec_DID"]
         #self.serial = self.decoded_common["C_SerialNumber"]
-        self.serial = 1234
-        #self.device_address = self.decoded_common["C_Device_address"]
-        self.device_address = 1234
+        self.serial = self.decoded_common["SN"]
+        self.device_address = f"{self.hub.host}:{self.hub.port}"
+
         #self.name = f"{self.hub.hub_id.capitalize()} I{self.inverter_unit_id}"
-        self.uid_base = "1234"
+        self.uid_base = f"{self.hub.hub_id.capitalize()} I" + self.decoded_common["C_SunSpec_DID"]             
 
         self._device_info = {
-            "identifiers": {(DOMAIN, "1234")},
+            "identifiers": {(DOMAIN, self.decoded_common["C_SunSpec_DID"])},
             "name": "SolarEdge RS485",
             "manufacturer": "SolarEdge",
             "model": self.model,
@@ -406,20 +406,18 @@ class SolarEdgeInverter:
 
         # https://ginlongsolis.freshdesk.com/helpdesk/attachments/36112313359
 
-#        try:
-#            self.getValueString(3000, functioncode=3)
+        try:
+            C_SunSpec_DID = self.getValueRegister(3000, functioncode=4,
+                                        signed=False)
 
-#        except ConnectionException as e:
-#            _LOGGER.error(f"Connection error: {e}")
-#            self._online = False
-#            raise ModbusReadError(f"{e}")
+        except ConnectionException as e:
+            _LOGGER.error(f"Connection error: {e}")
+            self._online = False
+            raise ModbusReadError(f"{e}")
 
         self.decoded_model = OrderedDict(
             [
-#                ("C_SunSpec_DID", decoder.decode_16bit_uint()),
-#                ("C_SunSpec_Length", decoder.decode_16bit_uint()),
-                ("C_SunSpec_DID", self.getValueRegister(3000, functioncode=4,
-                                        signed=False)),
+                ("C_SunSpec_DID", C_SunSpec_DID),
                 ("AC_Power", self.getValueLong(3005, functioncode=4,
                                                signed=False)),
                 ("AC_Current", self.getValueRegister(3006, functioncode=4,
