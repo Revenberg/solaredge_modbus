@@ -150,13 +150,13 @@ class SolarEdgeModbusMultiHub:
             _LOGGER.error(f"Inverter device ID {inverter_unit_id}: {e}")
             raise HubInitFailed(f"{e}")
 
-        _LOGGER.debug(f"inverters: {self.inverters}")               
+        _LOGGER.debug(f"inverters: {self.inverters}")
         try:
             for inverter in self.inverters:
                 _LOGGER.debug(f"inverter: {inverter}")
                 await self._hass.async_add_executor_job(inverter.read_modbus_data)
             _LOGGER.debug("---------------------2---------------------")
-                
+
         except ModbusReadError as e:
             #await self.disconnect()
             _LOGGER.debug("--------------------------3----------------")
@@ -265,12 +265,12 @@ class SolarEdgeModbusMultiHub:
         #    await self._hass.async_add_executor_job(self._client.close)
 #        x = 1
 #        x = x + 1
-        
+
     async def connect(self) -> None:
         """Connect modbus client."""
         #with self._lock:
         if self._client is None:
-            self._client = Instrument(eth_address=self._host, 
+            self._client = Instrument(eth_address=self._host,
                                       eth_port=self._port, debug=False)
             # self._client = ModbusTcpClient(host=self._host, port=self._port)
 
@@ -383,27 +383,27 @@ class SolarEdgeInverter:
             "sw_version": self.fw_version,
             #"hw_version": self.option,
         }
-        
+
     def getValueLong(self, addr, numberOfDecimals=0, functioncode=0, signed=False):
         rc = self.hub._client.read_long(addr, functioncode=functioncode, signed=signed)
         return rc
 
     def getValueRegister(self, addr, numberOfDecimals=0, functioncode=0, signed=False):
-        rc = self.hub._client.read_register(addr, numberOfDecimals=numberOfDecimals, 
+        rc = self.hub._client.read_register(addr, numberOfDecimals=numberOfDecimals,
                                             functioncode=functioncode, signed=signed)
         return rc
 
     def getValueString(self, addr, functioncode=3, number_of_registers=4):
-        rc = self.hub._client.read_string(addr, functioncode=functioncode, 
+        rc = self.hub._client.read_string(addr, functioncode=functioncode,
                                           number_of_registers=number_of_registers)
         return rc
 
     def round(self, floatval):
         return round(floatval, 2)
-    
+
     def read_modbus_data(self) -> None:
         _LOGGER.debug("read_modbus_data")
-        
+
         # https://ginlongsolis.freshdesk.com/helpdesk/attachments/36112313359
 
         try:
@@ -411,7 +411,7 @@ class SolarEdgeInverter:
             SN_2 = self.getValueString(3062, functioncode=3)
             SN_3 = self.getValueString(3063, functioncode=3)
             SN_4 = self.getValueString(3064, functioncode=3)
-        
+
         except ConnectionException as e:
             _LOGGER.error(f"Connection error: {e}")
             self._online = False
@@ -419,51 +419,53 @@ class SolarEdgeInverter:
 
         self.decoded_model = OrderedDict(
             [
-                ("C_SunSpec_DID", self.getValueRegister(3000, functioncode=4, 
-                                        signed=False)),
-                ("AC_output_type", self.getValueRegister(3003, functioncode=4, 
-                                        signed=False)),
-                ("DC_input_type", self.getValueRegister(3004, functioncode=4, 
-                                        signed=False)),
-                
 #                ("C_SunSpec_DID", decoder.decode_16bit_uint()),
 #                ("C_SunSpec_Length", decoder.decode_16bit_uint()),
-                ("AC_Current", self.getValueRegister(3005, functioncode=4, 
+                ("C_SunSpec_DID", self.getValueRegister(3000, functioncode=4,
                                         signed=False)),
-                ("AC_Current_A", self.getValueRegister(3036, numberOfDecimals=1, 
+                ("AC_output_type", self.getValueRegister(3003, functioncode=4,
+                                        signed=False)),
+                ("DC_input_type", self.getValueRegister(3004, functioncode=4,
+                                        signed=False)),
+                ("AC_Power", self.getValueLong(3004, functioncode=4,
+                                               signed=False)),
+                ("AC_Current", self.getValueRegister(3006, functioncode=4,
+                                        signed=False)),
+                ("I_DC_Power", self.getValueRegister(3008, functioncode=4,
+                                                signed=False)),
+                ("AC_Energy_WH", self.getValueRegister(3010, numberOfDecimals=2,
+                                                       functioncode=4, signed=False)),
+                ("DC_Voltage_1", self.getValueRegister(3021, numberOfDecimals=1,
                                         functioncode=4, signed=False)),
-                ("AC_Current_B", self.getValueRegister(3037, numberOfDecimals=1, 
+                ("DC_Current_1", self.getValueRegister(3022, functioncode=4,
+                                        signed=False)),
+                ("DC_Voltage_2", self.getValueRegister(3023, numberOfDecimals=1,
                                         functioncode=4, signed=False)),
-                ("AC_Current_C", self.getValueRegister(3038, numberOfDecimals=1, 
-                                        functioncode=4, signed=False)),
+                ("DC_Current_2", self.getValueRegister(3024, functioncode=4,
+                                        signed=False)),
                 ("AC_Voltage_AB", self.getValueRegister(3033, numberOfDecimals=1,
                                         functioncode=4, signed=False)),
-                ("AC_Voltage_BC", self.getValueRegister(3034, numberOfDecimals=1, 
+                ("AC_Voltage_BC", self.getValueRegister(3034, numberOfDecimals=1,
                                         functioncode=4, signed=False)),
-                ("AC_Voltage_CA", self.getValueRegister(3035, numberOfDecimals=1, 
+                ("AC_Voltage_CA", self.getValueRegister(3035, numberOfDecimals=1,
                                         functioncode=4, signed=False)),
-                ("DC_Voltage_1", self.getValueRegister(3031, numberOfDecimals=1, 
+                ("AC_Current_A", self.getValueRegister(3036, numberOfDecimals=1,
                                         functioncode=4, signed=False)),
-                ("DC_Current_1", self.getValueRegister(3022, functioncode=4, 
-                                        signed=False)),
-                ("DC_Voltage_2", self.getValueRegister(3023, numberOfDecimals=1, 
+                ("AC_Current_B", self.getValueRegister(3037, numberOfDecimals=1,
                                         functioncode=4, signed=False)),
-                ("DC_Current_2", self.getValueRegister(3024, functioncode=4, 
-                                        signed=False)),
-
-                ("AC_Power", self.getValueLong(3004, functioncode=4, 
-                                               signed=False)),
-                ("AC_Frequency", self.getValueRegister(3042, numberOfDecimals=2, 
+                ("AC_Current_C", self.getValueRegister(3038, numberOfDecimals=1,
+                                        functioncode=4, signed=False)),
+                ("status", self.getValueRegister(3040, numberOfDecimals=2,
                                                 functioncode=4, signed=False)),
-                
-#                ("AC_VA", decoder.decode_16bit_int()),
-#                ("AC_var", decoder.decode_16bit_int()),
-#                ("AC_PF", decoder.decode_16bit_int()),
-#                ("AC_Energy_WH", decoder.decode_32bit_uint()),
-                ("I_DC_Power", self.getValueRegister(3007, functioncode=4, 
-                                                signed=False)),
-                ("I_Temp_Sink", self.getValueRegister(3041, numberOfDecimals=1, 
+                ("I_Temp_Sink", self.getValueRegister(3041, numberOfDecimals=1,
                                                 functioncode=4, signed=True)),
+                ("AC_Frequency", self.getValueRegister(3042, numberOfDecimals=2,
+                                                functioncode=4, signed=False)),
+                ("SN", self.getValueRegister(3062, functioncode=4, signed=False)),
+                ("PS", self.getValueRegister(3091, numberOfDecimals=2,
+                                                functioncode=4, signed=False)),
+                ("RPS", self.getValueRegister(3092, numberOfDecimals=0,
+                                                functioncode=4, signed=False)),
                 ("I_Status", 3),
                 ("I_Status_Vendor", 3),
                 ("SN_1", SN_1),
@@ -754,7 +756,7 @@ class SolarEdgeInverter:
         #    _LOGGER.debug(f"Inverter {self.inverter_unit_id}: {name} {display_value}")
 
         #""" Power Control Options: Storage Control """
-        #if self.hub.option_storage_control is True and self.decoded_storage 
+        #if self.hub.option_storage_control is True and self.decoded_storage
         # is not None:
         #    for battery in self.hub.batteries:
         #        if self.inverter_unit_id != battery.inverter_unit_id:
@@ -811,7 +813,7 @@ class SolarEdgeInverter:
         #            if isinstance(value, float):
         #                display_value = float_to_hex(value)
         #            else:
-        #                display_value = hex(value) if isinstance(value, int) else 
+        #                display_value = hex(value) if isinstance(value, int) else
         # value
         #            _LOGGER.debug(
         #                f"Inverter {self.inverter_unit_id}: {name} {display_value}"
