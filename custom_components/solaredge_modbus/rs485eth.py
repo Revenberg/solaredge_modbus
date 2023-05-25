@@ -166,16 +166,8 @@ class Instrument:
             self.address, self.mode, payload_to_slave
         )
 
-        # Calculate number of bytes to read
-        number_of_bytes_to_read = DEFAULT_NUMBER_OF_BYTES_TO_READ
-        if self.precalculate_read_size:
-            with contextlib.suppress(Exception):
-                number_of_bytes_to_read = _predict_response_size(
-                    self.mode, payload_to_slave
-                )
-
         # Communicate
-        response = self._communicate(request, number_of_bytes_to_read)
+        response = self._communicate(request)
         # Extract payload
         payload_from_slave = _extract_payload(
             response, self.address, self.mode
@@ -428,55 +420,6 @@ def _extract_payload(response, slaveaddress, mode):
 
     payload = response[first_databyte_number:last_databyte_number]
     return payload
-
-def _predict_response_size(mode, payload_to_slave):
-    """Calculate the number of bytes that should be received from the slave.
-
-    Args:
-      mode (str): The modbus protcol mode (MODE_RTU or MODE_ASCII)
-      payload_to_slave (str): The raw request that is to be sent to the slave
-      (not hex encoded string)
-
-    Returns:
-        The preducted number of bytes (int) in the response.
-
-    Raises:
-        ValueError, TypeError.
-
-    """
-    BYTERANGE_FOR_GIVEN_SIZE = slice(2, 4)  # Within the payload
-
-    NUMBER_OF_PAYLOAD_BYTES_FOR_BYTECOUNTFIELD = 1
-
-    RTU_TO_ASCII_PAYLOAD_FACTOR = 2
-
-    NUMBER_OF_RTU_RESPONSE_STARTBYTES = 2
-    NUMBER_OF_RTU_RESPONSE_ENDBYTES = 2
-    NUMBER_OF_ASCII_RESPONSE_STARTBYTES = 5
-    NUMBER_OF_ASCII_RESPONSE_ENDBYTES = 4
-
-    # Calculate payload size
-    given_size = _twobyte_string_to_num(payload_to_slave[BYTERANGE_FOR_GIVEN_SIZE])
-    
-    number_of_registers = given_size
-    response_payload_size = (
-        NUMBER_OF_PAYLOAD_BYTES_FOR_BYTECOUNTFIELD
-        + number_of_registers * _NUMBER_OF_BYTES_PER_REGISTER
-    )
-
-    # Calculate number of bytes to read
-    if mode == MODE_ASCII:
-        return (
-            NUMBER_OF_ASCII_RESPONSE_STARTBYTES
-            + response_payload_size * RTU_TO_ASCII_PAYLOAD_FACTOR
-            + NUMBER_OF_ASCII_RESPONSE_ENDBYTES
-        )
-    else:
-        return (
-            NUMBER_OF_RTU_RESPONSE_STARTBYTES
-            + response_payload_size
-            + NUMBER_OF_RTU_RESPONSE_ENDBYTES
-        )
 
 def _num_to_onebyte_string(inputvalue):
     """Convert a numerical value to a one-byte string.
