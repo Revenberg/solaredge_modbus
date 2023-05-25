@@ -373,7 +373,8 @@ class SolarEdgeInverter:
         self.device_address = f"{self.hub.host}:{self.hub.port}"
 
         #self.name = f"{self.hub.hub_id.capitalize()} I{self.inverter_unit_id}"
-        self.uid_base = f"{self.hub.hub_id.capitalize()} I" + self.decoded_common["C_SunSpec_DID"]             
+        self.uid_base = f"{self.hub.hub_id.capitalize()} I" 
+        + self.decoded_common["C_SunSpec_DID"]             
 
         self._device_info = {
             "identifiers": {(DOMAIN, self.decoded_common["C_SunSpec_DID"])},
@@ -385,7 +386,8 @@ class SolarEdgeInverter:
         }
 
     def getValueLong(self, addr, numberOfDecimals=0, functioncode=0, signed=False):
-        rc = self.hub._client.read_long(addr, functioncode=functioncode, signed=signed)
+        rc = self.hub._client.read_long(addr, functioncode=functioncode, 
+                        numberOfDecimals=numberOfDecimals, signed=signed)
         return rc
 
     def getValueRegister(self, addr, numberOfDecimals=0, functioncode=0, signed=False):
