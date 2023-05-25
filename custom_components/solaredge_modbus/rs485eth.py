@@ -126,9 +126,7 @@ class Instrument:
         """
         # Create payload
         payload_to_slave = _num_to_twobyte_string(registeraddress) 
-        + _num_to_twobyte_string(
-            number_of_registers
-        )
+        payload_to_slave = payload_to_slave + _num_to_twobyte_string(number_of_registers)
         
         # Communicate with instrument
         payload_from_slave = self._perform_command(payload_to_slave)
