@@ -365,7 +365,7 @@ class SolarEdgeInverter:
         energy = self.getValueRegister(3014, numberOfDecimals=3, signed=False),
 
         delta = 0
-        if (self._delta_energy | int > 0):
+        if ( int(self._delta_energy) > 0):
             delta = energy - self._delta_energy
 
         self._delta_energy = energy
