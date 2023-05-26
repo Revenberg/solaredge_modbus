@@ -3,7 +3,7 @@
   "name": "SolarEdge Modbus",
   "codeowners": ["@Sander"],
   "config_flow": true,
-  "dependencies": [],
+  "dependencies": ["utility_meter", "energy"],
   "documentation": "https://github.com/Revenberg/solaredge_modbus/wiki",
   "integration_type": "hub",
   "iot_class": "local_polling",
