@@ -259,13 +259,6 @@ class SolarEdgeModbusMultiHub:
         _LOGGER.debug(f"coordinator timeout is {self._coordinator_timeout}")
         return self._coordinator_timeout
 
-#    async def disconnect(self) -> None:
-#        """Disconnect modbus client."""
-        #if self._client is not None:
-        #    await self._hass.async_add_executor_job(self._client.close)
-#        x = 1
-#        x = x + 1
-
     async def connect(self) -> None:
         """Connect modbus client."""
         #with self._lock:
@@ -312,7 +305,7 @@ class SolarEdgeInverter:
         #self.manufacturer = self.decoded_common["C_Manufacturer"]
         self.manufacturer = "SolarEdge"
         #self.model = self.decoded_common["C_Model"]
-        self.model = "Solis RS485"
+        self.model = "SolarEdge RS485"
         #self.option = self.decoded_common["C_Option"]
         #self.fw_version = self.decoded_common["C_Version"]
                

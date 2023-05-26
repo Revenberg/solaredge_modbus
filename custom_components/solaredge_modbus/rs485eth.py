@@ -1,6 +1,6 @@
-"""MinimalModbus: A Python driver for Modbus RTU/ASCII via ETH."""
+"""Reading RS485 via ETH."""
 #
-#   Copyright 2020 Sander Revenberg
+#   Copyright 2023 Sander Revenberg
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -23,25 +23,17 @@ import logging
 _LOGGER = logging.getLogger(__name__)
 _LOGGER.setLevel(logging.DEBUG)
 
-if sys.version > "3":
-    import binascii
+#if sys.version > "3":
+import binascii
 
-if sys.version > "3":
-    long = int
+#if sys.version > "3":
+long = int
 
-_NUMBER_OF_BYTES_BEFORE_REGISTERDATA = 1  # Within the payload
-_NUMBER_OF_BYTES_PER_REGISTER = 2
 _ASCII_HEADER = ":"
 _ASCII_FOOTER = "\r\n"
 _BYTEPOSITION_FOR_ASCII_HEADER = 0  # Relative to plain response
 _BYTEPOSITION_FOR_SLAVEADDRESS = 0  # Relative to (stripped) response
 
-# ############### #
-# Named constants #
-# ############### #
-
-MODE_RTU = "rtu"
-MODE_ASCII = "ascii"
 BYTEORDER_BIG = 0
 BYTEORDER_LITTLE = 1
 BYTEORDER_BIG_SWAP = 2
@@ -67,7 +59,6 @@ class Instrument:
         ``/dev/tty.usbserial`` (OS X) or ``COM4`` (Windows).
         slaveaddress (int): Slave address in the range 1 to 247 (use decimal numbers,
         not hex). Address 0 is for broadcast, and 248-255 are reserved.
-        mode (str): Mode selection. Can be MODE_RTU or MODE_ASCII.
         close_port_after_each_call (bool): If the serial port should be closed after
         each call to the instrument.
         debug (bool): Set this to :const:`True` to print the communication details
@@ -79,11 +70,9 @@ class Instrument:
         eth_address,
         eth_port,
         slaveaddress=1,
-        mode=MODE_RTU,
         close_port_after_each_call=False,
     ):
         self.address = slaveaddress
-        self.mode = mode
         self.precalculate_read_size = True
         self.clear_buffers_before_each_transaction = True
         self.close_port_after_each_call = close_port_after_each_call
@@ -161,14 +150,14 @@ class Instrument:
 
         # Build request
         request = _embed_payload(
-            self.address, self.mode, payload_to_slave
+            self.address, payload_to_slave
         )
 
         # Communicate
         response = self._communicate(request)
         # Extract payload
         payload_from_slave = _extract_payload(
-            response, self.address, self.mode
+            response, self.address
         )
         return payload_from_slave
 
@@ -247,7 +236,7 @@ def _parse_payload(
     byteorder,
     payloadformat,
 ):
-    registerdata = payload[_NUMBER_OF_BYTES_BEFORE_REGISTERDATA:]
+    registerdata = payload[1:]
     
     if payloadformat == _PAYLOADFORMAT_LONG:
         return _bytestring_to_long(
@@ -262,30 +251,17 @@ def _parse_payload(
             registerdata, numberOfDecimals, signed=signed
         )
 
-def _embed_payload(slaveaddress, mode, payloaddata):
+def _embed_payload(slaveaddress, payloaddata):
     """Build a request from the slaveaddress, the function code and the payload data.
 
     Args:
         slaveaddress (int): The address of the slave.
-        mode (str): The modbus protcol mode (MODE_RTU or MODE_ASCII)
-        Can for example be 16 (Write register).
-        payloaddata (str): The byte string to be sent to the slave.
-
+        
     Returns:
         The built (raw) request string for sending to the slave (including CRC etc).
 
     Raises:
         ValueError, TypeError.
-
-    The resulting request has the format:
-     * RTU Mode: slaveaddress byte + 4 byte + payloaddata + CRC
-     (which is two bytes).
-     * ASCII Mode: header (:) + slaveaddress (2 characters) + 4
-       (2 characters) + payloaddata + LRC (which is two characters) + footer (CRLF)
-
-    The LRC or CRC is calculated from the byte string made up of slaveaddress +
-    4 + payloaddata.
-    The header, LRC/CRC, and footer are excluded from the calculation.
 
     """
 
@@ -294,28 +270,18 @@ def _embed_payload(slaveaddress, mode, payloaddata):
         + _num_to_onebyte_string(4)
         + payloaddata
     )
-
-    if mode == MODE_ASCII:
-        request = (
-            _ASCII_HEADER
-            + _hexencode(first_part)
-            + _hexencode(_calculate_lrc_string(first_part))
-            + _ASCII_FOOTER
-        )
-    else:
-        request = first_part + _calculate_crc_string(first_part)
+    request = first_part + _calculate_crc_string(first_part)
 
     return request
 
-def _extract_payload(response, slaveaddress, mode):
+def _extract_payload(response, slaveaddress):
     """Extract the payload data part from the slave's response.
 
     Args:
         response (str): The raw response byte string from the slave.
         This is different for RTU and ASCII.
         slaveaddress (int): The adress of the slave. Used here for error checking only.
-        mode (str): The modbus protcol mode (MODE_RTU or MODE_ASCII)
-
+        
     Returns:
         The payload part of the *response* string. Conversion from Modbus ASCII
         has been done if applicable.
@@ -327,11 +293,6 @@ def _extract_payload(response, slaveaddress, mode):
     the 4 or the CRC.
 
     The received response should have the format:
-
-    * RTU Mode: slaveaddress byte + 4 byte + payloaddata + CRC
-    (which is two bytes)
-    * ASCII Mode: header (:) + slaveaddress byte + 4 byte +
-      payloaddata + LRC (which is two characters) + footer (CRLF)
 
     For development purposes, this function can also be used to extract the payload
     from the request sent TO the slave.
@@ -349,57 +310,14 @@ def _extract_payload(response, slaveaddress, mode):
     plainresponse = response
 
     # Validate response length
-    if mode == MODE_ASCII:
-        if len(response) < MINIMAL_RESPONSE_LENGTH_ASCII:
-            raise InvalidResponseError(
-                "Too short Modbus ASCII response (minimum length "
-                + f"{MINIMAL_RESPONSE_LENGTH_ASCII} bytes). Response: {response!r}"
-            )
-    elif len(response) < MINIMAL_RESPONSE_LENGTH_RTU:
+    if len(response) < MINIMAL_RESPONSE_LENGTH_RTU:
         raise InvalidResponseError(
             "Too short Modbus RTU response (minimum length "
             + f"{MINIMAL_RESPONSE_LENGTH_RTU} bytes). Response: {response!r}"
         )
 
-    if mode == MODE_ASCII:
-        # Validate the ASCII header and footer.
-        if response[_BYTEPOSITION_FOR_ASCII_HEADER] != _ASCII_HEADER:
-            raise InvalidResponseError(
-                "Did not find header "
-                + f"({_ASCII_HEADER!r}) as start of ASCII response. "
-                + f"The plain response is: {response!r}"
-            )
-        elif response[-len(_ASCII_FOOTER) :] != _ASCII_FOOTER:
-            raise InvalidResponseError(
-                "Did not find footer "
-                + f"({_ASCII_FOOTER!r}) as end of ASCII response. "
-                + "The plain response is: {response!r}"
-            )
-
-        # Strip ASCII header and footer
-        response = response[1:-2]
-
-        if len(response) % 2 != 0:
-            template = (
-                "Stripped ASCII frames should have an even number of bytes, "
-                + "but is {len(response)} bytes. "
-                + f"The stripped response is: {response!r} (plain response: "
-                + "{plainresponse!r})"
-            )
-            raise InvalidResponseError(
-                template
-            )
-
-        # Convert the ASCII (stripped) response string to RTU-like response string
-        response = _hexdecode(response)
-
-    # Validate response checksum
-    if mode == MODE_ASCII:
-        calculate_checksum = _calculate_lrc_string
-        number_of_checksum_bytes = NUMBER_OF_LRC_BYTES
-    else:
-        calculate_checksum = _calculate_crc_string
-        number_of_checksum_bytes = NUMBER_OF_CRC_BYTES
+    calculate_checksum = _calculate_crc_string
+    number_of_checksum_bytes = NUMBER_OF_CRC_BYTES
 
     received_checksum = response[-number_of_checksum_bytes:]
     response_without_checksum = response[0 : (len(response) - number_of_checksum_bytes)]
@@ -407,7 +325,7 @@ def _extract_payload(response, slaveaddress, mode):
 
     if received_checksum != calculated_checksum:
         text = (
-            f"Checksum error in {mode} mode: {received_checksum!r} instead of "
+            f"Checksum error: {received_checksum!r} instead of "
             + f"{calculated_checksum!r} . The response "
             + f"is: {response!r} (plain response: {plainresponse!r})"
         )
@@ -426,10 +344,7 @@ def _extract_payload(response, slaveaddress, mode):
     # Read data payload
     first_databyte_number = NUMBER_OF_RESPONSE_STARTBYTES
 
-    if mode == MODE_ASCII:
-        last_databyte_number = len(response) - NUMBER_OF_LRC_BYTES
-    else:
-        last_databyte_number = len(response) - NUMBER_OF_CRC_BYTES
+    last_databyte_number = len(response) - NUMBER_OF_CRC_BYTES
 
     payload = response[first_databyte_number:last_databyte_number]
     return payload
@@ -606,8 +521,8 @@ def _bytestring_to_valuelist(bytestring, number_of_registers):
     """
     values = []
     for i in range(number_of_registers):
-        offset = _NUMBER_OF_BYTES_PER_REGISTER * i
-        substring = bytestring[offset : (offset + _NUMBER_OF_BYTES_PER_REGISTER)]
+        offset = 2 * i
+        substring = bytestring[offset : (offset + 2)]
         values.append(_twobyte_string_to_num(substring))
 
     return values
@@ -1103,10 +1018,6 @@ def _calculate_lrc_string(inputstring):
 
     For example a LRC 0110 0001 (bin) = 61 (hex) = 97 (dec) = 'a'. This function will
     then return 'a'.
-
-    In Modbus ASCII mode, this should be transmitted using two characters. This
-    example should be transmitted '61', which is a string of length two. This function
-    does not handle that conversion for transmission.
 
     """
 
