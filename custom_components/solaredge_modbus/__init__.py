@@ -38,6 +38,7 @@ from homeassistant.components.sensor import DOMAIN as SENSOR_DOMAIN
 from homeassistant.components.select import DOMAIN as SELECT_DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
+_LOGGER.setLevel(logging.DEBUG)
 
 PLATFORMS: list[str] = [
     Platform.BINARY_SENSOR,
