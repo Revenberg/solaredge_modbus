@@ -364,15 +364,16 @@ class SolarEdgeInverter:
 
         energy = self.getValueRegister(3014, numberOfDecimals=5, signed=False),
 
+        _LOGGER.debug(self._delta_energy)
+
         delta = 0
-        if ( int(self._delta_energy) > 0):
+        if self._delta_energy > 0:
             delta = energy - self._delta_energy
 
         self._delta_energy = energy
 
         _LOGGER.debug(energy)
         _LOGGER.debug(self._delta_energy)
-        _LOGGER.debug("====================================")
         
         self.decoded_model = OrderedDict(
             [
