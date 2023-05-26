@@ -362,7 +362,7 @@ class SolarEdgeInverter:
 
         # https://ginlongsolis.freshdesk.com/helpdesk/attachments/36112313359
 
-        energy = self.getValueRegister(3014, numberOfDecimals=3, signed=False),
+        energy = self.getValueRegister(3014, numberOfDecimals=5, signed=False),
 
         delta = 0
         if ( int(self._delta_energy) > 0):
@@ -370,6 +370,10 @@ class SolarEdgeInverter:
 
         self._delta_energy = energy
 
+        _LOGGER.debug(energy)
+        _LOGGER.debug(self._delta_energy)
+        _LOGGER.debug("====================================")
+        
         self.decoded_model = OrderedDict(
             [
                 ("AC_Energy_WH", delta),
@@ -384,7 +388,7 @@ class SolarEdgeInverter:
                 ("ac_yearenergy",  self.getValueRegister(3017,signed=False)),
                 ("ac_lastyear",  self.getValueRegister(3019, signed=False)),
 
-                ("generatedtoday", self.getValueRegister(3014, numberOfDecimals=2,
+                ("generatedtoday", self.getValueRegister(3014, numberOfDecimals=5,
                                               signed=False)),
                 ("generatedyesterday", self.getValueRegister(3015, numberOfDecimals=1,
                                                     signed=False)),
