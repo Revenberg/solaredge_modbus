@@ -78,7 +78,7 @@ async def async_setup_entry(
         entities.append(DCCurrent(inverter, config_entry, coordinator, "2"))
         entities.append(DCVoltage(inverter, config_entry, coordinator, "1"))
         entities.append(DCVoltage(inverter, config_entry, coordinator, "2"))
-        entities.append(DCPower(inverter, config_entry, coordinator))
+        #entities.append(DCPower(inverter, config_entry, coordinator))
         entities.append(HeatSinkTemperature(inverter, config_entry, coordinator))
         #entities.append(SolarEdgeActivePowerLimit(inverter, config_entry, coordinator))
         #entities.append(SolarEdgeCosPhi(inverter, config_entry, coordinator))
@@ -557,7 +557,6 @@ class DCPower(SolarEdgeSensorBase):
     def native_value(self):
        
         return self._platform.decoded_model["I_DC_Power"]
-
 
 class HeatSinkTemperature(SolarEdgeSensorBase):
     device_class = SensorDeviceClass.TEMPERATURE
