@@ -12,13 +12,12 @@ from homeassistant.const import (
     CONF_PORT,
     CONF_SCAN_INTERVAL,
     Platform,
-    DATA_ENERGY_METER,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceEntry
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .const import DOMAIN, ConfDefaultFlag, ConfDefaultInt, ConfName, RetrySettings
+from .const import DOMAIN, ConfDefaultFlag, ConfDefaultInt, ConfName, RetrySettings, DATA_ENERGY_METER
 from .hub import DataUpdateFailed, HubInitFailed, SolarEdgeModbusMultiHub
 
 from homeassistant.components.utility_meter import (
