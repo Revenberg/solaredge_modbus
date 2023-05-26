@@ -12,6 +12,7 @@ from homeassistant.const import (
     CONF_PORT,
     CONF_SCAN_INTERVAL,
     Platform,
+    DATA_ENERGY_METER,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceEntry
@@ -20,6 +21,22 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 from .const import DOMAIN, ConfDefaultFlag, ConfDefaultInt, ConfName, RetrySettings
 from .hub import DataUpdateFailed, HubInitFailed, SolarEdgeModbusMultiHub
 
+from homeassistant.components.utility_meter import (
+        CONF_METER,
+#    CONF_SOURCE_SENSOR,
+    CONF_TARIFF,
+    CONF_TARIFF_ENTITY,
+    CONF_TARIFFS,
+    DATA_TARIFF_SENSORS,
+    DATA_UTILITY,
+    DOMAIN as UM_DOMAIN,
+#    METER_CONFIG_SCHEMA,
+)
+from homeassistant.helpers.typing import ConfigType
+from homeassistant.helpers import discovery
+from homeassistant.components.sensor import DOMAIN as SENSOR_DOMAIN
+from homeassistant.components.select import DOMAIN as SELECT_DOMAIN
+    
 _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS: list[str] = [
@@ -33,6 +50,27 @@ PLATFORMS: list[str] = [
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up SolarEdge Modbus from a config entry."""
+
+    """Set up an Energy Meter."""
+    hass.data[DATA_ENERGY_METER] = {}
+    
+    if DOMAIN not in ConfigEntry:
+        return True
+
+    for meter, conf in ConfigEntry[DOMAIN].items():
+        _LOGGER.debug("Setup %s.%s", DOMAIN, meter)
+        
+        # create the select entity
+        select_entity = await setup_utility_meter_select(hass, ConfigEntry, meter, conf)
+
+        # Create the utility_meters for the energy
+        um_conf = conf.copy()
+        await setup_utility_meter_sensors(hass, ConfigEntry, meter, um_conf, select_entity)
+
+
+
+
+
 
     entry_updates: dict[str, Any] = {}
     if CONF_SCAN_INTERVAL in entry.data:
@@ -232,3 +270,88 @@ class SolarEdgeCoordinator(DataUpdateCoordinator):
                 )
                 await asyncio.sleep(wait_ms / 1000)
                 wait_ms *= wait_ratio
+
+async def setup_utility_meter_select(
+    hass: HomeAssistant,
+    config: ConfigType,
+    meter: str,
+    conf: dict,
+) -> str:
+    """Create the select for utility_meters."""
+    # Only create the select if multiple tariffs are created
+    if not conf.get(CONF_TARIFFS):
+        _LOGGER.debug("Setup %s.%s: skip utility_meter select entity", DOMAIN, meter)
+        return ""
+
+    _LOGGER.debug("Setup %s.%s: create utility_meter select entity", DOMAIN, meter)
+    # create tariff selection
+    hass.async_create_task(
+        discovery.async_load_platform(
+            hass,
+            SELECT_DOMAIN,
+            UM_DOMAIN,
+            {CONF_METER: meter, CONF_TARIFFS: conf[CONF_TARIFFS]},
+            config,
+        ),
+    )
+
+    # create the select entity ID the same way utility_meter does
+    return f"{SELECT_DOMAIN}.{meter}"
+
+
+async def setup_utility_meter_sensors(
+    hass: HomeAssistant,
+    config: ConfigType,
+    meter: str,
+    conf: dict,
+    select_entity: str,
+):
+    """Create the utility_meter sensors linked to the select entity."""
+    # use of copy of the conf to keep data of energy & cost separate
+    hass.data[DATA_UTILITY][meter] = conf.copy()
+    hass.data[DATA_UTILITY][meter][DATA_TARIFF_SENSORS] = []
+
+    if not conf.get(CONF_TARIFFS):
+        _LOGGER.debug(
+            "Setup %s.%s: create a single utility_meter sensor",
+            DOMAIN,
+            meter,
+        )
+        # only one entity is required
+        hass.async_create_task(
+            discovery.async_load_platform(
+                hass,
+                SENSOR_DOMAIN,
+                UM_DOMAIN,
+                {meter: {CONF_METER: meter}},
+                config,
+            ),
+        )
+    else:
+        # Indicate the select entity for the tariff selection
+        hass.data[DATA_UTILITY][meter][CONF_TARIFF_ENTITY] = select_entity
+
+        # add one meter for each tariff for energy
+        tariff_confs = {}
+        for tariff in conf[CONF_TARIFFS]:
+            name = f"{meter} {tariff}"
+            tariff_confs[name] = {
+                CONF_METER: meter,
+                CONF_TARIFF: tariff,
+            }
+
+        _LOGGER.debug(
+            "Setup %s.%s: create utility_meter sensors for tariffs %s",
+            DOMAIN,
+            meter,
+            conf[CONF_TARIFFS],
+        )
+        hass.async_create_task(
+            discovery.async_load_platform(
+                hass,
+                SENSOR_DOMAIN,
+                UM_DOMAIN,
+                tariff_confs,
+                config,
+            ),
+        )
