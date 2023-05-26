@@ -65,7 +65,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
         # Create the utility_meters for the energy
         um_conf = conf.copy()
-        await setup_utility_meter_sensors(hass, ConfigEntry, meter, um_conf, select_entity)
+        await setup_utility_meter_sensors(hass, ConfigEntry, 
+                                          meter, um_conf, select_entity)
 
 
 
