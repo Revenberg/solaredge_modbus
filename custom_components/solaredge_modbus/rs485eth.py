@@ -118,10 +118,18 @@ class Instrument:
         # Create payload
         ps1 = _num_to_twobyte_string(registeraddress) 
         ps2 = _num_to_twobyte_string(number_of_registers)
-        ps = f'{ps1}{ps2}'
         
-        # Communicate with instrument
-        payload_from_slave = self._perform_command(ps)
+        request = _embed_payload(
+            self.address, f'{ps1}{ps2}'
+        )
+
+        # Communicate
+        response = self._communicate(request)
+        # Extract payload
+        payload_from_slave = _extract_payload(
+            response, self.address
+        )
+        
         # Parse response payload
         return _parse_payload(
             payload_from_slave,
@@ -131,36 +139,6 @@ class Instrument:
             byteorder,
             payloadformat,
         )
-
-    def _perform_command(self, payload_to_slave):
-        """Perform the command having the .
-
-        Args:
-            payload_to_slave (str): Data to be transmitted to the slave (will be
-            embedded in slaveaddress, CRC etc)
-
-        Returns:
-            The extracted data payload from the slave (a string). It has been
-            stripped of CRC etc.
-
-        Raises:
-            TypeError, ValueError, ModbusException,
-            serial.SerialException (inherited from IOError)
-
-        """
-
-        # Build request
-        request = _embed_payload(
-            self.address, payload_to_slave
-        )
-
-        # Communicate
-        response = self._communicate(request)
-        # Extract payload
-        payload_from_slave = _extract_payload(
-            response, self.address
-        )
-        return payload_from_slave
 
     def _communicate(self, request):
         """Talk to the slave via a serial port.
@@ -293,21 +271,8 @@ def _extract_payload(response, slaveaddress):
     Raises an exception if there is any problem with the received address,
     the 4 or the CRC.
 
-    The received response should have the format:
-
-    For development purposes, this function can also be used to extract the payload
-    from the request sent TO the slave.
-
     """
-    # Number of bytes before the response payload (in stripped response)
-    NUMBER_OF_RESPONSE_STARTBYTES = 2
-
-    NUMBER_OF_CRC_BYTES = 2
-    NUMBER_OF_LRC_BYTES = 1
-    MINIMAL_RESPONSE_LENGTH_RTU = NUMBER_OF_RESPONSE_STARTBYTES + NUMBER_OF_CRC_BYTES
-    MINIMAL_RESPONSE_LENGTH_ASCII = 9
-    # Argument validity testing (ValueError/TypeError at lib programming error)
-    
+    MINIMAL_RESPONSE_LENGTH_RTU = 4    
     plainresponse = response
 
     # Validate response length
@@ -318,7 +283,7 @@ def _extract_payload(response, slaveaddress):
         )
 
     calculate_checksum = _calculate_crc_string
-    number_of_checksum_bytes = NUMBER_OF_CRC_BYTES
+    number_of_checksum_bytes = 2
 
     received_checksum = response[-number_of_checksum_bytes:]
     response_without_checksum = response[0 : (len(response) - number_of_checksum_bytes)]
@@ -343,9 +308,9 @@ def _extract_payload(response, slaveaddress):
         )
 
     # Read data payload
-    first_databyte_number = NUMBER_OF_RESPONSE_STARTBYTES
+    first_databyte_number = 2
 
-    last_databyte_number = len(response) - NUMBER_OF_CRC_BYTES
+    last_databyte_number = len(response) - 2
 
     payload = response[first_databyte_number:last_databyte_number]
     return payload
