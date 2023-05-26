@@ -10,7 +10,7 @@ from .rs485eth import Instrument
 try:
     #from pymodbus.client import ModbusTcpClient
     #from pymodbus.constants import Endian
-    from pymodbus.exceptions import ConnectionException 
+    from pymodbus.exceptions import ConnectionException
     ##, ModbusIOException
     #from pymodbus.payload import BinaryPayloadDecoder
     ## from pymodbus.pdu import ExceptionResponse, ModbusExceptions
@@ -139,7 +139,7 @@ class SolarEdgeModbusMultiHub:
             new_inverter = SolarEdgeInverter(inverter_unit_id, self)
             await self._hass.async_add_executor_job(new_inverter.init_device)
             self.inverters.append(new_inverter)
-            
+
         except ModbusReadError as e:
             ##await self.disconnect()
             _LOGGER.debug("---------------1---------------------------")
@@ -150,26 +150,17 @@ class SolarEdgeModbusMultiHub:
             _LOGGER.error(f"Inverter device ID {inverter_unit_id}: {e}")
             raise HubInitFailed(f"{e}")
 
-        _LOGGER.debug(f"inverters: {self.inverters}")
         try:
             for inverter in self.inverters:
-                _LOGGER.debug(f"inverter: {inverter}")
                 await self._hass.async_add_executor_job(inverter.read_modbus_data)
-            _LOGGER.debug("---------------------2---------------------")
 
         except ModbusReadError as e:
-            #await self.disconnect()
-            _LOGGER.debug("--------------------------3----------------")
             raise HubInitFailed(f"Read error: {e}")
 
         except DeviceInvalid as e:
-            #await self.disconnect()
-            _LOGGER.debug("---------------------------4---------------")
             raise HubInitFailed(f"Invalid device: {e}")
 
         except ConnectionException as e:
-            #await self.disconnect()
-            _LOGGER.debug("-------------------------------5-----------")
             raise HubInitFailed(f"Connection failed: {e}")
 
         self.initalized = True
@@ -183,7 +174,6 @@ class SolarEdgeModbusMultiHub:
                 await self._async_init_solaredge()
 
             except ConnectionException as e:
-                #await self.disconnect()
                 raise HubInitFailed(f"Setup failed: {e}")
 
         self._online = True
@@ -193,22 +183,15 @@ class SolarEdgeModbusMultiHub:
 
         except ModbusReadError as e:
             self._online = False
-        #        #await self.disconnect()
             raise DataUpdateFailed(f"Update failed: {e}")
 
         except DeviceInvalid as e:
             self._online = False
-                #if not self._keep_modbus_open:
-                    #await self.disconnect()
             raise DataUpdateFailed(f"Invalid device: {e}")
 
         except ConnectionException as e:
             self._online = False
-                #await self.disconnect()
             raise DataUpdateFailed(f"Connection failed: {e}")
-
-        #if not self._keep_modbus_open:
-            #await self.disconnect()
 
         return True
 
@@ -261,13 +244,9 @@ class SolarEdgeModbusMultiHub:
 
     async def connect(self) -> None:
         """Connect modbus client."""
-        #with self._lock:
         if self._client is None:
             self._client = Instrument(eth_address=self._host,
                                       eth_port=self._port)
-            # self._client = ModbusTcpClient(host=self._host, port=self._port)
-
-            #await self._hass.async_add_executor_job(self._client.connect)
 
     def is_socket_open(self) -> bool:
 #        """Check modbus client connection status."""
@@ -284,6 +263,7 @@ class SolarEdgeModbusMultiHub:
         self._client = None
 
 class SolarEdgeInverter:
+    _delta_energy = 0
     def __init__(self, device_id: int, hub: SolarEdgeModbusMultiHub) -> None:
         self.inverter_unit_id = device_id
         self.hub = hub
@@ -296,27 +276,28 @@ class SolarEdgeInverter:
         self.advanced_power_control = None
         self.site_limit_control = None
         self.manufacturer = "SolarEdge"
-               
+        self._delta_energy = 0
+
     def init_device(self) -> None:
-        
+
         _LOGGER.debug("init_device")
         self.read_modbus_data_common()
-                
+
         #self.manufacturer = self.decoded_common["C_Manufacturer"]
         self.manufacturer = "SolarEdge"
         #self.model = self.decoded_common["C_Model"]
         self.model = "SolarEdge RS485"
         #self.option = self.decoded_common["C_Option"]
         #self.fw_version = self.decoded_common["C_Version"]
-               
+
         self.fw_version = self.decoded_common["C_SunSpec_DID"]
         #self.serial = self.decoded_common["C_SerialNumber"]
         self.serial = self.decoded_common["SN"]
         self.device_address = f"{self.hub._host}:{self.hub._port}"
 
         #self.name = f"{self.hub.hub_id.capitalize()} I{self.inverter_unit_id}"
-        self.uid_base = f"{self.hub.hub_id.capitalize()} I" 
-        + self.decoded_common["C_SunSpec_DID"]             
+        self.uid_base = f"{self.hub.hub_id.capitalize()} I"
+        + self.decoded_common["C_SunSpec_DID"]
 
         self._device_info = {
             "identifiers": {(DOMAIN, int(self.decoded_common["C_SunSpec_DID"]))},
@@ -344,7 +325,7 @@ class SolarEdgeInverter:
             signed=signed,
             payloadformat="register",
         )
-        
+
 #    def getValueString(self, addr, functioncode=3, number_of_registers=4):
 #        return self.hub._client._generic_command(
 #            functioncode=functioncode,
@@ -360,7 +341,7 @@ class SolarEdgeInverter:
         _LOGGER.debug("read_modbus_data")
 
         try:
-            C_SunSpec_DID = self.getValueRegister(3000, 
+            C_SunSpec_DID = self.getValueRegister(3000,
                                         signed=False)
 
         except ConnectionException as e:
@@ -372,7 +353,7 @@ class SolarEdgeInverter:
             [
                 ("C_SunSpec_DID", C_SunSpec_DID),
                 ("SN", self.getValueRegister(3062, signed=False)),
-                
+
             ]
         )
 
@@ -381,45 +362,41 @@ class SolarEdgeInverter:
 
         # https://ginlongsolis.freshdesk.com/helpdesk/attachments/36112313359
 
+        energy = self.getValueRegister(3014, numberOfDecimals=3,
+                                              signed=False)),
+
+        delta = 0
+        if (self._delta_energy > 0):
+            delta = energy - self._delta_energy
+
+        self._delta_energy = energy
+
         self.decoded_model = OrderedDict(
             [
-                ("AC_Power", self.getValueLong(3005, 
-                                               signed=False)),
-                ("AC_Current", self.getValueRegister(3006, 
-                                        signed=False)),
-                ("I_DC_Power", self.getValueRegister(3008, 
-                                                signed=False)),
+                ("AC_Energy_WH", delta),
+
+                ("AC_Power", self.getValueLong(3005, signed=False)),
+                ("AC_Current", self.getValueRegister(3006, signed=False)),
                 
-                ("AC_Energy_WH",  self.getValueRegister(3009, 
-                                                    signed=False)),
-                
-                ("ac_lifetimeproduction", self.getValueLong(3008, 
-                                                    signed=False)),
-                
-                ("ac_monthenergy",  self.getValueRegister(3011, 
-                                                    signed=False)),
-                ("ac_lastmonth",  self.getValueRegister(3013, 
-                                                    signed=False)),
-                ("ac_yearenergy",  self.getValueRegister(3017, 
-                                                    signed=False)),
-                ("ac_lastyear",  self.getValueRegister(3019, 
-                                                    signed=False)),
-                
-                ("generatedtoday", self.getValueRegister(3014, numberOfDecimals=1,
+                ("ac_lifetimeproduction", self.getValueLong(3008, signed=False)),
+                ("AC_Energy_WH",  self.getValueRegister(3009, signed=False)),
+                ("ac_monthenergy",  self.getValueRegister(3011, signed=False)),
+                ("ac_lastmonth",  self.getValueRegister(3013, signed=False)),
+                ("ac_yearenergy",  self.getValueRegister(3017,signed=False)),
+                ("ac_lastyear",  self.getValueRegister(3019, signed=False)),
+
+                ("generatedtoday", self.getValueRegister(3014, numberOfDecimals=2,
                                               signed=False)),
                 ("generatedyesterday", self.getValueRegister(3015, numberOfDecimals=1,
                                                     signed=False)),
-                ("ac_power_output", self.getValueLong(3004,  
-                                                    signed=False)),
-                
+                ("ac_power_output", self.getValueLong(3004,signed=False)),
+
                 ("DC_Voltage_1", self.getValueRegister(3021, numberOfDecimals=1,
                                         signed=False)),
-                ("DC_Current_1", self.getValueRegister(3022, 
-                                        signed=False)),
+                ("DC_Current_1", self.getValueRegister(3022, signed=False)),
                 ("DC_Voltage_2", self.getValueRegister(3023, numberOfDecimals=1,
                                          signed=False)),
-                ("DC_Current_2", self.getValueRegister(3024, 
-                                        signed=False)),
+                ("DC_Current_2", self.getValueRegister(3024, signed=False)),
                 ("AC_Voltage_AB", self.getValueRegister(3033, numberOfDecimals=1,
                                          signed=False)),
                 ("AC_Voltage_BC", self.getValueRegister(3034, numberOfDecimals=1,
@@ -442,7 +419,7 @@ class SolarEdgeInverter:
         )
         _LOGGER.debug(f"Inverter: {self.decoded_common}")
         _LOGGER.debug(f"Inverter: {self.decoded_model}")
- 
+
     @property
     def online(self) -> bool:
         """Device is online."""
