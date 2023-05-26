@@ -94,10 +94,8 @@ class Instrument:
     def _generic_command(
         self,
         registeraddress,
-        value=None,
         numberOfDecimals=0,
         number_of_registers=0,
-        number_of_bits=0,
         signed=False,
         byteorder=BYTEORDER_BIG,
         payloadformat=None,
@@ -136,7 +134,7 @@ class Instrument:
         payload_from_slave = self._perform_command(ps)
         # Parse response payload
         return _parse_payload(
-            value,
+            payload_from_slave,
             numberOfDecimals,
             number_of_registers,
             signed,
