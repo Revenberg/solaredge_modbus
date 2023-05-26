@@ -362,7 +362,7 @@ class SolarEdgeInverter:
 
         # https://ginlongsolis.freshdesk.com/helpdesk/attachments/36112313359
 
-        energy = self.getValueRegister(3014, numberOfDecimals=1, signed=False)
+        energy = self.getValueRegister(3014, numberOfDecimals=2, signed=False)
 
         _LOGGER.debug("=============")
         _LOGGER.debug(self._delta_energy)
