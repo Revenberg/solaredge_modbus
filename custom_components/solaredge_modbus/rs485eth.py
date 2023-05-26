@@ -136,12 +136,9 @@ class Instrument:
         payload_from_slave = self._perform_command(ps)
         # Parse response payload
         return _parse_payload(
-            payload_from_slave,
-            registeraddress,
             value,
             numberOfDecimals,
             number_of_registers,
-            number_of_bits,
             signed,
             byteorder,
             payloadformat,
