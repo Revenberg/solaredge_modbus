@@ -36,7 +36,7 @@ from homeassistant.helpers.typing import ConfigType
 from homeassistant.helpers import discovery
 from homeassistant.components.sensor import DOMAIN as SENSOR_DOMAIN
 from homeassistant.components.select import DOMAIN as SELECT_DOMAIN
-    
+
 _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS: list[str] = [
@@ -49,23 +49,24 @@ PLATFORMS: list[str] = [
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up SolarEdge Modbus from a config entry."""
 
     """Set up an Energy Meter."""
     hass.data[DATA_ENERGY_METER] = {}
-    
+
+    _LOGGER.debug("test")
+
     if DOMAIN not in ConfigEntry:
         return True
 
     for meter, conf in ConfigEntry[DOMAIN].items():
         _LOGGER.debug("Setup %s.%s", DOMAIN, meter)
-        
+
         # create the select entity
         select_entity = await setup_utility_meter_select(hass, ConfigEntry, meter, conf)
 
         # Create the utility_meters for the energy
         um_conf = conf.copy()
-        await setup_utility_meter_sensors(hass, ConfigEntry, 
+        await setup_utility_meter_sensors(hass, ConfigEntry,
                                           meter, um_conf, select_entity)
 
 
