@@ -19,12 +19,13 @@ import struct
 import sys
 import socket
 import logging
+import binascii
 
 _LOGGER = logging.getLogger(__name__)
 _LOGGER.setLevel(logging.DEBUG)
 
 #if sys.version > "3":
-import binascii
+#import binascii
 
 #if sys.version > "3":
 long = int
