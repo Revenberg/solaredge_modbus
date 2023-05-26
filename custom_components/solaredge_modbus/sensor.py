@@ -416,45 +416,11 @@ class ACVoltAmp(SolarEdgeSensorBase):
 
         return self._platform.decoded_model[model_key]
 
-class ACVoltAmpReactive(SolarEdgeSensorBase):
-    device_class = SensorDeviceClass.REACTIVE_POWER
-    state_class = SensorStateClass.MEASUREMENT
-    native_unit_of_measurement = POWER_VOLT_AMPERE_REACTIVE
-    suggested_display_precision = 0
-
-    def __init__(self, platform, config_entry, coordinator, phase: str = None):
-        super().__init__(platform, config_entry, coordinator)
-        """Initialize the sensor."""
-        self._phase = phase
-
-    @property
-    def unique_id(self) -> str:
-        if self._phase is None:
-            return f"{self._platform.uid_base}_ac_var"
-        else:
-            return f"{self._platform.uid_base}_ac_var_{self._phase.lower()}"
-
-    @property
-    def name(self) -> str:
-        if self._phase is None:
-            return "AC var"
-        else:
-            return f"AC var {self._phase.upper()}"
-
-    @property
-    def native_value(self):
-        if self._phase is None:
-            model_key = "AC_var"
-        else:
-            model_key = f"AC_var_{self._phase.upper()}"
-
-        return self._platform.decoded_model[model_key]
-
 class ACEnergy(SolarEdgeSensorBase):
     device_class = SensorDeviceClass.ENERGY
     state_class = SensorStateClass.TOTAL_INCREASING
     native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
-    suggested_display_precision = 3
+    suggested_display_precision = 0
 
     def __init__(self, platform, config_entry, coordinator, phase: str = None):
         super().__init__(platform, config_entry, coordinator)
