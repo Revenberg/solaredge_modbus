@@ -54,7 +54,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data[DATA_ENERGY_METER] = {}
 
     _LOGGER.debug("test")
+    _LOGGER.debug("test")
+    _LOGGER.debug("test")
+    _LOGGER.debug("test")
     _LOGGER.debug(ConfigEntry)
+    _LOGGER.debug(DOMAIN)
 
     if DOMAIN not in ConfigEntry:
         return True
