@@ -209,10 +209,11 @@ def _parse_payload(
             registerdata, signed, number_of_registers, byteorder
         )
 
-    if payloadformat == _PAYLOADFORMAT_REGISTERS:
-        return _bytestring_to_valuelist(registerdata, number_of_registers)
+ #   if payloadformat == _PAYLOADFORMAT_REGISTERS:
+ #       return _bytestring_to_valuelist(registerdata, number_of_registers)
 
-    elif payloadformat == _PAYLOADFORMAT_REGISTER:
+#    el
+    if payloadformat == _PAYLOADFORMAT_REGISTER:
         return _twobyte_string_to_num(
             registerdata, numberOfDecimals, signed=signed
         )
@@ -401,10 +402,6 @@ def _twobyte_string_to_num(bytestring, numberOfDecimals=0, signed=False):
     100 before returning the value.
 
     The byte order is big-endian, meaning that the most significant byte is sent first.
-
-    For example:
-        A string ``\x03\x02`` (which has the length 2) corresponds to 0302 (hex) =
-        770 (dec). If ``numberOfDecimals = 1``, then this is converted to 77.0 (float).
 
     """
     formatcode = ">"  # Big-endian
