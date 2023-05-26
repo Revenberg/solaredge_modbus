@@ -328,7 +328,7 @@ class ACPower(SolarEdgeSensorBase):
     state_class = SensorStateClass.MEASUREMENT
     native_unit_of_measurement = UnitOfPower.WATT
     icon = "mdi:solar-power"
-    suggested_display_precision = 0
+    suggested_display_precision = 3
 
     def __init__(self, platform, config_entry, coordinator, phase: str = None):
         super().__init__(platform, config_entry, coordinator)
