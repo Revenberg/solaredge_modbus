@@ -30,9 +30,9 @@ _LOGGER.setLevel(logging.DEBUG)
 #if sys.version > "3":
 long = int
 
-_ASCII_HEADER = ":"
-_ASCII_FOOTER = "\r\n"
-_BYTEPOSITION_FOR_ASCII_HEADER = 0  # Relative to plain response
+#_ASCII_HEADER = ":"
+#_ASCII_FOOTER = "\r\n"
+#_BYTEPOSITION_FOR_ASCII_HEADER = 0  # Relative to plain response
 _BYTEPOSITION_FOR_SLAVEADDRESS = 0  # Relative to (stripped) response
 
 BYTEORDER_BIG = 0
