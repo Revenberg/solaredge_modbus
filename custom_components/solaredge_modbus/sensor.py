@@ -420,7 +420,7 @@ class ACVoltAmpReactive(SolarEdgeSensorBase):
     device_class = SensorDeviceClass.REACTIVE_POWER
     state_class = SensorStateClass.MEASUREMENT
     native_unit_of_measurement = POWER_VOLT_AMPERE_REACTIVE
-    suggested_display_precision = 2
+    suggested_display_precision = 0
 
     def __init__(self, platform, config_entry, coordinator, phase: str = None):
         super().__init__(platform, config_entry, coordinator)
