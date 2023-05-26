@@ -16,7 +16,7 @@
 #
 
 import struct
-import sys
+#import sys
 import socket
 import logging
 import binascii
@@ -161,28 +161,15 @@ class Instrument:
 
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(1)
-        _LOGGER.debug(self.eth_address)
-        _LOGGER.debug(self.eth_port)
-    
+        
         sock.connect((self.eth_address, self.eth_port))
-        
-        _LOGGER.debug("send 1")
-        
         sock.send(request)
-        _LOGGER.debug("send 2")
         answer = sock.recv(1024)
-        _LOGGER.debug("close")
-
         sock.close()
 
-        _LOGGER.debug("answer")
-        _LOGGER.debug(answer)
-
-        if sys.version_info[0] > 2:
-            answer = str(answer, encoding="latin1")
-
-        _LOGGER.debug("answer")
-        _LOGGER.debug(answer)
+#        if sys.version_info[0] > 2:
+#            answer = str(answer, encoding="latin1")
+        answer = str(answer, encoding="latin1")
 
         if not answer:
             raise NoResponseError("No communication with the instrument (no answer)")
@@ -524,11 +511,11 @@ def _pack(formatstring, value):
         + f"Struct format code is: {formatstring}"
         raise ValueError(errortext)
 
-    if sys.version_info[0] > 2:
-        return str(
-            result, encoding="latin1"
-        )  # Convert types to make it Python3 compatible
-    return result
+#    if sys.version_info[0] > 2:
+    return str(
+        result, encoding="latin1"
+    )  # Convert types to make it Python3 compatible
+ #   return result
 
 def _unpack(formatstring, packed):
     """Unpack a bytestring into a value.
@@ -551,10 +538,10 @@ def _unpack(formatstring, packed):
 
     """
 
-    if sys.version_info[0] > 2:
-        packed = bytes(
-            packed, encoding="latin1"
-        )  # Convert types to make it Python3 compatible
+    #if sys.version_info[0] > 2:
+    packed = bytes(
+        packed, encoding="latin1"
+    )  # Convert types to make it Python3 compatible
 
     try:
         value = struct.unpack(formatstring, packed)[0]
@@ -647,23 +634,23 @@ def _hexdecode(hexstring):
             f"The input hexstring must be of even length. Given: {hexstring!r}"
         )
 
-    if sys.version_info[0] > 2:
-        converted_bytes = bytes(hexstring, "latin1")
-        try:
-            return str(binascii.unhexlify(converted_bytes), encoding="latin1")
-        except binascii.Error as err:
-            new_error_message = f"Hexdecode reported an error: {err.args[0]!s}. "
-            + f"Input hexstring: {hexstring}"
-            raise TypeError(new_error_message)
+    #if sys.version_info[0] > 2:
+    converted_bytes = bytes(hexstring, "latin1")
+    try:
+        return str(binascii.unhexlify(converted_bytes), encoding="latin1")
+    except binascii.Error as err:
+        new_error_message = f"Hexdecode reported an error: {err.args[0]!s}. "
+        + f"Input hexstring: {hexstring}"
+        raise TypeError(new_error_message)
 
-    else:
-        try:
-            return hexstring.decode("hex")
-        except TypeError:
-            # TODO When Python3 only, show info from first exception
-            raise TypeError(
-                f"Hexdecode reported an error. Input hexstring: {hexstring}"
-            )
+#    else:
+#        try:
+#            return hexstring.decode("hex")
+#        except TypeError:
+#            # TODO When Python3 only, show info from first exception
+#            raise TypeError(
+#                f"Hexdecode reported an error. Input hexstring: {hexstring}"
+#            )
 
 _CRC16TABLE = (
     0,
@@ -946,7 +933,6 @@ Built with this code::
         output += f"{m:5.0f}, "
     print output
 """
-
 
 def _calculate_crc_string(inputstring):
     """Calculate CRC-16 for Modbus.
