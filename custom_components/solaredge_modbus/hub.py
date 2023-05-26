@@ -379,7 +379,7 @@ class SolarEdgeInverter:
         
         self.decoded_model = OrderedDict(
             [
-                ("AC_Energy_WH", delta),
+                ("AC_Energy_WH", delta * 1000),
 
                 ("AC_Power", self.getValueLong(3005, signed=False)),
                 ("AC_Current", self.getValueRegister(3006, signed=False)),

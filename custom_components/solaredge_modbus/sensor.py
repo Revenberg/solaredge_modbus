@@ -54,6 +54,18 @@ async def async_setup_entry(
     hub = hass.data[DOMAIN][config_entry.entry_id]["hub"]
     coordinator = hass.data[DOMAIN][config_entry.entry_id]["coordinator"]
 
+    DATA_UTILITY = "DATA_UTILITY"
+    
+    hass.data[DATA_UTILITY] = {}
+    
+    for meter, conf in config_entry.get(DOMAIN).items():
+        _LOGGER.debug("Setup %s.%s", DOMAIN, meter)
+        
+        hass.data[DATA_UTILITY][meter] = conf
+        
+        
+        
+        
     entities = []
 
     for inverter in hub.inverters:
@@ -420,7 +432,7 @@ class ACEnergy(SolarEdgeSensorBase):
     device_class = SensorDeviceClass.ENERGY
     state_class = SensorStateClass.TOTAL_INCREASING
     native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
-    suggested_display_precision = 3
+    suggested_display_precision = -3
 
     def __init__(self, platform, config_entry, coordinator, phase: str = None):
         super().__init__(platform, config_entry, coordinator)

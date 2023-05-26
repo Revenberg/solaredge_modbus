@@ -309,3 +309,5 @@ LIMIT_CONTROL_MODE = {
 }
 
 LIMIT_CONTROL = {0: "Total", 1: "Per Phase"}
+
+DATA_ENERGY_METER = "energy_meter_data"
