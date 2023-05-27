@@ -61,8 +61,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     _LOGGER.debug(ConfigEntry)
     _LOGGER.debug(DOMAIN)
 
-#    if DOMAIN not in ConfigEntry:
-#        return True
+    _LOGGER.debug(ConfigEntry[DOMAIN])
+
+    if DOMAIN not in ConfigEntry:
+        return True
 
     for meter, conf in ConfigEntry[DOMAIN].items():
         _LOGGER.debug("Setup %s.%s", DOMAIN, meter)
