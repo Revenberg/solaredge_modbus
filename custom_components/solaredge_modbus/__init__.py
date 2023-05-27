@@ -56,13 +56,32 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     _LOGGER.debug("test 1201")
     _LOGGER.debug("test")
     _LOGGER.debug("test")
-    _LOGGER.debug("test")
+    _LOGGER.debug("test 7")
     _LOGGER.debug(entry)
+    _LOGGER.debug(entry.data)
     _LOGGER.debug(DOMAIN)
+
+    entry_updates: dict[str, Any] = {}
+    if CONF_SCAN_INTERVAL in entry.data:
+        data = {**entry.data}
+        entry_updates["data"] = data
+        entry_updates["options"] = {
+            **entry.options,
+            CONF_SCAN_INTERVAL: data.pop(CONF_SCAN_INTERVAL),
+        }
+    if entry_updates:
+        hass.config_entries.async_update_entry(entry, **entry_updates)
+
+    _LOGGER.debug(entry)
+    _LOGGER.debug(entry_updates)
+
+    _LOGGER.debug("test 8")
 
     if DOMAIN not in entry:
         _LOGGER.debug("not in entry")
         return True
+
+    _LOGGER.debug("test 9")
 
     _LOGGER.debug(entry[DOMAIN].items())
     for meter, conf in entry[DOMAIN].items():
