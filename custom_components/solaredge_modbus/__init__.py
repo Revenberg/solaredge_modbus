@@ -58,23 +58,23 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     _LOGGER.debug("test")
     _LOGGER.debug("test")
     _LOGGER.debug("test")
-    _LOGGER.debug(ConfigEntry)
+    _LOGGER.debug(entry)
     _LOGGER.debug(DOMAIN)
 
-    _LOGGER.debug(ConfigEntry[DOMAIN])
+    _LOGGER.debug(entry[DOMAIN])
 
-    if DOMAIN not in ConfigEntry:
+    if DOMAIN not in entry:
         return True
 
-    for meter, conf in ConfigEntry[DOMAIN].items():
+    for meter, conf in entry[DOMAIN].items():
         _LOGGER.debug("Setup %s.%s", DOMAIN, meter)
 
         # create the select entity
-        select_entity = await setup_utility_meter_select(hass, ConfigEntry, meter, conf)
+        select_entity = await setup_utility_meter_select(hass, entry, meter, conf)
 
         # Create the utility_meters for the energy
         um_conf = conf.copy()
-        await setup_utility_meter_sensors(hass, ConfigEntry,
+        await setup_utility_meter_sensors(hass, entry,
                                           meter, um_conf, select_entity)
 
 
