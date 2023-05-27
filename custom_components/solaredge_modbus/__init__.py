@@ -50,7 +50,6 @@ PLATFORMS: list[str] = [
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-
     """Set up an Energy Meter."""
     hass.data[DATA_ENERGY_METER] = {}
 
