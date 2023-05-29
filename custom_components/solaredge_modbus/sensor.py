@@ -1,5 +1,6 @@
 import logging
 import re
+import uuid
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -104,6 +105,7 @@ class SolarEdgeSensorBase(CoordinatorEntity, SensorEntity):
     should_poll = False
     #suggested_display_precision = 3
     _attr_has_entity_name = True
+    _uuid = ""
 
     def __init__(self, platform, config_entry, coordinator):
         """Pass coordinator to CoordinatorEntity."""
@@ -111,6 +113,7 @@ class SolarEdgeSensorBase(CoordinatorEntity, SensorEntity):
         """Initialize the sensor."""
         self._platform = platform
         self._config_entry = config_entry
+        self._uuid = uuid.uuid1()
 
     @property
     def device_info(self):
@@ -127,6 +130,10 @@ class SolarEdgeSensorBase(CoordinatorEntity, SensorEntity):
     @property
     def available(self) -> bool:
         return self._platform.online
+
+    @property
+    def unique_id(self):
+        return self._uuid
 
     @callback
     def _handle_coordinator_update(self) -> None:
