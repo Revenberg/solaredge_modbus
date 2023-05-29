@@ -433,7 +433,7 @@ class ACEnergy(SolarEdgeSensorBase):
         if self._phase is None:
             return f"{self._platform.uid_base}_ac_energy_kwh"
         else:
-            return f"{self._platform.uid_base}_ac_energy_kwh_{self._phase.lower()}"
+            return f"{self._platform.uid_base}_{self._phase.lower()}_kwh"
 
     @property
     def icon(self) -> str:
@@ -448,13 +448,6 @@ class ACEnergy(SolarEdgeSensorBase):
 
         else:
             return None
-
-    @property
-    def unique_id(self) -> str:
-        if self._phase is None:
-            return f"{self._platform.uid_base}_ac_energy_kwh"
-        else:
-            return f"{self._platform.uid_base}_{self._phase.lower()}_kwh"
 
     @property
     def name(self) -> str:
