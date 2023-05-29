@@ -352,9 +352,9 @@ class ACPower(SolarEdgeSensorBase):
     @property
     def native_value(self):
         if self._phase is None:
-            model_key = "AC_Power"
+            model_key = "ac_power"
         else:
-            model_key = f"AC_Power_{self._phase.upper()}"
+            model_key = f"ac_power_{self._phase.upper()}"
 
         return self._platform.decoded_model[model_key]
 
