@@ -55,10 +55,6 @@ async def async_setup_entry(
     hub = hass.data[DOMAIN][config_entry.entry_id]["hub"]
     coordinator = hass.data[DOMAIN][config_entry.entry_id]["coordinator"]
 
-#    DATA_UTILITY = "DATA_UTILITY"
-    
-#    hass.data[DATA_UTILITY] = {}        
-        
     entities = []
 
     for inverter in hub.inverters:
