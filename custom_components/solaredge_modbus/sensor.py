@@ -1,6 +1,5 @@
 import logging
 import re
-import uuid
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -93,16 +92,14 @@ class SolarEdgeSensorBase(CoordinatorEntity, SensorEntity):
     should_poll = False
     #suggested_display_precision = 3
     _attr_has_entity_name = True
-    _uuid = ""
-
+    
     def __init__(self, platform, config_entry, coordinator):
         """Pass coordinator to CoordinatorEntity."""
         super().__init__(coordinator)
         """Initialize the sensor."""
         self._platform = platform
         self._config_entry = config_entry
-        self._uuid = uuid.uuid1()
-
+    
     @property
     def device_info(self):
         return self._platform.device_info
@@ -118,10 +115,6 @@ class SolarEdgeSensorBase(CoordinatorEntity, SensorEntity):
     @property
     def available(self) -> bool:
         return self._platform.online
-
-    @property
-    def unique_id(self):
-        return self._uuid
 
     @callback
     def _handle_coordinator_update(self) -> None:
@@ -436,6 +429,13 @@ class ACEnergy(SolarEdgeSensorBase):
         self.last = None
 
     @property
+    def unique_id(self) -> str:
+        if self._phase is None:
+            return f"{self._platform.uid_base}_ac_energy_kwh"
+        else:
+            return f"{self._platform.uid_base}_ac_energy_kwh_{self._phase.lower()}"
+
+    @property
     def icon(self) -> str:
         if self._phase is None:
             return None
@@ -614,6 +614,10 @@ class SolarEdgeInverterStatus(SolarEdgeStatusSensor):
         super().__init__(platform, config_entry, coordinator)
         """Initialize the sensor."""
 
+    @property
+    def unique_id(self) -> str:
+        return f"{self._platform.uid_base}_i_status"
+        
     @property
     def native_value(self):
        return str(DEVICE_STATUS[self._platform.decoded_model["I_Status"]])

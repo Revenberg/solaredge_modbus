@@ -338,7 +338,7 @@ class SolarEdgeInverter:
         return round(floatval, 2)
 
     def read_modbus_data_common(self) -> None:
-        _LOGGER.debug("read_modbus_data")
+        #_LOGGER.debug("read_modbus_data")
 
         try:
             C_SunSpec_DID = self.getValueRegister(3000,
@@ -358,45 +358,44 @@ class SolarEdgeInverter:
         )
 
     def read_modbus_data(self) -> None:
-        _LOGGER.debug("read_modbus_data")
+        # _LOGGER.debug("read_modbus_data")
 
         # https://ginlongsolis.freshdesk.com/helpdesk/attachments/36112313359
 
         energy = self.getValueRegister(3014, numberOfDecimals=2, signed=False)
 
-        _LOGGER.debug("=============")
-        _LOGGER.debug(self._delta_energy)
+#        _LOGGER.debug("=============")
+#        _LOGGER.debug(self._delta_energy)
 
-        delta = 0
-        if self._delta_energy > 0:
-            delta = energy - self._delta_energy
+#        delta = 0
+#        if self._delta_energy > 0:
+#            delta = energy - self._delta_energy
 
-        self._delta_energy = energy
+#        self._delta_energy = energy
 
-        _LOGGER.debug(energy)
-        _LOGGER.debug(self._delta_energy)
-        _LOGGER.debug("=============")
+#        _LOGGER.debug(energy)
+#        _LOGGER.debug(self._delta_energy)
+#        _LOGGER.debug("=============")
         
         self.decoded_model = OrderedDict(
             [
-                ("AC_Energy_WH", delta * 1000),
-
-                ("AC_Power", self.getValueLong(3005, signed=False)),
-                ("AC_Current", self.getValueRegister(3006, signed=False)),
+                ("AC_Energy_WH",  self.getValueRegister(3009, signed=False)),
                 
+                ("ac_power_output", self.getValueLong(3004,signed=False)),
+                ("ac_power", self.getValueLong(3005, signed=False)),
+                
+                ("AC_Current", self.getValueRegister(3006, signed=False)),
                 ("ac_lifetimeproduction", self.getValueLong(3008, signed=False)),
-                ("AC_Energy_WH1",  self.getValueRegister(3009, signed=False)),
                 ("ac_monthenergy",  self.getValueRegister(3011, signed=False)),
-                ("ac_lastmonth",  self.getValueRegister(3013, signed=False)),
                 ("ac_yearenergy",  self.getValueRegister(3017,signed=False)),
                 ("ac_lastyear",  self.getValueRegister(3019, signed=False)),
 
+                ("ac_month",  self.getValueRegister(3010, signed=False)),
+                ("ac_lastmonth",  self.getValueRegister(3012, signed=False)),
                 ("generatedtoday", self.getValueRegister(3014, numberOfDecimals=5,
                                               signed=False)),
                 ("generatedyesterday", self.getValueRegister(3015, numberOfDecimals=1,
                                                     signed=False)),
-                ("ac_power_output", self.getValueLong(3004,signed=False)),
-
                 ("DC_Voltage_1", self.getValueRegister(3021, numberOfDecimals=1,
                                         signed=False)),
                 ("DC_Current_1", self.getValueRegister(3022, signed=False)),
@@ -423,8 +422,8 @@ class SolarEdgeInverter:
                 ("I_Status_Vendor", 3),
             ]
         )
-        _LOGGER.debug(f"Inverter: {self.decoded_common}")
-        _LOGGER.debug(f"Inverter: {self.decoded_model}")
+#        _LOGGER.debug(f"Inverter: {self.decoded_common}")
+#        _LOGGER.debug(f"Inverter: {self.decoded_model}")
 
     @property
     def online(self) -> bool:
