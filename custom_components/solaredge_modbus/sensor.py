@@ -55,17 +55,9 @@ async def async_setup_entry(
     hub = hass.data[DOMAIN][config_entry.entry_id]["hub"]
     coordinator = hass.data[DOMAIN][config_entry.entry_id]["coordinator"]
 
-    DATA_UTILITY = "DATA_UTILITY"
+#    DATA_UTILITY = "DATA_UTILITY"
     
-    hass.data[DATA_UTILITY] = {}
-    
-    for meter, conf in config_entry.get(DOMAIN).items():
-        _LOGGER.debug("Setup %s.%s", DOMAIN, meter)
-        
-        hass.data[DATA_UTILITY][meter] = conf
-        
-        
-        
+#    hass.data[DATA_UTILITY] = {}        
         
     entities = []
 
