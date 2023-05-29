@@ -382,7 +382,7 @@ class SolarEdgeInverter:
                 ("AC_Energy_WH",  self.getValueRegister(3009, signed=False)),
                 
                 ("ac_power_output", self.getValueLong(3004,signed=False)),
-                ("ac_power", self.getValueLong(3005, signed=False)),
+                ("ac_power", self.getValueLong(3005, signed=False) / 1000),
                 
                 ("AC_Current", self.getValueRegister(3006, signed=False)),
                 ("ac_lifetimeproduction", self.getValueLong(3008, signed=False)),
