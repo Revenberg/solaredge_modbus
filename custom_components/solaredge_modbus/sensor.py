@@ -318,7 +318,7 @@ class VoltageSensor(SolarEdgeSensorBase):
         if self._phase is None:
             model_key = "ac_voltage"
         else:
-            model_key = f"ac_voltage_{self._phase.upper()}"
+            model_key = f"ac_voltage_{self._phase.lower()}"
 
         return self._platform.decoded_model[model_key]
 
@@ -353,7 +353,7 @@ class ACPower(SolarEdgeSensorBase):
         if self._phase is None:
             model_key = "ac_power_output"
         else:
-            model_key = f"ac_power_output_{self._phase.upper()}"
+            model_key = f"ac_power_output_{self._phase.lower()}"
 
         return self._platform.decoded_model[model_key]
 
@@ -410,7 +410,7 @@ class ACVoltAmp(SolarEdgeSensorBase):
         if self._phase is None:
             model_key = "ac_va"
         else:
-            model_key = f"ac_va_{self._phase.upper()}"
+            model_key = f"ac_va_{self._phase.lower()}"
 
 
         return self._platform.decoded_model[model_key]
@@ -460,7 +460,7 @@ class ACEnergy(SolarEdgeSensorBase):
         if self._phase is None:
             model_key = "ac_energy_wh"
         else:
-            model_key = f"ac_energy_wh_{self._phase}"
+            model_key = f"ac_energy_wh_{self._phase.lower()}"
 
         return self._platform.decoded_model[model_key]
 
@@ -495,7 +495,7 @@ class DCCurrent(SolarEdgeSensorBase):
         if self._phase is None:
             model_key = "dc_current"
         else:
-            model_key = f"dc_current_{self._phase.upper()}"
+            model_key = f"dc_current_{self._phase.lower()}"
 
         return self._platform.decoded_model[model_key]
 
@@ -529,7 +529,7 @@ class DCVoltage(SolarEdgeSensorBase):
         if self._phase is None:
             model_key = "dc_voltage"
         else:
-            model_key = f"dc_voltage_{self._phase.upper()}"
+            model_key = f"dc_voltage_{self._phase.lower()}"
 
         return self._platform.decoded_model[model_key]
 
