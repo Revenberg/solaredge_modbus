@@ -283,9 +283,9 @@ class ACCurrentSensor(SolarEdgeSensorBase):
     @property
     def native_value(self):
         if self._phase is None:
-            model_key = "AC_Current"
+            model_key = "ac_current"
         else:
-            model_key = f"AC_Current_{self._phase.upper()}"
+            model_key = f"ac_current_{self._phase.upper()}"
 
         return self._platform.decoded_model[model_key]
 
@@ -317,9 +317,9 @@ class VoltageSensor(SolarEdgeSensorBase):
     @property
     def native_value(self):
         if self._phase is None:
-            model_key = "AC_Voltage"
+            model_key = "ac_voltage"
         else:
-            model_key = f"AC_Voltage_{self._phase.upper()}"
+            model_key = f"ac_voltage_{self._phase.upper()}"
 
         return self._platform.decoded_model[model_key]
 
@@ -338,9 +338,9 @@ class ACPower(SolarEdgeSensorBase):
     @property
     def unique_id(self) -> str:
         if self._phase is None:
-            return f"{self._platform.uid_base}_ac_power"
+            return f"{self._platform.uid_base}_ac_power_output"
         else:
-            return f"{self._platform.uid_base}_ac_power_{self._phase.lower()}"
+            return f"{self._platform.uid_base}_ac_power_output_{self._phase.lower()}"
 
     @property
     def name(self) -> str:
@@ -352,9 +352,9 @@ class ACPower(SolarEdgeSensorBase):
     @property
     def native_value(self):
         if self._phase is None:
-            model_key = "ac_power"
+            model_key = "ac_power_output"
         else:
-            model_key = f"ac_power_{self._phase.upper()}"
+            model_key = f"ac_power_output_{self._phase.upper()}"
 
         return self._platform.decoded_model[model_key]
 
@@ -379,7 +379,7 @@ class ACFrequency(SolarEdgeSensorBase):
 
     @property
     def native_value(self):
-                return self._platform.decoded_model["AC_Frequency"]
+                return self._platform.decoded_model["ac_frequency"]
 
 class ACVoltAmp(SolarEdgeSensorBase):
     device_class = SensorDeviceClass.APPARENT_POWER
@@ -409,9 +409,9 @@ class ACVoltAmp(SolarEdgeSensorBase):
     @property
     def native_value(self):
         if self._phase is None:
-            model_key = "AC_VA"
+            model_key = "ac_va"
         else:
-            model_key = f"AC_VA_{self._phase.upper()}"
+            model_key = f"ac_va_{self._phase.upper()}"
 
 
         return self._platform.decoded_model[model_key]
@@ -459,9 +459,9 @@ class ACEnergy(SolarEdgeSensorBase):
     @property
     def native_value(self):
         if self._phase is None:
-            model_key = "AC_Energy_WH"
+            model_key = "ac_energy_wh"
         else:
-            model_key = f"AC_Energy_WH_{self._phase}"
+            model_key = f"ac_energy_wh_{self._phase}"
 
         return self._platform.decoded_model[model_key]
 
@@ -494,9 +494,9 @@ class DCCurrent(SolarEdgeSensorBase):
     @property
     def native_value(self):
         if self._phase is None:
-            model_key = "DC_Current"
+            model_key = "dc_current"
         else:
-            model_key = f"DC_Current_{self._phase.upper()}"
+            model_key = f"dc_current_{self._phase.upper()}"
 
         return self._platform.decoded_model[model_key]
 
@@ -528,9 +528,9 @@ class DCVoltage(SolarEdgeSensorBase):
     @property
     def native_value(self):
         if self._phase is None:
-            model_key = "DC_Voltage"
+            model_key = "dc_voltage"
         else:
-            model_key = f"DC_Voltage_{self._phase.upper()}"
+            model_key = f"dc_voltage_{self._phase.upper()}"
 
         return self._platform.decoded_model[model_key]
 
@@ -556,7 +556,7 @@ class DCPower(SolarEdgeSensorBase):
     @property
     def native_value(self):
        
-        return self._platform.decoded_model["I_DC_Power"]
+        return self._platform.decoded_model["i_dc_power"]
 
 class HeatSinkTemperature(SolarEdgeSensorBase):
     device_class = SensorDeviceClass.TEMPERATURE
@@ -578,7 +578,7 @@ class HeatSinkTemperature(SolarEdgeSensorBase):
 
     @property
     def native_value(self):
-        return self._platform.decoded_model["I_Temp_Sink"]
+        return self._platform.decoded_model["i_temp_sink"]
 
 class SolarEdgeStatusSensor(SolarEdgeSensorBase):
     device_class = SensorDeviceClass.ENUM
@@ -598,7 +598,7 @@ class SolarEdgeStatusSensor(SolarEdgeSensorBase):
 
     @property
     def native_value(self):
-        return True
+        return str(DEVICE_STATUS[self._platform.decoded_model["i_status"]])
 
 class SolarEdgeInverterStatus(SolarEdgeStatusSensor):
     options = list(DEVICE_STATUS.values())
@@ -613,7 +613,7 @@ class SolarEdgeInverterStatus(SolarEdgeStatusSensor):
         
     @property
     def native_value(self):
-       return str(DEVICE_STATUS[self._platform.decoded_model["I_Status"]])
+       return str(DEVICE_STATUS[self._platform.decoded_model["i_status"]])
 
     @property
     def extra_state_attributes(self):
@@ -649,4 +649,4 @@ class StatusVendor(SolarEdgeSensorBase):
 
     @property
     def native_value(self):
-        return str(DEVICE_STATUS[self._platform.decoded_model["I_Status_Vendor"]])
+        return str(DEVICE_STATUS[self._platform.decoded_model["i_status_vendor"]])
