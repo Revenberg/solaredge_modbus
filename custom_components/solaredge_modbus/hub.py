@@ -421,7 +421,7 @@ class SolarEdgeInverter:
             ]
         )
 #        _LOGGER.debug(f"Inverter: {self.decoded_common}")
-#        _LOGGER.debug(f"Inverter: {self.decoded_model}")
+        _LOGGER.debug(f"Inverter: {self.decoded_model}")
 
     @property
     def online(self) -> bool:
