@@ -61,7 +61,6 @@ async def async_setup_entry(
         entities.append(Version(inverter, config_entry, coordinator))
         entities.append(SolarEdgeInverterStatus(inverter, config_entry, coordinator))
         entities.append(StatusVendor(inverter, config_entry, coordinator))
-        entities.append(ACCurrentSensor(inverter, config_entry, coordinator))
         entities.append(ACCurrentSensor(inverter, config_entry, coordinator, "A"))
         entities.append(ACCurrentSensor(inverter, config_entry, coordinator, "B"))
         entities.append(ACCurrentSensor(inverter, config_entry, coordinator, "C"))
