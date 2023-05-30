@@ -284,7 +284,7 @@ class ACCurrentSensor(SolarEdgeSensorBase):
         if self._phase is None:
             model_key = "ac_current"
         else:
-            model_key = f"ac_current_{self._phase.upper()}"
+            model_key = f"ac_current_{self._phase.lower()}"
 
         return self._platform.decoded_model[model_key]
 
