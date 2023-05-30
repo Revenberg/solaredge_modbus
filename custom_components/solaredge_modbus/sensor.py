@@ -81,6 +81,13 @@ async def async_setup_entry(
         entities.append(HeatSinkTemperature(inverter, config_entry, coordinator))
         #entities.append(SolarEdgeActivePowerLimit(inverter, config_entry, coordinator))
         #entities.append(SolarEdgeCosPhi(inverter, config_entry, coordinator))
+        entities.append(ACGenerated(inverter, config_entry, coordinator, "lifetimeproduction"))
+        entities.append(ACGenerated(inverter, config_entry, coordinator, "generated_monthenergy"))
+        entities.append(ACGenerated(inverter, config_entry, coordinator, "generated_yearenergy"))
+        entities.append(ACGenerated(inverter, config_entry, coordinator, "generated_lastyear"))
+        entities.append(ACGenerated(inverter, config_entry, coordinator, "generated_today"))
+        entities.append(ACGenerated(inverter, config_entry, coordinator, "generated_yesterday"))
+
 
     _LOGGER.debug(entities)
     if entities:
@@ -285,6 +292,40 @@ class ACCurrentSensor(SolarEdgeSensorBase):
             model_key = "ac_current"
         else:
             model_key = f"ac_current_{self._phase.lower()}"
+
+        return self._platform.decoded_model[model_key]
+
+class ACGenerated(SolarEdgeSensorBase):
+    device_class = SensorDeviceClass.CURRENT
+    state_class = SensorStateClass.MEASUREMENT
+    native_unit_of_measurement = UnitOfElectricCurrent.AMPERE
+    suggested_display_precision = 1
+
+    def __init__(self, platform, config_entry, coordinator, phase: str = None):
+        super().__init__(platform, config_entry, coordinator)
+        """Initialize the sensor."""
+        self._phase = phase
+
+    @property
+    def unique_id(self) -> str:
+        if self._phase is None:
+            return f"{self._platform.uid_base}_ac_generated"
+        else:
+            return f"{self._platform.uid_base}_ac_generated_{self._phase.lower()}"
+
+    @property
+    def name(self) -> str:
+        if self._phase is None:
+            return "AC Generated"
+        else:
+            return f"AC Generated {self._phase.upper()}"
+
+    @property
+    def native_value(self):
+        if self._phase is None:
+            model_key = "_ac_generated"
+        else:
+            model_key = f"_ac_generated_{self._phase.lower()}"
 
         return self._platform.decoded_model[model_key]
 
