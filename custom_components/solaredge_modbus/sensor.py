@@ -101,7 +101,6 @@ async def async_setup_entry(
     if entities:
         async_add_entities(entities)
 
-
 class SolarEdgeSensorBase(CoordinatorEntity, SensorEntity):
     should_poll = False
     #suggested_display_precision = 3
