@@ -82,7 +82,7 @@ async def async_setup_entry(
         #entities.append(SolarEdgeActivePowerLimit(inverter, config_entry, coordinator))
         #entities.append(SolarEdgeCosPhi(inverter, config_entry, coordinator))
         entities.append(ACGenerated(inverter, config_entry, coordinator, 
-                                    "lifetimeproduction"), 0)
+                                    "lifetimeproduction", 0))
         entities.append(ACGenerated(inverter, config_entry, coordinator, 
                                     "lastmonth", 0))
         entities.append(ACGenerated(inverter, config_entry, coordinator, 
