@@ -309,7 +309,8 @@ class ACGenerated(SolarEdgeSensorBase):
     native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
     suggested_display_precision = 0
     
-    def __init__(self, platform, config_entry, coordinator, phase: str = None, suggested_display_precision: int = 0):
+    def __init__(self, platform, config_entry, coordinator, phase: str = None, 
+                 suggested_display_precision: int = 0):
         super().__init__(platform, config_entry, coordinator)
         """Initialize the sensor."""
         self._phase = phase
