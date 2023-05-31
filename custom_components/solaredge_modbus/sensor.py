@@ -357,7 +357,7 @@ class VoltageSensor(SolarEdgeSensorBase):
         if self._phase is None:
             return "AC Voltage"
         else:
-            return f"AC Voltage {self._phase.upper()}"
+            return f"AC Voltage {self._phase}"
 
     @property
     def native_value(self):
@@ -371,7 +371,7 @@ class VoltageSensor(SolarEdgeSensorBase):
 class ACPower(SolarEdgeSensorBase):
     device_class = SensorDeviceClass.POWER
     state_class = SensorStateClass.MEASUREMENT
-    native_unit_of_measurement = UnitOfPower.WATT
+    native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
     icon = "mdi:solar-power"
     suggested_display_precision = 3
 

@@ -393,7 +393,7 @@ class SolarEdgeInverter:
                 ("ac_generated_lastyear",  self.getValueRegister(3019, 
                                                                 signed=False)),
 
-                ("ac_generated_today", self.getValueRegister(3014, numberOfDecimals=5,
+                ("ac_generated_today", self.getValueRegister(3014, numberOfDecimals=1,
                                               signed=False)),
                 ("ac_generated_yesterday", self.getValueRegister(3015, 
                                                 numberOfDecimals=1, signed=False)),
