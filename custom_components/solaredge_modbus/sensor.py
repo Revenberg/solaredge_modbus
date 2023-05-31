@@ -327,7 +327,7 @@ class ACGenerated(SolarEdgeSensorBase):
         if self._phase is None:
             return "AC Generated"
         else:
-            return f"AC Generated {self._phase.upper()}"
+            return f"AC Generated {self._phase}"
 
     @property
     def native_value(self):

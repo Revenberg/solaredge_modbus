@@ -117,21 +117,6 @@ class SolarEdgeModbusMultiHub:
         self.initalized = False
         self._online = False
 
-        _LOGGER.debug(
-            (
-                f"{DOMAIN} configuration: "
-                f"detect_meters={self._detect_meters}, "
-                f"detect_batteries={self._detect_batteries}, "
-                f"keep_modbus_open={self._keep_modbus_open}, "
-                f"advanced_power_control={self._advanced_power_control}, "
-                f"adv_storage_control={self._adv_storage_control}, "
-                f"adv_site_limit_control={self._adv_site_limit_control}, "
-                f"allow_battery_energy_reset={self._allow_battery_energy_reset}, "
-                f"sleep_after_write={self._sleep_after_write}, "
-                f"battery_rating_adjust={self._battery_rating_adjust}, "
-            ),
-        )
-
     async def _async_init_solaredge(self) -> None:
         inverter_unit_id = 1
 
@@ -353,7 +338,6 @@ class SolarEdgeInverter:
             [
                 ("C_SunSpec_DID", C_SunSpec_DID),
                 ("SN", self.getValueRegister(3062, signed=False)),
-
             ]
         )
 
@@ -361,22 +345,7 @@ class SolarEdgeInverter:
         # _LOGGER.debug("read_modbus_data")
 
         # https://ginlongsolis.freshdesk.com/helpdesk/attachments/36112313359
-
-#        energy = self.getValueRegister(3014, numberOfDecimals=2, signed=False)
-
-#        _LOGGER.debug("=============")
-#        _LOGGER.debug(self._delta_energy)
-
-#        delta = 0
-#        if self._delta_energy > 0:
-#            delta = energy - self._delta_energy
-
-#        self._delta_energy = energy
-
-#        _LOGGER.debug(energy)
-#        _LOGGER.debug(self._delta_energy)
-#        _LOGGER.debug("=============")
-        
+      
         self.decoded_model = OrderedDict(
             [
                 ("ac_power_output", self.getValueLong(3004,signed=False) / 1000),
