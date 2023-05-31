@@ -543,12 +543,11 @@ def _unpack(formatstring, packed):
     try:
         value = struct.unpack(formatstring, packed)[0]
     except Exception:
-        errortext = (
-            "The received bytestring is probably wrong, as the bytestring-to-num "
-        )
-        errortext += f"conversion failed. Bytestring: {packed!r} "
-        + f"Struct format code is: {formatstring}"
-        raise InvalidResponseError(errortext)
+        errortext1 = "The received bytestring is probably wrong, as the bytestring-to-num "
+        errortext2 = f"conversion failed. Bytestring: {packed!r} "
+        errortext3 = f"Struct format code is: {formatstring}"
+        
+        raise InvalidResponseError(f"{errortext1}{errortext2}{errortext3}")
 
     return value
 
