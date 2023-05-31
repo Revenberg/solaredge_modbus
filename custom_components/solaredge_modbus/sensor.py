@@ -82,13 +82,15 @@ async def async_setup_entry(
         #entities.append(SolarEdgeActivePowerLimit(inverter, config_entry, coordinator))
         #entities.append(SolarEdgeCosPhi(inverter, config_entry, coordinator))
         entities.append(ACGenerated(inverter, config_entry, coordinator, 
-                                    "lifetimeproduction"))
+                                    "lifetimeproduction"), 0)
         entities.append(ACGenerated(inverter, config_entry, coordinator, 
-                                    "monthenergy"))
-        entities.append(ACGenerated(inverter, config_entry, coordinator, "yearenergy"))
-        entities.append(ACGenerated(inverter, config_entry, coordinator,  "lastyear"))
-        entities.append(ACGenerated(inverter, config_entry, coordinator, "today"))
-        entities.append(ACGenerated(inverter, config_entry, coordinator, "yesterday"))
+                                    "lastmonth", 0))
+        entities.append(ACGenerated(inverter, config_entry, coordinator, 
+                                    "monthenergy", 1))
+        entities.append(ACGenerated(inverter, config_entry, coordinator, "yearenergy", 0))
+        entities.append(ACGenerated(inverter, config_entry, coordinator,  "lastyear", 0))
+        entities.append(ACGenerated(inverter, config_entry, coordinator, "today", 3))
+        entities.append(ACGenerated(inverter, config_entry, coordinator, "yesterday", 3))
 
 
     _LOGGER.debug(entities)
@@ -300,13 +302,14 @@ class ACCurrentSensor(SolarEdgeSensorBase):
 class ACGenerated(SolarEdgeSensorBase):
     device_class = SensorDeviceClass.CURRENT
     state_class = SensorStateClass.MEASUREMENT
-    native_unit_of_measurement = UnitOfElectricCurrent.AMPERE
-    suggested_display_precision = 1
-
-    def __init__(self, platform, config_entry, coordinator, phase: str = None):
+    native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
+    suggested_display_precision = 0
+    
+    def __init__(self, platform, config_entry, coordinator, phase: str = None, suggested_display_precision: int = 0):
         super().__init__(platform, config_entry, coordinator)
         """Initialize the sensor."""
         self._phase = phase
+        self.suggested_display_precision = suggested_display_precision
 
     @property
     def unique_id(self) -> str:
