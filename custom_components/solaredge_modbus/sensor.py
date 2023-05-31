@@ -81,12 +81,18 @@ async def async_setup_entry(
         entities.append(HeatSinkTemperature(inverter, config_entry, coordinator))
         #entities.append(SolarEdgeActivePowerLimit(inverter, config_entry, coordinator))
         #entities.append(SolarEdgeCosPhi(inverter, config_entry, coordinator))
-        entities.append(ACGenerated(inverter, config_entry, coordinator, "lifetimeproduction"))
-        entities.append(ACGenerated(inverter, config_entry, coordinator, "generated_monthenergy"))
-        entities.append(ACGenerated(inverter, config_entry, coordinator, "generated_yearenergy"))
-        entities.append(ACGenerated(inverter, config_entry, coordinator, "generated_lastyear"))
-        entities.append(ACGenerated(inverter, config_entry, coordinator, "generated_today"))
-        entities.append(ACGenerated(inverter, config_entry, coordinator, "generated_yesterday"))
+        entities.append(ACGenerated(inverter, config_entry, coordinator, 
+                                    "lifetimeproduction"))
+        entities.append(ACGenerated(inverter, config_entry, coordinator, 
+                                    "generated_monthenergy"))
+        entities.append(ACGenerated(inverter, config_entry, coordinator, 
+                                    "generated_yearenergy"))
+        entities.append(ACGenerated(inverter, config_entry, coordinator, 
+                                    "generated_lastyear"))
+        entities.append(ACGenerated(inverter, config_entry, coordinator, 
+                                    "generated_today"))
+        entities.append(ACGenerated(inverter, config_entry, coordinator, 
+                                    "generated_yesterday"))
 
 
     _LOGGER.debug(entities)
