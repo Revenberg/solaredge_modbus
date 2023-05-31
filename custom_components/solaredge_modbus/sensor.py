@@ -323,9 +323,9 @@ class ACGenerated(SolarEdgeSensorBase):
     @property
     def native_value(self):
         if self._phase is None:
-            model_key = "_ac_generated"
+            model_key = "ac_generated"
         else:
-            model_key = f"_ac_generated_{self._phase.lower()}"
+            model_key = f"ac_generated_{self._phase.lower()}"
 
         return self._platform.decoded_model[model_key]
 
