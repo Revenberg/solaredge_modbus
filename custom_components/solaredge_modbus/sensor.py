@@ -84,15 +84,11 @@ async def async_setup_entry(
         entities.append(ACGenerated(inverter, config_entry, coordinator, 
                                     "lifetimeproduction"))
         entities.append(ACGenerated(inverter, config_entry, coordinator, 
-                                    "generated_monthenergy"))
-        entities.append(ACGenerated(inverter, config_entry, coordinator, 
-                                    "generated_yearenergy"))
-        entities.append(ACGenerated(inverter, config_entry, coordinator, 
-                                    "generated_lastyear"))
-        entities.append(ACGenerated(inverter, config_entry, coordinator, 
-                                    "generated_today"))
-        entities.append(ACGenerated(inverter, config_entry, coordinator, 
-                                    "generated_yesterday"))
+                                    "monthenergy"))
+        entities.append(ACGenerated(inverter, config_entry, coordinator, "yearenergy"))
+        entities.append(ACGenerated(inverter, config_entry, coordinator,  "lastyear"))
+        entities.append(ACGenerated(inverter, config_entry, coordinator, "today"))
+        entities.append(ACGenerated(inverter, config_entry, coordinator, "yesterday"))
 
 
     _LOGGER.debug(entities)
