@@ -466,7 +466,7 @@ class ACVoltAmp(SolarEdgeSensorBase):
         return self._platform.decoded_model[model_key]
 
 class ACEnergy(SolarEdgeSensorBase):
-    device_class = SensorDeviceClass.POWER
+    device_class = SensorDeviceClass.ENERGY
     state_class = SensorStateClass.TOTAL_INCREASING
     native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
     suggested_display_precision = -3
