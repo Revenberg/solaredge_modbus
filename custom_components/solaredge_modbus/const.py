@@ -46,7 +46,7 @@ class BatteryLimit(IntEnum):
 
 
 class ConfDefaultInt(IntEnum):
-    SCAN_INTERVAL = 300
+    SCAN_INTERVAL = 60
     PORT = 8899
 #    NUMBER_INVERTERS = 1
 #    DEVICE_ID = 1
