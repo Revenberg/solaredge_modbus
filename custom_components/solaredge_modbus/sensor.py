@@ -28,7 +28,7 @@ from .const import (
     #BATTERY_STATUS_TEXT,
     DEVICE_STATUS,
     DEVICE_STATUS_TEXT,
-#    VENDOR_STATUS,
+    VENDOR_STATUS,
     DOMAIN,
 #    ENERGY_VOLT_AMPERE_HOUR,
 #    ENERGY_VOLT_AMPERE_REACTIVE_HOUR,
@@ -651,7 +651,7 @@ class SolarEdgeStatusSensor(SolarEdgeSensorBase):
         return str(DEVICE_STATUS[self._platform.decoded_model["i_status"]])
 
 class SolarEdgeInverterStatus(SolarEdgeStatusSensor):
-    options = list(DEVICE_STATUS.values())
+    options = list(DEVICE_STATUS_TEXT.values())
 
     def __init__(self, platform, config_entry, coordinator):
         super().__init__(platform, config_entry, coordinator)
@@ -684,6 +684,7 @@ class SolarEdgeInverterStatus(SolarEdgeStatusSensor):
 
 class StatusVendor(SolarEdgeSensorBase):
     entity_category = EntityCategory.DIAGNOSTIC
+    options = list(VENDOR_STATUS.values())
 
     def __init__(self, platform, config_entry, coordinator):
         super().__init__(platform, config_entry, coordinator)
