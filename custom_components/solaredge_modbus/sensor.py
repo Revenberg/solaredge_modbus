@@ -305,7 +305,7 @@ class ACCurrentSensor(SolarEdgeSensorBase):
 
 class ACGenerated(SolarEdgeSensorBase):
     device_class = SensorDeviceClass.ENERGY
-    state_class = SensorStateClass.MEASUREMENT
+    state_class = SensorStateClass.TOTAL_INCREASING
     native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
     suggested_display_precision = 0
     
