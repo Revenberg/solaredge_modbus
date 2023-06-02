@@ -375,7 +375,7 @@ class VoltageSensor(SolarEdgeSensorBase):
 
 class ACPower(SolarEdgeSensorBase):
     device_class = SensorDeviceClass.ENERGY
-    state_class = SensorStateClass.MEASUREMENT
+    #state_class = SensorStateClass.MEASUREMENT
     native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
     icon = "mdi:solar-power"
     suggested_display_precision = 3
