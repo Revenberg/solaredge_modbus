@@ -140,15 +140,15 @@ class SolarEdgeModbusMultiHub:
                 await self._hass.async_add_executor_job(inverter.read_modbus_data)
 
         except ModbusReadError as e:
-            self.hub.online = False
+            self._online = False
             raise HubInitFailed(f"Read error: {e}")
             
         except DeviceInvalid as e:
-            self.hub.online = False
+            self._online = False
             raise HubInitFailed(f"Invalid device: {e}")
 
         except ConnectionException as e:
-            self.hub.online = False
+            self._online = False
             raise HubInitFailed(f"Connection failed: {e}")
 
         self.initalized = True
@@ -391,11 +391,11 @@ class SolarEdgeInverter:
                                                  signed=True)),
                 ("ac_frequency", self.getValueRegister(3042, numberOfDecimals=2,
                                                  signed=False)),
-                ("i_status", 3),
-                ("i_status_vendor", 3),
+                ("i_status", 4),
+                ("i_status_vendor", 4),
             ]
         )
-        self.hub.online = True
+        self.hub._online = True
 #        _LOGGER.debug(f"Inverter: {self.decoded_common}")
         _LOGGER.debug(f"Inverter: {self.decoded_model}")
 

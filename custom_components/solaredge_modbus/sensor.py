@@ -28,6 +28,7 @@ from .const import (
     #BATTERY_STATUS_TEXT,
     DEVICE_STATUS,
     DEVICE_STATUS_TEXT,
+    VENDOR_STATUS,
     DOMAIN,
 #    ENERGY_VOLT_AMPERE_HOUR,
 #    ENERGY_VOLT_AMPERE_REACTIVE_HOUR,
@@ -647,7 +648,7 @@ class SolarEdgeStatusSensor(SolarEdgeSensorBase):
 
     @property
     def native_value(self):
-        return str(DEVICE_STATUS[self._platform.decoded_model["i_status"]])
+        return DEVICE_STATUS_TEXT[self._platform.decoded_model["i_status"]]
 
 class SolarEdgeInverterStatus(SolarEdgeStatusSensor):
     options = list(DEVICE_STATUS.values())
@@ -662,19 +663,19 @@ class SolarEdgeInverterStatus(SolarEdgeStatusSensor):
         
     @property
     def native_value(self):
-       return str(DEVICE_STATUS[self._platform.decoded_model["i_status"]])
+       return DEVICE_STATUS_TEXT[self._platform.decoded_model["i_status"]]
 
     @property
     def extra_state_attributes(self):
         attrs = {}
 
         try:
-            if self._platform.decoded_model["I_Status"] in DEVICE_STATUS_TEXT:
+            if self._platform.decoded_model["i_status"] in DEVICE_STATUS_TEXT:
                 attrs["status_text"] = DEVICE_STATUS_TEXT[
-                    self._platform.decoded_model["I_Status"]
+                    self._platform.decoded_model["i_status"]
                 ]
 
-                attrs["status_value"] = self._platform.decoded_model["I_Status"]
+                attrs["status_value"] = self._platform.decoded_model["i_status"]
 
         except KeyError:
             pass
@@ -698,4 +699,4 @@ class StatusVendor(SolarEdgeSensorBase):
 
     @property
     def native_value(self):
-        return str(DEVICE_STATUS[self._platform.decoded_model["i_status_vendor"]])
+        return VENDOR_STATUS[self._platform.decoded_model["i_status_vendor"]]
