@@ -688,6 +688,7 @@ class SolarEdgeInverterStatus(SolarEdgeStatusSensor):
         return attrs
 
 class StatusVendor(SolarEdgeSensorBase):
+    device_class = SensorDeviceClass.ENUM
     entity_category = EntityCategory.DIAGNOSTIC
     options = list(DEVICE_STATUS_TEXT.values())
 
