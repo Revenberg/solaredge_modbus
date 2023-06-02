@@ -372,7 +372,8 @@ class SolarEdgeInverter:
                 ("i_temp_sink", self.getValueInt(3041, signed=True)), # 3042 U16
                 ("ac_frequency", self.getValueInt(3042)), # 3043 U16
                 ("i_status",  self.getValueInt(3071, numberOfDecimals=0)), # 3072 U16
-                ("i_status_vendor",  self.getValueInt(3043, numberOfDecimals=0)), # 3044 U16
+                ("i_status_vendor",  self.getValueInt(3043, 
+                                                      numberOfDecimals=0)), # 3044 U16
             ]
         )
 
