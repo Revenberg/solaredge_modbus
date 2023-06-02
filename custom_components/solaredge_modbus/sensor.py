@@ -699,4 +699,4 @@ class StatusVendor(SolarEdgeSensorBase):
 
     @property
     def native_value(self):
-        return VENDOR_STATUS[self._platform.decoded_model["i_status_vendor"]]
+        return str(self._platform.decoded_model["i_status_vendor"])

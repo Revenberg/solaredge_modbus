@@ -116,9 +116,9 @@ class Instrument:
 
         """
         # Create payload
-        ps1 = _num_to_twobyte_string(registeraddress) 
+        ps1 = _num_to_twobyte_string(registeraddress)
         ps2 = _num_to_twobyte_string(number_of_registers)
-        
+
         request = _embed_payload(
             self.address, f'{ps1}{ps2}'
         )
@@ -129,7 +129,7 @@ class Instrument:
         payload_from_slave = _extract_payload(
             response, self.address
         )
-        
+
         # Parse response payload
         return _parse_payload(
             payload_from_slave,
@@ -145,7 +145,7 @@ class Instrument:
 
         Args:
             request (str): The raw request that is to be sent to the slave.
-            
+
         Returns:
             The raw data (string) returned from the slave.
 
@@ -154,16 +154,15 @@ class Instrument:
             serial.SerialException (inherited from IOError)
 
         """
-        
+
         request = bytes(
             request, encoding="latin1"
         )  # Convert types to make it Python3 compatible
 
         try:
-    
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.settimeout(1)
-            
+
             sock.connect((self.eth_address, self.eth_port))
             sock.send(request)
             answer = sock.recv(1024)
@@ -205,7 +204,7 @@ def _parse_payload(
     payloadformat,
 ):
     registerdata = payload[1:]
-    
+
     if payloadformat == _PAYLOADFORMAT_LONG:
         return _bytestring_to_long(
             registerdata, signed, number_of_registers, byteorder
@@ -225,7 +224,7 @@ def _embed_payload(slaveaddress, payloaddata):
 
     Args:
         slaveaddress (int): The address of the slave.
-        
+
     Returns:
         The built (raw) request string for sending to the slave (including CRC etc).
 
@@ -250,7 +249,7 @@ def _extract_payload(response, slaveaddress):
         response (str): The raw response byte string from the slave.
         This is different for RTU and ASCII.
         slaveaddress (int): The adress of the slave. Used here for error checking only.
-        
+
     Returns:
         The payload part of the *response* string. Conversion from Modbus ASCII
         has been done if applicable.
@@ -262,7 +261,7 @@ def _extract_payload(response, slaveaddress):
     the 4 or the CRC.
 
     """
-    MINIMAL_RESPONSE_LENGTH_RTU = 4    
+    MINIMAL_RESPONSE_LENGTH_RTU = 4
     plainresponse = response
 
     # Validate response length
@@ -548,7 +547,7 @@ def _unpack(formatstring, packed):
         errortext1 = "The received bytestring is probably wrong, as the "
         errortext2 = f"bytestring-to-num  conversion failed. Bytestring: {packed!r} "
         errortext3 = f"Struct format code is: {formatstring}"
-        
+
         raise InvalidResponseError(f"{errortext1}{errortext2}{errortext3}")
 
     return value
