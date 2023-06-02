@@ -303,7 +303,7 @@ class ACCurrentSensor(SolarEdgeSensorBase):
         return self._platform.decoded_model[model_key]
 
 class ACGenerated(SolarEdgeSensorBase):
-    device_class = SensorDeviceClass.POWER
+    device_class = SensorDeviceClass.ENERGY
     state_class = SensorStateClass.MEASUREMENT
     native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
     suggested_display_precision = 0
