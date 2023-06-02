@@ -9,7 +9,8 @@ from homeassistant.const import CONF_HOST, CONF_NAME, CONF_PORT, CONF_SCAN_INTER
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.data_entry_flow import FlowResult
 
-from .const import DEFAULT_NAME, DOMAIN, ConfDefaultFlag, ConfDefaultInt, ConfName
+from .const import DEFAULT_NAME, DOMAIN, ConfDefaultInt
+#, ConfDefaultFlag, ConfName
 
 
 def host_valid(host):
@@ -147,19 +148,19 @@ class SolaredgeModbusMultiOptionsFlowHandler(config_entries.OptionsFlow):
             errors=errors,
         )
 
-    async def async_step_adv_pwr_ctl(self, user_input=None) -> FlowResult:
-        """Power Control Options"""
-        errors = {}
+#    async def async_step_adv_pwr_ctl(self, user_input=None) -> FlowResult:
+#        """Power Control Options"""
+#        errors = {}
 
-        if user_input is not None:
+#        if user_input is not None:
 #            if user_input[ConfName.SLEEP_AFTER_WRITE] < 0:
 #                errors[ConfName.SLEEP_AFTER_WRITE] = "invalid_sleep_interval"
 #            elif user_input[ConfName.SLEEP_AFTER_WRITE] > 60:
 #                errors[ConfName.SLEEP_AFTER_WRITE] = "invalid_sleep_interval"
 #            else:
-                return self.async_create_entry(
-                    title="", data={**self.init_info, **user_input}
-                )
+#                return self.async_create_entry(
+#                    title="", data={**self.init_info, **user_input}
+#                )
 
  #       else:
  #           user_input = {

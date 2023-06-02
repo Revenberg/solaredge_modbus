@@ -1,6 +1,6 @@
 import sys
 from enum import IntEnum
-from typing import Final
+#from typing import Final
 
 if sys.version_info.minor >= 11:
     # Needs Python 3.11

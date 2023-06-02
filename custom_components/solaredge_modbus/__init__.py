@@ -17,8 +17,10 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceEntry
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .const import DOMAIN, ConfDefaultFlag, ConfDefaultInt
-from .const import ConfName, RetrySettings
+from .const import DOMAIN,  ConfDefaultInt
+# ConfDefaultFlag,
+from .const import RetrySettings
+#ConfName, 
 from .hub import DataUpdateFailed, HubInitFailed, SolarEdgeModbusMultiHub
 
 _LOGGER = logging.getLogger(__name__)
@@ -64,7 +66,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 #            ConfName.ALLOW_BATTERY_ENERGY_RESET,
 #            bool(ConfDefaultFlag.ALLOW_BATTERY_ENERGY_RESET),
 #        ),
-#        entry.options.get(ConfName.SLEEP_AFTER_WRITE, ConfDefaultInt.SLEEP_AFTER_WRITE),
+#        entry.options.get(ConfName.SLEEP_AFTER_WRITE, 
+# ConfDefaultInt.SLEEP_AFTER_WRITE),
 #        entry.options.get(
 #            ConfName.BATTERY_RATING_ADJUST, ConfDefaultInt.BATTERY_RATING_ADJUST
 #        ),
