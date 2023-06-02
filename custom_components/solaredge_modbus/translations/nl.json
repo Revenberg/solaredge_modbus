@@ -24,7 +24,7 @@
       "init": {
         "title": "SolarEdge Modbus Instellingen",
         "data": {
-          "scan_interval": "Oproepfrequentie (seconden)",
+          "scan_interval": "Oproepfrequentie (seconden)"
         }
       },
       "adv_pwr_ctl": {
@@ -35,14 +35,7 @@
           "sleep_after_write": "Omvormer commando vertraging (seconden)"
         },
         "description": "Waarschuwing: deze opties kunnen in strijd zijn met nutsvoorzieningen, de facturering van uw nutsbedrijf wijzigen, mogelijk speciale apparatuur vereisen en de voorzieningen door SolarEdge of uw installateur overschrijven. Gebruik op eigen risico!"
-      },
-      "battery_options": {
-        "title": "Batterij opties",
-        "data": {
-          "allow_battery_energy_reset": "Batterij-energie laten resetten",
-          "battery_rating_adjust": "Aanpassing batterijvermogen (%)"
-        }
-      }
+      }      
     },
     "error": {
       "invalid_scan_interval": "Geldig interval is 1 tot 86400 seconden.",

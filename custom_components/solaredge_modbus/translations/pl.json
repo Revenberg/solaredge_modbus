@@ -31,7 +31,7 @@
       "init": {
         "title": "Opcje SolarEdge Modbus",
         "data": {
-          "scan_interval": "Częstotliwość odczytu (sekundy)",
+          "scan_interval": "Częstotliwość odczytu (sekundy)"
         }
       },
       "adv_pwr_ctl": {
@@ -42,13 +42,6 @@
           "sleep_after_write": "Opóźnienie polecenia falownika (sekundy)"
         },
         "description": "Ostrzeżenie: opcje te mogą naruszać umowy za media, zmieniać rozliczenia za media, mogą wymagać specjalnego sprzętu i nadpisać udostępnianie przez SolarEdge lub instalatora. Używaj na własne ryzyko!"
-      },
-      "battery_options": {
-        "title": "Opcje baterii",
-        "data": {
-          "allow_battery_energy_reset": "Zezwól na zresetowanie energii baterii",
-          "battery_rating_adjust": "Regulacja oceny baterii (w procentach)"
-        }
       }
     },
     "error": {

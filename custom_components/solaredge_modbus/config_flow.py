@@ -147,53 +147,6 @@ class SolaredgeModbusMultiOptionsFlowHandler(config_entries.OptionsFlow):
             errors=errors,
         )
 
-    async def async_step_battery_options(self, user_input=None) -> FlowResult:
-        """Battery Options"""
-        errors = {}
-
-        if user_input is not None:
-            if user_input[ConfName.BATTERY_RATING_ADJUST] < 0:
-                errors[ConfName.BATTERY_RATING_ADJUST] = "invalid_percent"
-            elif user_input[ConfName.BATTERY_RATING_ADJUST] > 100:
-                errors[ConfName.BATTERY_RATING_ADJUST] = "invalid_percent"
-            else:
-                if self.init_info[ConfName.ADV_PWR_CONTROL] is True:
-                    self.init_info = {**self.init_info, **user_input}
-                    return await self.async_step_adv_pwr_ctl()
-
-                return self.async_create_entry(
-                    title="", data={**self.init_info, **user_input}
-                )
-
-        else:
-            user_input = {
-                ConfName.ALLOW_BATTERY_ENERGY_RESET: self.config_entry.options.get(
-                    ConfName.ALLOW_BATTERY_ENERGY_RESET,
-                    bool(ConfDefaultFlag.ALLOW_BATTERY_ENERGY_RESET),
-                ),
-                ConfName.BATTERY_RATING_ADJUST: self.config_entry.options.get(
-                    ConfName.BATTERY_RATING_ADJUST,
-                    ConfDefaultInt.BATTERY_RATING_ADJUST,
-                ),
-            }
-
-        return self.async_show_form(
-            step_id="battery_options",
-            data_schema=vol.Schema(
-                {
-                    vol.Optional(
-                        f"{ConfName.ALLOW_BATTERY_ENERGY_RESET}",
-                        default=user_input[ConfName.ALLOW_BATTERY_ENERGY_RESET],
-                    ): cv.boolean,
-                    vol.Optional(
-                        f"{ConfName.BATTERY_RATING_ADJUST}",
-                        default=user_input[ConfName.BATTERY_RATING_ADJUST],
-                    ): vol.Coerce(int),
-                }
-            ),
-            errors=errors,
-        )
-
     async def async_step_adv_pwr_ctl(self, user_input=None) -> FlowResult:
         """Power Control Options"""
         errors = {}

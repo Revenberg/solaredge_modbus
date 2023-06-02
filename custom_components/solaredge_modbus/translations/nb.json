@@ -31,7 +31,7 @@
       "init": {
         "title": "SolarEdge Modbus-alternativer",
         "data": {
-          "scan_interval": "Avstemningsfrekvens (sekunder)",
+          "scan_interval": "Avstemningsfrekvens (sekunder)"
         }
       },
       "adv_pwr_ctl": {
@@ -42,13 +42,6 @@
           "sleep_after_write": "Inverter Command Delay (sekunder)"
         },
         "description": "Advarsel: Disse alternativene kan bryte forsyningsavtaler, endre forbruksfaktureringen, kan kreve spesialutstyr og overskrive klargjøring av SolarEdge eller installatøren. Bruk på eget ansvar!"
-      },
-      "battery_options": {
-        "title": "Batterialternativer",
-        "data": {
-          "allow_battery_energy_reset": "La batterienergien tilbakestilles",
-          "battery_rating_adjust": "Justering av batterikapasitet (prosent)"
-        }
       }
     },
     "error": {

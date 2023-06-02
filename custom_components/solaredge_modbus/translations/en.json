@@ -24,7 +24,7 @@
       "init": {
         "title": "SolarEdge Modbus Options",
         "data": {
-          "scan_interval": "Polling Frequency (seconds)",
+          "scan_interval": "Polling Frequency (seconds)"
         }
       },
       "adv_pwr_ctl": {
@@ -35,13 +35,6 @@
           "sleep_after_write": "Inverter Command Delay (seconds)"
         },
         "description": "Warning: These options can violate utility agreements, alter your utility billing, may require special equipment, and overwrite provisioning by SolarEdge or your installer. Use at your own risk!"
-      },
-      "battery_options": {
-        "title": "Battery Options",
-        "data": {
-          "allow_battery_energy_reset": "Allow Battery Energy to Reset",
-          "battery_rating_adjust": "Battery Rating Adjustment (percent)"
-        }
       }
     },
     "error": {

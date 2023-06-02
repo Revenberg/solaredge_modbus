@@ -31,7 +31,7 @@
       "init": {
         "title": "Options SolarEdge Modbus",
         "data": {
-          "scan_interval": "Fréquence de rafraichissement (en secondes)",
+          "scan_interval": "Fréquence de rafraichissement (en secondes)"
         }
       },
       "adv_pwr_ctl": {
@@ -42,13 +42,6 @@
           "sleep_after_write": "Délai de commande de l'onduleur (en secondes)"
         },
         "description": "Avertissement : Ces options peuvent enfreindre l'accord d'utilisation, modifier la facturation de vos services, nécessiter un équipement spécial et écraser le provisionnement par SolarEdge ou votre installateur. À utiliser à vos risques et périls!"
-      },
-      "battery_options": {
-        "title": "Options de batterie",
-        "data": {
-          "allow_battery_energy_reset": "Autoriser la réinitialisation de la batterie",
-          "battery_rating_adjust": "Ajustement de la capacité de la batterie (pourcentage)"
-        }
       }
     },
     "error": {
