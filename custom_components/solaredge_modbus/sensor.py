@@ -648,7 +648,7 @@ class SolarEdgeStatusSensor(SolarEdgeSensorBase):
 
     @property
     def native_value(self):
-        return str(DEVICE_STATUS[self._platform.decoded_model["i_status"]])
+        return str(DEVICE_STATUS_TEXT[self._platform.decoded_model["i_status"]])
 
 class SolarEdgeInverterStatus(SolarEdgeStatusSensor):
     options = list(DEVICE_STATUS_TEXT.values())
