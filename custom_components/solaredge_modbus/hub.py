@@ -358,8 +358,8 @@ class SolarEdgeInverter:
                 ("ac_generated_yearenergy",  self.getValueLong(3017)), # 3017
                 ("ac_generated_lastyear",  self.getValueLong(3019)), # 3019
 
-                ("ac_generated_today", self.getValueLong(3014)), # 3015
-                ("ac_generated_yesterday", self.getValueLong(3015)), # 3016
+                ("ac_generated_today", self.getValueInt(3014) /10), # 3015
+                ("ac_generated_yesterday", self.getValueInt(3015) / 10), # 3016
                 ("dc_voltage_1", self.getValueInt(3021)), # 3022 U16
                 ("dc_current_1", self.getValueInt(3022)), # 3023 U16
                 ("dc_voltage_2", self.getValueInt(3023)), # 3024 U16
