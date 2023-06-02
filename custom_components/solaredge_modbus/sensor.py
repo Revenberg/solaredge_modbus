@@ -683,7 +683,7 @@ class SolarEdgeInverterStatus(SolarEdgeStatusSensor):
 
 class StatusVendor(SolarEdgeSensorBase):
     entity_category = EntityCategory.DIAGNOSTIC
-    options = list(VENDOR_STATUS.values())
+    options = list(DEVICE_STATUS_TEXT.values())
 
     def __init__(self, platform, config_entry, coordinator):
         super().__init__(platform, config_entry, coordinator)
@@ -699,15 +699,15 @@ class StatusVendor(SolarEdgeSensorBase):
 
     @property
     def native_value(self):
-        return VENDOR_STATUS[self._platform.decoded_model["i_status_vendor"]]
+        return DEVICE_STATUS_TEXT[self._platform.decoded_model["i_status_vendor"]]
     
     @property
     def extra_state_attributes(self):
         attrs = {}
 
         try:
-            if self._platform.decoded_model["i_status_vendor"] in VENDOR_STATUS:
-                attrs["status_text"] = VENDOR_STATUS[
+            if self._platform.decoded_model["i_status_vendor"] in DEVICE_STATUS_TEXT:
+                attrs["status_text"] = DEVICE_STATUS_TEXT[
                     self._platform.decoded_model["i_status_vendor"]
                 ]
                 attrs["status_value"] = self._platform.decoded_model["i_status_vendor"]
