@@ -42,6 +42,7 @@ BYTEORDER_LITTLE_SWAP = 3
 
 # Replace with enum when Python3 only
 _PAYLOADFORMAT_LONG = "long"
+_PAYLOADFORMAT_INT = "int"
 _PAYLOADFORMAT_REGISTER = "register"
 #_PAYLOADFORMAT_REGISTERS = "registers"
 
@@ -198,7 +199,6 @@ class InvalidResponseError(MasterReportedException):
 def _parse_payload(
     payload,
     numberOfDecimals,
-    number_of_registers,
     signed,
     byteorder,
     payloadformat,
@@ -214,6 +214,11 @@ def _parse_payload(
  #       return _bytestring_to_valuelist(registerdata, number_of_registers)
 
 #    el
+    if payloadformat == _PAYLOADFORMAT_INT:
+        return _twobyte_string_to_num(
+            registerdata, numberOfDecimals, signed=signed
+        )
+
     if payloadformat == _PAYLOADFORMAT_REGISTER:
         return _twobyte_string_to_num(
             registerdata, numberOfDecimals, signed=signed

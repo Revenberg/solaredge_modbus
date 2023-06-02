@@ -275,21 +275,27 @@ class SolarEdgeInverter:
         }
 
     def getValueLong(self, addr, signed=False,
-                     numberOfDecimals=0, number_of_registers=2):
-        if number_of_registers == 1:
-            byteorder=1
-        else:
-            byteorder=0
-
+                     numberOfDecimals=0):
         return self.hub._client._generic_command(
             registeraddress=addr,
             numberOfDecimals=numberOfDecimals,
-            number_of_registers=number_of_registers,
+            number_of_registers=2,
             signed=signed,
-            byteorder=byteorder,
+            byteorder=0,
             payloadformat="long",
         )
 
+    def getValueInt(self, addr, signed=False,
+                     numberOfDecimals=1):
+        return self.hub._client._generic_command(
+            registeraddress=addr,
+            numberOfDecimals=numberOfDecimals,
+            number_of_registers=1,
+            signed=signed,
+            byteorder=1,
+            payloadformat="int",
+        )
+        
     def getValueRegister(self, addr, numberOfDecimals=0,
                          signed=False, number_of_registers=1):
         return self.hub._client._generic_command(
@@ -347,38 +353,22 @@ class SolarEdgeInverter:
                 ("ac_generated_yearenergy",  self.getValueLong(3017)), # 3017
                 ("ac_generated_lastyear",  self.getValueLong(3019)), # 3019
 
-                ("ac_generated_today", self.getValueLong(3014,
-                                                numberOfDecimals=1)), # 3015
-                ("ac_generated_yesterday", self.getValueLong(3015,
-                                                numberOfDecimals=1)), # 3016
-                ("dc_voltage_1", self.getValueLong(3021, number_of_registers=1,
-                                                numberOfDecimals=1)), # 3022 U16
-                ("dc_current_1", self.getValueLong(3022,
-                                                number_of_registers=1)), # 3023 U16
-                ("dc_voltage_2", self.getValueLong(3023, number_of_registers=1,
-                                                numberOfDecimals=1)), # 3024 U16
-                ("dc_current_2", self.getValueLong(3024,
-                                                number_of_registers=1)), # 3025 U16
-                ("ac_voltage_ab", self.getValueLong(3033, number_of_registers=1,
-                                                numberOfDecimals=1)), # 3034 U16
-                ("ac_voltage_bc", self.getValueLong(3034, number_of_registers=1,
-                                                numberOfDecimals=1)), # 3035 U16
-                ("ac_voltage_ca", self.getValueLong(3035, number_of_registers=1,
-                                                numberOfDecimals=1)), # 3036 U16
-                ("ac_current_a", self.getValueLong(3036, number_of_registers=1,
-                                                numberOfDecimals=1)), # 3037 U16
-                ("ac_current_b", self.getValueLong(3037, number_of_registers=1,
-                                                numberOfDecimals=1)), # 3038 U16
-                ("ac_current_c", self.getValueLong(3038, number_of_registers=1,
-                                                numberOfDecimals=1)), # 3039 U16
-                ("i_temp_sink", self.getValueLong(3041, number_of_registers=1,
-                                        numberOfDecimals=1, signed=True)), # 3042 U16
-                ("ac_frequency", self.getValueLong(3042, number_of_registers=1,
-                                                numberOfDecimals=2)), # 3043 U16
-                ("i_status",  self.getValueLong(3071,
-                                                number_of_registers=1)), # 3072 U16
-                ("i_status_vendor",  self.getValueLong(3043,
-                                                number_of_registers=1)), # 3044 U16
+                ("ac_generated_today", self.getValueLong(3014)), # 3015
+                ("ac_generated_yesterday", self.getValueLong(3015)), # 3016
+                ("dc_voltage_1", self.getValueInt(3021)), # 3022 U16
+                ("dc_current_1", self.getValueInt(3022)), # 3023 U16
+                ("dc_voltage_2", self.getValueInt(3023)), # 3024 U16
+                ("dc_current_2", self.getValueInt(3024)), # 3025 U16
+                ("ac_voltage_ab", self.getValueInt(3033)), # 3034 U16
+                ("ac_voltage_bc", self.getValueInt(3034)), # 3035 U16
+                ("ac_voltage_ca", self.getValueInt(3035)), # 3036 U16
+                ("ac_current_a", self.getValueInt(3036)), # 3037 U16
+                ("ac_current_b", self.getValueInt(3037)), # 3038 U16
+                ("ac_current_c", self.getValueInt(3038)), # 3039 U16
+                ("i_temp_sink", self.getValueInt(3041, signed=True)), # 3042 U16
+                ("ac_frequency", self.getValueInt(3042)), # 3043 U16
+                ("i_status",  self.getValueInt(3071)), # 3072 U16
+                ("i_status_vendor",  self.getValueInt(3043)), # 3044 U16
             ]
         )
 
