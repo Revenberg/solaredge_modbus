@@ -663,22 +663,28 @@ class SolarEdgeInverterStatus(SolarEdgeStatusSensor):
         
     @property
     def native_value(self):
-       return DEVICE_STATUS_TEXT[self._platform.decoded_model["i_status"]]
+        _LOGGER.debug(" native_value i_status")
+        _LOGGER.debug(self._platform.decoded_model["i_status"])
+        _LOGGER.debug(DEVICE_STATUS_TEXT[self._platform.decoded_model["i_status"]])
+        return DEVICE_STATUS_TEXT[self._platform.decoded_model["i_status"]]
 
     @property
     def extra_state_attributes(self):
         attrs = {}
+        _LOGGER.debug(" extra_state_attributes")
 
         try:
             if self._platform.decoded_model["i_status"] in DEVICE_STATUS:
+                _LOGGER.debug("1")
                 attrs["status_text"] = DEVICE_STATUS_TEXT[
                     self._platform.decoded_model["i_status"]
                 ]
                 attrs["status_value"] = self._platform.decoded_model["i_status"]
-
+            _LOGGER.debug("2")
         except KeyError:
             pass
 
+        _LOGGER.debug(attrs)
         return attrs
 
 class StatusVendor(SolarEdgeSensorBase):
@@ -699,14 +705,20 @@ class StatusVendor(SolarEdgeSensorBase):
 
     @property
     def native_value(self):
+        _LOGGER.debug("i_status_vendor")
+        _LOGGER.debug(self._platform.decoded_model["i_status_vendor"])
+        _LOGGER.debug(DEVICE_STATUS_TEXT[self._platform.decoded_model["i_status_vendor"]])
+
         return DEVICE_STATUS_TEXT[self._platform.decoded_model["i_status_vendor"]]
     
     @property
     def extra_state_attributes(self):
         attrs = {}
+        _LOGGER.debug("i_status_vendor extra_state_attributes")
 
         try:
             if self._platform.decoded_model["i_status_vendor"] in DEVICE_STATUS_TEXT:
+                _LOGGER.debug("3")
                 attrs["status_text"] = DEVICE_STATUS_TEXT[
                     self._platform.decoded_model["i_status_vendor"]
                 ]
@@ -714,5 +726,5 @@ class StatusVendor(SolarEdgeSensorBase):
 
         except KeyError:
             pass
-
+        _LOGGER.debug(attrs)
         return attrs
