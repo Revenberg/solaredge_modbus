@@ -648,7 +648,7 @@ class SolarEdgeStatusSensor(SolarEdgeSensorBase):
 
     @property
     def native_value(self):
-        return DEVICE_STATUS_TEXT[self._platform.decoded_model["i_status"]]
+        return str(DEVICE_STATUS[self._platform.decoded_model["i_status"]])
 
 class SolarEdgeInverterStatus(SolarEdgeStatusSensor):
     options = list(DEVICE_STATUS.values())
@@ -663,24 +663,24 @@ class SolarEdgeInverterStatus(SolarEdgeStatusSensor):
         
     @property
     def native_value(self):
-       return DEVICE_STATUS_TEXT[self._platform.decoded_model["i_status"]]
+       return str(DEVICE_STATUS[self._platform.decoded_model["i_status"]])
 
-#    @property
-#    def extra_state_attributes(self):
-#        attrs = {}
+    @property
+    def extra_state_attributes(self):
+        attrs = {}
 
-#        try:
-#            if self._platform.decoded_model["i_status"] in DEVICE_STATUS:
-#                attrs["status_text"] = DEVICE_STATUS_TEXT[
-#                    self._platform.decoded_model["i_status"]
-#                ]
+        try:
+            if self._platform.decoded_model["i_status"] in DEVICE_STATUS:
+                attrs["status_text"] = DEVICE_STATUS_TEXT[
+                    self._platform.decoded_model["i_status"]
+                ]
 
-#                attrs["status_value"] = self._platform.decoded_model["i_status"]
+                attrs["status_value"] = self._platform.decoded_model["i_status"]
 
-#        except KeyError:
-#            pass
+        except KeyError:
+            pass
 
-#        return attrs
+        return attrs
 
 class StatusVendor(SolarEdgeSensorBase):
     entity_category = EntityCategory.DIAGNOSTIC
