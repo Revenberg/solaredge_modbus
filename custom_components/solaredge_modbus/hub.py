@@ -355,8 +355,8 @@ class SolarEdgeInverter:
                 ("i_temp_sink", self.getValueRegister(3041, numberOfDecimals=1,
                                                  signed=True)),
                 ("ac_frequency", self.getValueRegister(3042, numberOfDecimals=2)),
-                ("i_status",  self.getValueLong(3072) / 1000),
-                ("i_status_vendor",  self.getValueLong(3044) / 1000),
+                ("i_status",  self.getValueRegister(3072)),
+                ("i_status_vendor",  self.getValueRegister(3044)),
             ]
         )
         self.hub._online = True
