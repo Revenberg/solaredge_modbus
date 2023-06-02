@@ -25,11 +25,11 @@ _LOGGER = logging.getLogger(__name__)
 _LOGGER.setLevel(logging.DEBUG)
 
 PLATFORMS: list[str] = [
-    Platform.BINARY_SENSOR,
-    Platform.NUMBER,
-    Platform.SELECT,
+    #Platform.BINARY_SENSOR,
+    #Platform.NUMBER,
+    #Platform.SELECT,
     Platform.SENSOR,
-    Platform.SWITCH,
+    #Platform.SWITCH,
 ]
 
 
