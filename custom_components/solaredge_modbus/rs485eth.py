@@ -185,14 +185,11 @@ class ModbusException(IOError):
 class MasterReportedException(ModbusException):
     """Base class for exceptions that the master (computer) detects."""
 
-
 class NoResponseError(MasterReportedException):
     """No response from the slave."""
 
-
 class InvalidResponseError(MasterReportedException):
     """The response does not fulfill the Modbus standad, for example wrong checksum."""
-
 
 def _parse_payload(
     payload,
@@ -453,29 +450,29 @@ def _bytestring_to_long(
         bytestring = _swap(bytestring)
     return _unpack(formatcode, bytestring)
 
-def _bytestring_to_valuelist(bytestring, number_of_registers):
-    """Convert a bytestring to a list of numerical values.
+#def _bytestring_to_valuelist(bytestring, number_of_registers):
+#    """Convert a bytestring to a list of numerical values.
 
-    The bytestring is interpreted as 'unsigned INT16'.
+#    The bytestring is interpreted as 'unsigned INT16'.
 
-    Args:
-        bytestring (str): The string from the slave. Length = 2*number_of_registers
-        number_of_registers (int): The number of registers. For error checking.
+#    Args:
+#        bytestring (str): The string from the slave. Length = 2*number_of_registers
+#        number_of_registers (int): The number of registers. For error checking.
 
-    Returns:
-        A list of integers.
+#    Returns:
+#        A list of integers.
 
-    Raises:
-        TypeError, ValueError
+#    Raises:
+#        TypeError, ValueError
 
-    """
-    values = []
-    for i in range(number_of_registers):
-        offset = 2 * i
-        substring = bytestring[offset : (offset + 2)]
-        values.append(_twobyte_string_to_num(substring))
+#    """
+#    values = []
+#    for i in range(number_of_registers):
+#        offset = 2 * i
+#        substring = bytestring[offset : (offset + 2)]
+#        values.append(_twobyte_string_to_num(substring))
 
-    return values
+#    return values
 
 def _pack(formatstring, value):
     """Pack a value into a bytestring.
@@ -574,70 +571,70 @@ def _swap(bytestring):
     )
     return "".join(templist)
 
-def _hexencode(bytestring, insert_spaces=False):
-    """Convert a byte string to a hex encoded string.
+#def _hexencode(bytestring, insert_spaces=False):
+#    """Convert a byte string to a hex encoded string.
 
-    For example 'J' will return '4A', and ``'\x04'`` will return '04'.
+#    For example 'J' will return '4A', and ``'\x04'`` will return '04'.
 
-    Args:
-        bytestring (str): Can be for example ``'A\x01B\x45'``.
-        insert_spaces (bool): Insert space characters between pair of characters
-        to increase readability.
+#    Args:
+#        bytestring (str): Can be for example ``'A\x01B\x45'``.
+#        insert_spaces (bool): Insert space characters between pair of characters
+#        to increase readability.
 
-    Returns:
-        A string of twice the length, with characters in the range '0' to '9' and
-        'A' to 'F'. The string will be longer if spaces are inserted.
+#    Returns:
+#        A string of twice the length, with characters in the range '0' to '9' and
+#        'A' to 'F'. The string will be longer if spaces are inserted.
 
-    Raises:
-        TypeError, ValueError
+#    Raises:
+#        TypeError, ValueError
 
-    """
-    separator = "" if not insert_spaces else " "
+#    """
+#    separator = "" if not insert_spaces else " "
 
-    # Use plain string formatting instead of binhex.hexlify,
-    # in order to have it Python 2.x and 3.x compatible
+#    # Use plain string formatting instead of binhex.hexlify,
+#    # in order to have it Python 2.x and 3.x compatible
 
-    byte_representions = []
-    for char in bytestring:
-        byte_representions.append(f"{ord(char):02X}")
-    return separator.join(byte_representions).strip()
+#    byte_representions = []
+#    for char in bytestring:
+#        byte_representions.append(f"{ord(char):02X}")
+#    return separator.join(byte_representions).strip()
 
-def _hexdecode(hexstring):
-    """Convert a hex encoded string to a byte string.
+#def _hexdecode(hexstring):
+#    """Convert a hex encoded string to a byte string.
 
-    For example '4A' will return 'J', and '04' will return ``'\x04'`` (which has
-    length 1).
+#    For example '4A' will return 'J', and '04' will return ``'\x04'`` (which has
+#    length 1).
 
-    Args:
-        hexstring (str): Can be for example 'A3' or 'A3B4'. Must be of even length.
-        Allowed characters are '0' to '9', 'a' to 'f' and 'A' to 'F' (not space).
+#    Args:
+#        hexstring (str): Can be for example 'A3' or 'A3B4'. Must be of even length.
+#        Allowed characters are '0' to '9', 'a' to 'f' and 'A' to 'F' (not space).
 
-    Returns:
-        A string of half the length, with characters corresponding to all 0-255
-        values for each byte.
+#    Returns:
+#        A string of half the length, with characters corresponding to all 0-255
+#        values for each byte.
 
-    Raises:
-        TypeError, ValueError
+#    Raises:
+#        TypeError, ValueError
 
-    """
-    # Note: For Python3 the appropriate would be: raise TypeError(new_error_message)
-    # from err but the Python2 interpreter will indicate SyntaxError.
-    # Thus we need to live with this warning in Python3:
-    # 'During handling of the above exception, another exception occurred'
+#    """
+#    # Note: For Python3 the appropriate would be: raise TypeError(new_error_message)
+#    # from err but the Python2 interpreter will indicate SyntaxError.
+#    # Thus we need to live with this warning in Python3:
+#    # 'During handling of the above exception, another exception occurred'
 
-    if len(hexstring) % 2 != 0:
-        raise ValueError(
-            f"The input hexstring must be of even length. Given: {hexstring!r}"
-        )
+#    if len(hexstring) % 2 != 0:
+#        raise ValueError(
+#            f"The input hexstring must be of even length. Given: {hexstring!r}"
+#        )
 
-    #if sys.version_info[0] > 2:
-    converted_bytes = bytes(hexstring, "latin1")
-    try:
-        return str(binascii.unhexlify(converted_bytes), encoding="latin1")
-    except binascii.Error as err:
-        new_error_message = f"Hexdecode reported an error: {err.args[0]!s}. "
-        + f"Input hexstring: {hexstring}"
-        raise TypeError(new_error_message)
+#    #if sys.version_info[0] > 2:
+#    converted_bytes = bytes(hexstring, "latin1")
+#    try:
+#        return str(binascii.unhexlify(converted_bytes), encoding="latin1")
+#    except binascii.Error as err:
+#        new_error_message = f"Hexdecode reported an error: {err.args[0]!s}. "
+#        + f"Input hexstring: {hexstring}"
+#        raise TypeError(new_error_message)
 
 #    else:
 #        try:
@@ -949,30 +946,30 @@ def _calculate_crc_string(inputstring):
     return _num_to_twobyte_string(register, lsb_first=True)
 
 
-def _calculate_lrc_string(inputstring):
-    """Calculate LRC for Modbus.
+#def _calculate_lrc_string(inputstring):
+#    """Calculate LRC for Modbus.
 
-    Args:
-        inputstring (str): An arbitrary-length message (without the beginning
-        colon and terminating CRLF). It should already be decoded from hex-string.
+#    Args:
+#        inputstring (str): An arbitrary-length message (without the beginning
+#        colon and terminating CRLF). It should already be decoded from hex-string.
 
-    Returns:
-        A one-byte LRC bytestring (not encoded to hex-string)
+#    Returns:
+#        A one-byte LRC bytestring (not encoded to hex-string)
 
-    Algorithm from the document 'MODBUS over serial line specification and
-    implementation guide V1.02'.
+#    Algorithm from the document 'MODBUS over serial line specification and
+#    implementation guide V1.02'.
 
-    The LRC is calculated as 8 bits (one byte).
+#    The LRC is calculated as 8 bits (one byte).
 
-    For example a LRC 0110 0001 (bin) = 61 (hex) = 97 (dec) = 'a'. This function will
-    then return 'a'.
+#    For example a LRC 0110 0001 (bin) = 61 (hex) = 97 (dec) = 'a'. This function will
+#    then return 'a'.
 
-    """
+#    """
 
-    register = 0
-    for character in inputstring:
-        register += ord(character)
+#    register = 0
+#    for character in inputstring:
+#        register += ord(character)
 
-    lrc = ((register ^ 0xFF) + 1) & 0xFF
+#    lrc = ((register ^ 0xFF) + 1) & 0xFF
 
-    return _num_to_onebyte_string(lrc)
+#    return _num_to_onebyte_string(lrc)
