@@ -374,7 +374,7 @@ class VoltageSensor(SolarEdgeSensorBase):
         return self._platform.decoded_model[model_key]
 
 class ACPower(SolarEdgeSensorBase):
-    device_class = SensorDeviceClass.POWER
+    device_class = SensorDeviceClass.ENERGY
     state_class = SensorStateClass.MEASUREMENT
     native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
     icon = "mdi:solar-power"
@@ -665,22 +665,22 @@ class SolarEdgeInverterStatus(SolarEdgeStatusSensor):
     def native_value(self):
        return DEVICE_STATUS_TEXT[self._platform.decoded_model["i_status"]]
 
-    @property
-    def extra_state_attributes(self):
-        attrs = {}
+#    @property
+#    def extra_state_attributes(self):
+#        attrs = {}
 
-        try:
-            if self._platform.decoded_model["i_status"] in DEVICE_STATUS_TEXT:
-                attrs["status_text"] = DEVICE_STATUS_TEXT[
-                    self._platform.decoded_model["i_status"]
-                ]
+#        try:
+#            if self._platform.decoded_model["i_status"] in DEVICE_STATUS:
+#                attrs["status_text"] = DEVICE_STATUS_TEXT[
+#                    self._platform.decoded_model["i_status"]
+#                ]
 
-                attrs["status_value"] = self._platform.decoded_model["i_status"]
+#                attrs["status_value"] = self._platform.decoded_model["i_status"]
 
-        except KeyError:
-            pass
+#        except KeyError:
+#            pass
 
-        return attrs
+#        return attrs
 
 class StatusVendor(SolarEdgeSensorBase):
     entity_category = EntityCategory.DIAGNOSTIC
