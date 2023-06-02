@@ -159,13 +159,18 @@ class Instrument:
             request, encoding="latin1"
         )  # Convert types to make it Python3 compatible
 
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(1)
-        
-        sock.connect((self.eth_address, self.eth_port))
-        sock.send(request)
-        answer = sock.recv(1024)
-        sock.close()
+        try:
+    
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(1)
+            
+            sock.connect((self.eth_address, self.eth_port))
+            sock.send(request)
+            answer = sock.recv(1024)
+            sock.close()
+
+        except Exception:
+            raise NoResponseError("No communication with the instrument (timeout)")
 
 #        if sys.version_info[0] > 2:
 #            answer = str(answer, encoding="latin1")
