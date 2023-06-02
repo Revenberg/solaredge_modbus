@@ -43,7 +43,7 @@ BYTEORDER_LITTLE_SWAP = 3
 # Replace with enum when Python3 only
 _PAYLOADFORMAT_LONG = "long"
 _PAYLOADFORMAT_REGISTER = "register"
-_PAYLOADFORMAT_REGISTERS = "registers"
+#_PAYLOADFORMAT_REGISTERS = "registers"
 
 # ######################## #
 # Modbus instrument object #
