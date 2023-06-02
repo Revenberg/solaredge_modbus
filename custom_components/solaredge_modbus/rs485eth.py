@@ -19,7 +19,7 @@ import struct
 #import sys
 import socket
 import logging
-import binascii
+#import binascii
 
 _LOGGER = logging.getLogger(__name__)
 _LOGGER.setLevel(logging.DEBUG)
