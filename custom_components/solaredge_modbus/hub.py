@@ -275,7 +275,7 @@ class SolarEdgeInverter:
         }
 
     def getValueLong(self, addr, signed=False,
-                     numberOfDecimals=3):
+                     numberOfDecimals=6):
         _LOGGER.debug("getValueLong")
         _LOGGER.debug(addr)
         return self.hub._client._generic_command(
