@@ -74,10 +74,6 @@ class SolarEdgeModbusMultiHub:
         port: int,
 #        number_of_inverters: int = 1,
 #        start_device_id: int = 1,
-        detect_meters: bool = True,
-        detect_batteries: bool = False,
-        keep_modbus_open: bool = False,
-        advanced_power_control: bool = False,
         adv_storage_control: bool = False,
         adv_site_limit_control: bool = False,
         allow_battery_energy_reset: bool = False,
@@ -89,10 +85,6 @@ class SolarEdgeModbusMultiHub:
         self._name = name
         self._host = host
         self._port = port
-        self._detect_meters = detect_meters
-        self._detect_batteries = detect_batteries
-        self._keep_modbus_open = keep_modbus_open
-        self._advanced_power_control = advanced_power_control
         self._adv_storage_control = adv_storage_control
         self._adv_site_limit_control = adv_site_limit_control
         self._allow_battery_energy_reset = allow_battery_energy_reset
@@ -205,25 +197,12 @@ class SolarEdgeModbusMultiHub:
         return self._adv_site_limit_control
 
     @property
-    def keep_modbus_open(self) -> bool:
-        return self._keep_modbus_open
-
-    @property
     def allow_battery_energy_reset(self) -> bool:
         return self._allow_battery_energy_reset
 
     @property
     def battery_rating_adjust(self) -> int:
         return (self._battery_rating_adjust + 100) / 100
-
-    @keep_modbus_open.setter
-    def keep_modbus_open(self, value: bool) -> None:
-        if value is True:
-            self._keep_modbus_open = True
-        else:
-            self._keep_modbus_open = False
-
-        _LOGGER.debug(f"keep_modbus_open={self._keep_modbus_open}")
 
     @property
     def coordinator_timeout(self) -> int:
@@ -261,7 +240,6 @@ class SolarEdgeInverter:
         self.decoded_storage = []
         self.has_parent = False
         self.global_power_control = None
-        self.advanced_power_control = None
         self.site_limit_control = None
         self.manufacturer = "SolarEdge"
         self._delta_energy = 0

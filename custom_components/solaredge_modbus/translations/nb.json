@@ -32,10 +32,6 @@
         "title": "SolarEdge Modbus-alternativer",
         "data": {
           "scan_interval": "Avstemningsfrekvens (sekunder)",
-          "keep_modbus_open": "Hold Modbus-tilkoblingen åpen",
-          "detect_meters": "Automatisk oppdagelse av målere",
-          "detect_batteries": "Automatisk gjenkjenning av batterier",
-          "advanced_power_control": "Avansert strømkontroll"
         }
       },
       "adv_pwr_ctl": {

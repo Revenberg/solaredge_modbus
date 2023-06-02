@@ -32,10 +32,6 @@
         "title": "Opcje SolarEdge Modbus",
         "data": {
           "scan_interval": "Częstotliwość odczytu (sekundy)",
-          "keep_modbus_open": "Pozostaw połączenie Modbus otwarte",
-          "detect_meters": "Automatycznie wykryj liczniki",
-          "detect_batteries": "Automatycznie wykryj baterie",
-          "advanced_power_control": "Zaawansowana kontrola mocy"
         }
       },
       "adv_pwr_ctl": {

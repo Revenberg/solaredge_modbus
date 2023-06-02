@@ -55,10 +55,6 @@ class ConfDefaultInt(IntEnum):
 
 
 class ConfDefaultFlag(IntEnum):
-    DETECT_METERS = 1
-    DETECT_BATTERIES = 0
-    KEEP_MODBUS_OPEN = 0
-    ADV_PWR_CONTROL = 0
     ADV_STORAGE_CONTROL = 0
     ADV_SITE_LIMIT_CONTROL = 0
     ALLOW_BATTERY_ENERGY_RESET = 0
@@ -67,10 +63,6 @@ class ConfDefaultFlag(IntEnum):
 class ConfName(StrEnum):
 #    NUMBER_INVERTERS = "number_of_inverters"
 #    DEVICE_ID = "device_id"
-    DETECT_METERS = "detect_meters"
-    DETECT_BATTERIES = "detect_batteries"
-    KEEP_MODBUS_OPEN = "keep_modbus_open"
-    ADV_PWR_CONTROL = "advanced_power_control"
     ADV_STORAGE_CONTROL = "adv_storage_control"
     ADV_SITE_LIMIT_CONTROL = "adv_site_limit_control"
     ALLOW_BATTERY_ENERGY_RESET = "allow_battery_energy_reset"

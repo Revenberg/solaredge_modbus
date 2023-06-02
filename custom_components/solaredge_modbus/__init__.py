@@ -55,16 +55,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         entry.data[CONF_PORT],
 #        entry.data.get(ConfName.NUMBER_INVERTERS, ConfDefaultInt.NUMBER_INVERTERS),
 #        entry.data.get(ConfName.DEVICE_ID, ConfDefaultInt.DEVICE_ID),
-        entry.options.get(ConfName.DETECT_METERS, bool(ConfDefaultFlag.DETECT_METERS)),
-        entry.options.get(
-            ConfName.DETECT_BATTERIES, bool(ConfDefaultFlag.DETECT_BATTERIES)
-        ),
-        entry.options.get(
-            ConfName.KEEP_MODBUS_OPEN, bool(ConfDefaultFlag.KEEP_MODBUS_OPEN)
-        ),
-        entry.options.get(
-            ConfName.ADV_PWR_CONTROL, bool(ConfDefaultFlag.ADV_PWR_CONTROL)
-        ),
         entry.options.get(
             ConfName.ADV_STORAGE_CONTROL, bool(ConfDefaultFlag.ADV_STORAGE_CONTROL)
         ),
@@ -178,10 +168,6 @@ class SolarEdgeCoordinator(DataUpdateCoordinator):
             update_interval=timedelta(seconds=scan_interval),
         )
         self._hub = hub
-
-        if scan_interval < 10 and not self._hub.keep_modbus_open:
-            _LOGGER.warning("Polling frequency < 10, requiring keep modbus open.")
-            self._hub.keep_modbus_open = True
 
     async def _async_update_data(self):
         try:

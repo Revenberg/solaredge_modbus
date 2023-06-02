@@ -77,18 +77,9 @@ class AdvPowerControlEnabled(SolarEdgeBinarySensorBase):
         return "Advanced Power Control"
 
     @property
-    def entity_registry_enabled_default(self) -> bool:
-        if self._platform.advanced_power_control is True:
-            return True
-
-        else:
-            return False
-
-    @property
     def available(self) -> bool:
         if (
             self._platform.online is True
-            and self._platform.advanced_power_control is True
         ):
             return True
 

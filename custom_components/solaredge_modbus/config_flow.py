@@ -125,33 +125,12 @@ class SolaredgeModbusMultiOptionsFlowHandler(config_entries.OptionsFlow):
             elif user_input[CONF_SCAN_INTERVAL] > 86400:
                 errors[CONF_SCAN_INTERVAL] = "invalid_scan_interval"
             else:
-                if user_input[ConfName.DETECT_BATTERIES] is True:
-                    self.init_info = user_input
-                    return await self.async_step_battery_options()
-                else:
-                    if user_input[ConfName.ADV_PWR_CONTROL] is True:
-                        self.init_info = user_input
-                        return await self.async_step_adv_pwr_ctl()
-
-                    else:
-                        return self.async_create_entry(title="", data=user_input)
+                return self.async_create_entry(title="", data=user_input)
 
         else:
             user_input = {
                 CONF_SCAN_INTERVAL: self.config_entry.options.get(
                     CONF_SCAN_INTERVAL, ConfDefaultInt.SCAN_INTERVAL
-                ),
-                ConfName.KEEP_MODBUS_OPEN: self.config_entry.options.get(
-                    ConfName.KEEP_MODBUS_OPEN, bool(ConfDefaultFlag.KEEP_MODBUS_OPEN)
-                ),
-                ConfName.DETECT_METERS: self.config_entry.options.get(
-                    ConfName.DETECT_METERS, bool(ConfDefaultFlag.DETECT_METERS)
-                ),
-                ConfName.DETECT_BATTERIES: self.config_entry.options.get(
-                    ConfName.DETECT_BATTERIES, bool(ConfDefaultFlag.DETECT_BATTERIES)
-                ),
-                ConfName.ADV_PWR_CONTROL: self.config_entry.options.get(
-                    ConfName.ADV_PWR_CONTROL, bool(ConfDefaultFlag.ADV_PWR_CONTROL)
                 ),
             }
 
@@ -163,22 +142,6 @@ class SolaredgeModbusMultiOptionsFlowHandler(config_entries.OptionsFlow):
                         CONF_SCAN_INTERVAL,
                         default=user_input[CONF_SCAN_INTERVAL],
                     ): vol.Coerce(int),
-                    vol.Optional(
-                        f"{ConfName.KEEP_MODBUS_OPEN}",
-                        default=user_input[ConfName.KEEP_MODBUS_OPEN],
-                    ): cv.boolean,
-                    vol.Optional(
-                        f"{ConfName.DETECT_METERS}",
-                        default=user_input[ConfName.DETECT_METERS],
-                    ): cv.boolean,
-                    vol.Optional(
-                        f"{ConfName.DETECT_BATTERIES}",
-                        default=user_input[ConfName.DETECT_BATTERIES],
-                    ): cv.boolean,
-                    vol.Optional(
-                        f"{ConfName.ADV_PWR_CONTROL}",
-                        default=user_input[ConfName.ADV_PWR_CONTROL],
-                    ): cv.boolean,
                 },
             ),
             errors=errors,
