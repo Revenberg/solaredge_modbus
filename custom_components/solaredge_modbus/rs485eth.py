@@ -135,7 +135,6 @@ class Instrument:
         return _parse_payload(
             payload_from_slave,
             numberOfDecimals,
-            number_of_registers,
             signed,
             byteorder,
             payloadformat,
