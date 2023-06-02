@@ -424,7 +424,7 @@ def _twobyte_string_to_num(bytestring, numberOfDecimals=0, signed=False):
 
 def _bytestring_to_long(
     bytestring, signed=False, byteorder=BYTEORDER_BIG, numberOfDecimals=0
-):    
+):
     """Convert a bytestring to a long integer.
 
     Long integers (32 bits = 4 bytes) are stored in two consecutive 16-bit registers
@@ -456,7 +456,7 @@ def _bytestring_to_long(
 
     if byteorder in [BYTEORDER_BIG_SWAP, BYTEORDER_LITTLE_SWAP]:
         bytestring = _swap(bytestring)
-        
+
     fullregister = _unpack(formatcode, bytestring)
 
     if numberOfDecimals == 0:
