@@ -275,7 +275,7 @@ class SolarEdgeInverter:
         }
 
     def getValueLong(self, addr, signed=False,
-                     numberOfDecimals=6):
+                     numberOfDecimals=3):
         _LOGGER.debug("getValueLong")
         _LOGGER.debug(addr)
         return self.hub._client._generic_command(
@@ -347,11 +347,12 @@ class SolarEdgeInverter:
 
         self.decoded_model = OrderedDict(
             [
-                ("ac_power_output", self.getValueLong(3004) / 1000), # 3005
+                ("ac_power_output", self.getValueLong(3004)), # 3005
 
                 ("dc_output_power", self.getValueLong(3006)), # 3007
-                ("ac_generated_lifetimeproduction", self.getValueLong(3008)), # 3009
-                ("ac_energy_wh",  self.getValueLong(3009) / 1000),
+                ("ac_generated_lifetimeproduction", self.getValueLong(3008, 
+                                            numberOfDecimals=0)), # 3009
+                ("ac_energy_wh",  self.getValueLong(3009)),
                 ("ac_generated_monthenergy",  self.getValueLong(3011)), # 3011
                 ("ac_generated_lastmonth",  self.getValueLong(3013)), # 3013
                 ("ac_generated_yearenergy",  self.getValueLong(3017)), # 3017
