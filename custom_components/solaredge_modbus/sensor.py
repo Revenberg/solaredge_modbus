@@ -700,3 +700,19 @@ class StatusVendor(SolarEdgeSensorBase):
     @property
     def native_value(self):
         return VENDOR_STATUS[self._platform.decoded_model["i_status_vendor"]]
+    
+    @property
+    def extra_state_attributes(self):
+        attrs = {}
+
+        try:
+            if self._platform.decoded_model["i_status_vendor"] in VENDOR_STATUS:
+                attrs["status_text"] = VENDOR_STATUS[
+                    self._platform.decoded_model["i_status_vendor"]
+                ]
+                attrs["status_value"] = self._platform.decoded_model["i_status_vendor"]
+
+        except KeyError:
+            pass
+
+        return attrs
