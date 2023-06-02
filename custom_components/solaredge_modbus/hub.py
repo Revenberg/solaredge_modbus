@@ -134,7 +134,7 @@ class SolarEdgeModbusMultiHub:
         except ModbusReadError as e:
             self._online = False
             raise HubInitFailed(f"Read error: {e}")
-            
+
         except DeviceInvalid as e:
             self._online = False
             raise HubInitFailed(f"Invalid device: {e}")
@@ -274,13 +274,13 @@ class SolarEdgeInverter:
             #"hw_version": self.option,
         }
 
-    def getValueLong(self, addr, signed=False, 
+    def getValueLong(self, addr, signed=False,
                      numberOfDecimals=0, number_of_registers=2):
         if number_of_registers == 1:
             byteorder=1
         else:
             byteorder=0
-            
+
         return self.hub._client._generic_command(
             registeraddress=addr,
             numberOfDecimals=numberOfDecimals,
@@ -290,7 +290,7 @@ class SolarEdgeInverter:
             payloadformat="long",
         )
 
-    def getValueRegister(self, addr, numberOfDecimals=0, 
+    def getValueRegister(self, addr, numberOfDecimals=0,
                          signed=False, number_of_registers=1):
         return self.hub._client._generic_command(
             registeraddress=addr,
@@ -334,50 +334,50 @@ class SolarEdgeInverter:
         # _LOGGER.debug("read_modbus_data")
 
         # https://ginlongsolis.freshdesk.com/helpdesk/attachments/36112313359
-             
+
         self.decoded_model = OrderedDict(
             [
-                ("ac_power_output", self.getValueLong(3004) / 1000), # 3005 
-                
+                ("ac_power_output", self.getValueLong(3004) / 1000), # 3005
+
                 ("dc_output_power", self.getValueLong(3006)), # 3007
                 ("ac_generated_lifetimeproduction", self.getValueLong(3008)), # 3009
-                ("ac_energy_wh",  self.getValueLong(3009) / 1000), 
+                ("ac_energy_wh",  self.getValueLong(3009) / 1000),
                 ("ac_generated_monthenergy",  self.getValueLong(3011)), # 3011
                 ("ac_generated_lastmonth",  self.getValueLong(3013)), # 3013
                 ("ac_generated_yearenergy",  self.getValueLong(3017)), # 3017
                 ("ac_generated_lastyear",  self.getValueLong(3019)), # 3019
 
-                ("ac_generated_today", self.getValueLong(3014, 
+                ("ac_generated_today", self.getValueLong(3014,
                                                 numberOfDecimals=1)), # 3015
-                ("ac_generated_yesterday", self.getValueLong(3015, 
+                ("ac_generated_yesterday", self.getValueLong(3015,
                                                 numberOfDecimals=1)), # 3016
-                ("dc_voltage_1", self.getValueLong(3021, number_of_registers=1, 
+                ("dc_voltage_1", self.getValueLong(3021, number_of_registers=1,
                                                 numberOfDecimals=1)), # 3022 U16
-                ("dc_current_1", self.getValueLong(3022, 
+                ("dc_current_1", self.getValueLong(3022,
                                                 number_of_registers=1)), # 3023 U16
-                ("dc_voltage_2", self.getValueLong(3023, number_of_registers=1, 
+                ("dc_voltage_2", self.getValueLong(3023, number_of_registers=1,
                                                 numberOfDecimals=1)), # 3024 U16
-                ("dc_current_2", self.getValueLong(3024, 
+                ("dc_current_2", self.getValueLong(3024,
                                                 number_of_registers=1)), # 3025 U16
-                ("ac_voltage_ab", self.getValueLong(3033, number_of_registers=1, 
+                ("ac_voltage_ab", self.getValueLong(3033, number_of_registers=1,
                                                 numberOfDecimals=1)), # 3034 U16
-                ("ac_voltage_bc", self.getValueLong(3034, number_of_registers=1, 
+                ("ac_voltage_bc", self.getValueLong(3034, number_of_registers=1,
                                                 numberOfDecimals=1)), # 3035 U16
-                ("ac_voltage_ca", self.getValueLong(3035, number_of_registers=1, 
+                ("ac_voltage_ca", self.getValueLong(3035, number_of_registers=1,
                                                 numberOfDecimals=1)), # 3036 U16
-                ("ac_current_a", self.getValueLong(3036, number_of_registers=1, 
+                ("ac_current_a", self.getValueLong(3036, number_of_registers=1,
                                                 numberOfDecimals=1)), # 3037 U16
-                ("ac_current_b", self.getValueLong(3037, number_of_registers=1, 
+                ("ac_current_b", self.getValueLong(3037, number_of_registers=1,
                                                 numberOfDecimals=1)), # 3038 U16
-                ("ac_current_c", self.getValueLong(3038, number_of_registers=1, 
+                ("ac_current_c", self.getValueLong(3038, number_of_registers=1,
                                                 numberOfDecimals=1)), # 3039 U16
-                ("i_temp_sink", self.getValueLong(3041, number_of_registers=1, 
-                                                numberOfDecimals=1,                                                  signed=True)), # 3042 U16
+                ("i_temp_sink", self.getValueLong(3041, number_of_registers=1,
+                                        numberOfDecimals=1, signed=True)), # 3042 U16
                 ("ac_frequency", self.getValueLong(3042, number_of_registers=1,
                                                 numberOfDecimals=2)), # 3043 U16
-                ("i_status",  self.getValueLong(3071, 
+                ("i_status",  self.getValueLong(3071,
                                                 number_of_registers=1)), # 3072 U16
-                ("i_status_vendor",  self.getValueLong(3043, 
+                ("i_status_vendor",  self.getValueLong(3043,
                                                 number_of_registers=1)), # 3044 U16
             ]
         )
