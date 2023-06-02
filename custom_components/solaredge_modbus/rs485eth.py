@@ -207,7 +207,7 @@ def _parse_payload(
 
     if payloadformat == _PAYLOADFORMAT_LONG:
         return _bytestring_to_long(
-            registerdata, signed, number_of_registers, byteorder
+            registerdata, signed, byteorder, numberOfDecimals
         )
 
  #   if payloadformat == _PAYLOADFORMAT_REGISTERS:
@@ -419,8 +419,8 @@ def _twobyte_string_to_num(bytestring, numberOfDecimals=0, signed=False):
     return fullregister / float(divisor)
 
 def _bytestring_to_long(
-    bytestring, signed=False, number_of_registers=2, byteorder=BYTEORDER_BIG
-):
+    bytestring, signed=False, byteorder=BYTEORDER_BIG, numberOfDecimals=0
+):    
     """Convert a bytestring to a long integer.
 
     Long integers (32 bits = 4 bytes) are stored in two consecutive 16-bit registers
@@ -452,7 +452,13 @@ def _bytestring_to_long(
 
     if byteorder in [BYTEORDER_BIG_SWAP, BYTEORDER_LITTLE_SWAP]:
         bytestring = _swap(bytestring)
-    return _unpack(formatcode, bytestring)
+        
+    fullregister = _unpack(formatcode, bytestring)
+
+    if numberOfDecimals == 0:
+        return fullregister
+    divisor = 10 ** numberOfDecimals
+    return fullregister / float(divisor)
 
 #def _bytestring_to_valuelist(bytestring, number_of_registers):
 #    """Convert a bytestring to a list of numerical values.

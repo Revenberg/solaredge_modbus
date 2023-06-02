@@ -18,7 +18,7 @@ from homeassistant.helpers.device_registry import DeviceEntry
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .const import DOMAIN, ConfDefaultFlag, ConfDefaultInt
-from .const import ConfName, RetrySettings, DATA_ENERGY_METER
+from .const import ConfName, RetrySettings
 from .hub import DataUpdateFailed, HubInitFailed, SolarEdgeModbusMultiHub
 
 _LOGGER = logging.getLogger(__name__)
@@ -35,8 +35,6 @@ PLATFORMS: list[str] = [
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up an Energy Meter."""
-    hass.data[DATA_ENERGY_METER] = {}
-
     entry_updates: dict[str, Any] = {}
     if CONF_SCAN_INTERVAL in entry.data:
         data = {**entry.data}
