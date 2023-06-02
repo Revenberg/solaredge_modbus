@@ -33,15 +33,6 @@
         "data": {
           "scan_interval": "Częstotliwość odczytu (sekundy)"
         }
-      },
-      "adv_pwr_ctl": {
-        "title": "Opcje sterowania zasilaniem",
-        "data": {
-          "adv_storage_control": "Włącz kontrolę pamięci",
-          "adv_site_limit_control": "Włącz kontrolę limitu witryny",
-          "sleep_after_write": "Opóźnienie polecenia falownika (sekundy)"
-        },
-        "description": "Ostrzeżenie: opcje te mogą naruszać umowy za media, zmieniać rozliczenia za media, mogą wymagać specjalnego sprzętu i nadpisać udostępnianie przez SolarEdge lub instalatora. Używaj na własne ryzyko!"
       }
     },
     "error": {

@@ -53,21 +53,21 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         entry.data[CONF_PORT],
 #        entry.data.get(ConfName.NUMBER_INVERTERS, ConfDefaultInt.NUMBER_INVERTERS),
 #        entry.data.get(ConfName.DEVICE_ID, ConfDefaultInt.DEVICE_ID),
-        entry.options.get(
-            ConfName.ADV_STORAGE_CONTROL, bool(ConfDefaultFlag.ADV_STORAGE_CONTROL)
-        ),
-        entry.options.get(
-            ConfName.ADV_SITE_LIMIT_CONTROL,
-            bool(ConfDefaultFlag.ADV_SITE_LIMIT_CONTROL),
-        ),
-        entry.options.get(
-            ConfName.ALLOW_BATTERY_ENERGY_RESET,
-            bool(ConfDefaultFlag.ALLOW_BATTERY_ENERGY_RESET),
-        ),
-        entry.options.get(ConfName.SLEEP_AFTER_WRITE, ConfDefaultInt.SLEEP_AFTER_WRITE),
-        entry.options.get(
-            ConfName.BATTERY_RATING_ADJUST, ConfDefaultInt.BATTERY_RATING_ADJUST
-        ),
+#        entry.options.get(
+#            ConfName.ADV_STORAGE_CONTROL, bool(ConfDefaultFlag.ADV_STORAGE_CONTROL)
+#        ),
+#        entry.options.get(
+#            ConfName.ADV_SITE_LIMIT_CONTROL,
+#            bool(ConfDefaultFlag.ADV_SITE_LIMIT_CONTROL),
+#        ),
+#        entry.options.get(
+#            ConfName.ALLOW_BATTERY_ENERGY_RESET,
+#            bool(ConfDefaultFlag.ALLOW_BATTERY_ENERGY_RESET),
+#        ),
+#        entry.options.get(ConfName.SLEEP_AFTER_WRITE, ConfDefaultInt.SLEEP_AFTER_WRITE),
+#        entry.options.get(
+#            ConfName.BATTERY_RATING_ADJUST, ConfDefaultInt.BATTERY_RATING_ADJUST
+#        ),
     )
 
     coordinator = SolarEdgeCoordinator(
@@ -134,14 +134,14 @@ async def async_remove_config_entry_device(
         for dev_id in meter_device_ids:
             known_devices.append(dev_id)
 
-    for battery in solaredge_hub.batteries:
-        battery_device_ids = {
-            dev_id[1]
-            for dev_id in battery.device_info["identifiers"]
-            if dev_id[0] == DOMAIN
-        }
-        for dev_id in battery_device_ids:
-            known_devices.append(dev_id)
+#    for battery in solaredge_hub.batteries:
+#        battery_device_ids = {
+#            dev_id[1]
+#            for dev_id in battery.device_info["identifiers"]
+#            if dev_id[0] == DOMAIN
+#        }
+#        for dev_id in battery_device_ids:
+#            known_devices.append(dev_id)
 
     this_device_ids = {
         dev_id[1] for dev_id in device_entry.identifiers if dev_id[0] == DOMAIN

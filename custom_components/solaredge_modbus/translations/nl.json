@@ -26,15 +26,6 @@
         "data": {
           "scan_interval": "Oproepfrequentie (seconden)"
         }
-      },
-      "adv_pwr_ctl": {
-        "title": "Opties voor stroomregeling",
-        "data": {
-          "adv_storage_control": "Opslagbeheer inschakelen",
-          "adv_site_limit_control": "Beheer van sitelimiet inschakelen",
-          "sleep_after_write": "Omvormer commando vertraging (seconden)"
-        },
-        "description": "Waarschuwing: deze opties kunnen in strijd zijn met nutsvoorzieningen, de facturering van uw nutsbedrijf wijzigen, mogelijk speciale apparatuur vereisen en de voorzieningen door SolarEdge of uw installateur overschrijven. Gebruik op eigen risico!"
       }      
     },
     "error": {

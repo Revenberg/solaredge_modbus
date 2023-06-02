@@ -74,22 +74,22 @@ class SolarEdgeModbusMultiHub:
         port: int,
 #        number_of_inverters: int = 1,
 #        start_device_id: int = 1,
-        adv_storage_control: bool = False,
-        adv_site_limit_control: bool = False,
-        allow_battery_energy_reset: bool = False,
-        sleep_after_write: int = 3,
-        battery_rating_adjust: int = 0,
+#        adv_storage_control: bool = False,
+#        adv_site_limit_control: bool = False,
+#        allow_battery_energy_reset: bool = False,
+        #sleep_after_write: int = 3,
+        #battery_rating_adjust: int = 0,
     ):
         """Initialize the Modbus hub."""
         self._hass = hass
         self._name = name
         self._host = host
         self._port = port
-        self._adv_storage_control = adv_storage_control
-        self._adv_site_limit_control = adv_site_limit_control
-        self._allow_battery_energy_reset = allow_battery_energy_reset
-        self._sleep_after_write = sleep_after_write
-        self._battery_rating_adjust = battery_rating_adjust
+#        self._adv_storage_control = adv_storage_control
+#        self._adv_site_limit_control = adv_site_limit_control
+#        self._allow_battery_energy_reset = allow_battery_energy_reset
+#        self._sleep_after_write = sleep_after_write
+#        self._battery_rating_adjust = battery_rating_adjust
         self._lock = threading.Lock()
         self._id = name.lower()
         self._coordinator_timeout = 30
@@ -188,21 +188,21 @@ class SolarEdgeModbusMultiHub:
     def hub_id(self) -> str:
         return self._id
 
-    @property
-    def option_storage_control(self) -> bool:
-        return self._adv_storage_control
+#    @property
+#    def option_storage_control(self) -> bool:
+#        return self._adv_storage_control
 
-    @property
-    def option_export_control(self) -> bool:
-        return self._adv_site_limit_control
+#    @property
+#    def option_export_control(self) -> bool:
+#        return self._adv_site_limit_control
 
-    @property
-    def allow_battery_energy_reset(self) -> bool:
-        return self._allow_battery_energy_reset
+#    @property
+#    def allow_battery_energy_reset(self) -> bool:
+#        return self._allow_battery_energy_reset
 
-    @property
-    def battery_rating_adjust(self) -> int:
-        return (self._battery_rating_adjust + 100) / 100
+#    @property
+#    def battery_rating_adjust(self) -> int:
+#        return (self._battery_rating_adjust + 100) / 100
 
     @property
     def coordinator_timeout(self) -> int:
