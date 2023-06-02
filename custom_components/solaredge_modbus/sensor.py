@@ -663,7 +663,7 @@ class SolarEdgeInverterStatus(SolarEdgeStatusSensor):
         
     @property
     def native_value(self):
-       return str(DEVICE_STATUS[self._platform.decoded_model["i_status"]])
+       return DEVICE_STATUS_TEXT[self._platform.decoded_model["i_status"]]
 
     @property
     def extra_state_attributes(self):
@@ -674,7 +674,6 @@ class SolarEdgeInverterStatus(SolarEdgeStatusSensor):
                 attrs["status_text"] = DEVICE_STATUS_TEXT[
                     self._platform.decoded_model["i_status"]
                 ]
-
                 attrs["status_value"] = self._platform.decoded_model["i_status"]
 
         except KeyError:
@@ -700,4 +699,4 @@ class StatusVendor(SolarEdgeSensorBase):
 
     @property
     def native_value(self):
-        return str(self._platform.decoded_model["i_status_vendor"])
+        return VENDOR_STATUS[self._platform.decoded_model["i_status_vendor"]]
