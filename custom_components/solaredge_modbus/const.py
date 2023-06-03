@@ -15,7 +15,6 @@ else:
         class StrEnum(str, Enum):
             pass
 
-
 DOMAIN = "solaredge_modbus"
 DEFAULT_NAME = "SolarEdge"
 
