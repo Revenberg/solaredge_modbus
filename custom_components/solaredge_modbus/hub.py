@@ -240,7 +240,7 @@ class SolarEdgeInverter:
         self.decoded_storage = []
         self.has_parent = False
         self.global_power_control = None
-        self.site_limit_control = None
+#        self.site_limit_control = None
         self.manufacturer = "SolarEdge"
         self._delta_energy = 0
 

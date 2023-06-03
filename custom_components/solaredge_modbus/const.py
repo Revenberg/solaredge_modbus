@@ -31,83 +31,9 @@ class RetrySettings(IntEnum):
     Ratio = 2  # time multiplier between each attempt
     Limit = 4  # number of attempts before failing
 
-
-#class BatteryLimit(IntEnum):
-#    """Configure battery limits for input and display validation."""
-
-#    Vmin = 0  # volts
-#    Vmax = 600  # volts
-#    Amin = -200  # amps
-#    Amax = 200  # amps
-#    Tmax = 100  # degrees C
-#    Tmin = -30  # degrees C
-#    ChargeMax = 50000  # watts
-#    DischargeMax = 50000  # watts
-
-
 class ConfDefaultInt(IntEnum):
     SCAN_INTERVAL = 60
     PORT = 8899
-#    NUMBER_INVERTERS = 1
-#    DEVICE_ID = 1
-#    SLEEP_AFTER_WRITE = 3
-#    BATTERY_RATING_ADJUST = 0
-
-
-#class ConfDefaultFlag(IntEnum):
-#    ADV_STORAGE_CONTROL = 0
-#    ADV_SITE_LIMIT_CONTROL = 0
-#    ALLOW_BATTERY_ENERGY_RESET = 0
-
-
-#class ConfName(StrEnum):
-#    NUMBER_INVERTERS = "number_of_inverters"
-#    DEVICE_ID = "device_id"
-#    ADV_STORAGE_CONTROL = "adv_storage_control"
-#    ADV_SITE_LIMIT_CONTROL = "adv_site_limit_control"
-#    ALLOW_BATTERY_ENERGY_RESET = "allow_battery_energy_reset"
-#    SLEEP_AFTER_WRITE = "sleep_after_write"
-#    BATTERY_RATING_ADJUST = "battery_rating_adjust"
-
-
-#class SunSpecAccum(IntEnum):
-#    NA16 = 0x0000
-#    NA32 = 0x00000000
-#    LIMIT16 = 0xFFFF
-#    LIMIT32 = 0xFFFFFFFF
-
-
-class SunSpecNotImpl(IntEnum):
-    INT16 = 0x8000
-    UINT16 = 0xFFFF
-    INT32 = 0x80000000
-    UINT32 = 0xFFFFFFFF
-    FLOAT32 = 0x7FC00000
-
-
-#SUNSPEC_SF_RANGE = [
-#    -10,
-#    -9,
-#    -8,
-#    -7,
-#    -6,
-#    -5,
-#    -4,
-#    -3,
-#    -2,
-#    -1,
-#    0,
-#    1,
-#    2,
-#    3,
-#    4,
-#    5,
-#    6,
-#    7,
-#    8,
-#    9,
-#    10,
-#]
 
 # parameter names per sunspec
 DEVICE_STATUS = {
@@ -220,4 +146,4 @@ METER_EVENTS = {
     30: "M_EVENT_OEM15",
 }
 
-LIMIT_CONTROL = {0: "Total", 1: "Per Phase"}
+#LIMIT_CONTROL = {0: "Total", 1: "Per Phase"}
