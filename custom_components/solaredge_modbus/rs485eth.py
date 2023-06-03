@@ -16,53 +16,30 @@
 #
 
 import struct
-#import sys
 import socket
 import logging
-#import binascii
 
 _LOGGER = logging.getLogger(__name__)
 _LOGGER.setLevel(logging.DEBUG)
 
-#if sys.version > "3":
-#import binascii
-
-#if sys.version > "3":
 long = int
-
-#_ASCII_HEADER = ":"
-#_ASCII_FOOTER = "\r\n"
-#_BYTEPOSITION_FOR_ASCII_HEADER = 0  # Relative to plain response
-_BYTEPOSITION_FOR_SLAVEADDRESS = 0  # Relative to (stripped) response
 
 BYTEORDER_BIG = 0
 BYTEORDER_LITTLE = 1
 BYTEORDER_BIG_SWAP = 2
 BYTEORDER_LITTLE_SWAP = 3
 
-# Replace with enum when Python3 only
 _PAYLOADFORMAT_LONG = "long"
 _PAYLOADFORMAT_INT = "int"
 _PAYLOADFORMAT_REGISTER = "register"
-#_PAYLOADFORMAT_REGISTERS = "registers"
-
-# ######################## #
-# Modbus instrument object #
-# ######################## #
-
 
 class Instrument:
     """Instrument class for talking to instruments (slaves).
 
-    Uses the Modbus RTU or ASCII protocols (via RS485 or RS232).
+    Uses the Modbus RTU or ASCII protocols (via RS485).
 
     Args:
-        port (str): The serial port name, for example ``/dev/ttyUSB0`` (Linux),
-        ``/dev/tty.usbserial`` (OS X) or ``COM4`` (Windows).
-        slaveaddress (int): Slave address in the range 1 to 247 (use decimal numbers,
-        not hex). Address 0 is for broadcast, and 248-255 are reserved.
-        close_port_after_each_call (bool): If the serial port should be closed after
-        each call to the instrument.
+        port (str): The port number
         debug (bool): Set this to :const:`True` to print the communication details
 
     """
@@ -71,14 +48,9 @@ class Instrument:
         self,
         eth_address,
         eth_port,
-        slaveaddress=1,
-        close_port_after_each_call=False,
     ):
-        self.address = slaveaddress
         self.precalculate_read_size = True
         self.clear_buffers_before_each_transaction = True
-        self.close_port_after_each_call = close_port_after_each_call
-        self.handle_local_echo = False
         self.eth_address = eth_address
         self.eth_port = eth_port
 
@@ -120,16 +92,18 @@ class Instrument:
         ps1 = _num_to_twobyte_string(registeraddress)
         ps2 = _num_to_twobyte_string(number_of_registers)
 
-        request = _embed_payload(
-            self.address, f'{ps1}{ps2}'
+        first_part = (
+            chr(1)
+            + chr(4)
+            + f'{ps1}{ps2}'
         )
+ 
+        request = first_part + _calculate_crc_string(first_part)
 
         # Communicate
         response = self._communicate(request)
         # Extract payload
-        payload_from_slave = _extract_payload(
-            response, self.address
-        )
+        payload_from_slave = _extract_payload( response )
 
         # Parse response payload
         return _parse_payload(
@@ -171,8 +145,6 @@ class Instrument:
         except Exception:
             raise NoResponseError("No communication with the instrument (timeout)")
 
-#        if sys.version_info[0] > 2:
-#            answer = str(answer, encoding="latin1")
         answer = str(answer, encoding="latin1")
 
         if not answer:
@@ -209,10 +181,6 @@ def _parse_payload(
             registerdata, signed, byteorder, numberOfDecimals
         )
 
- #   if payloadformat == _PAYLOADFORMAT_REGISTERS:
- #       return _bytestring_to_valuelist(registerdata, number_of_registers)
-
-#    el
     if payloadformat == _PAYLOADFORMAT_INT:
         return _twobyte_string_to_num(
             registerdata, numberOfDecimals, signed=signed
@@ -223,36 +191,12 @@ def _parse_payload(
             registerdata, numberOfDecimals, signed=signed
         )
 
-def _embed_payload(slaveaddress, payloaddata):
-    """Build a request from the slaveaddress, the function code and the payload data.
-
-    Args:
-        slaveaddress (int): The address of the slave.
-
-    Returns:
-        The built (raw) request string for sending to the slave (including CRC etc).
-
-    Raises:
-        ValueError, TypeError.
-
-    """
-
-    first_part = (
-        _num_to_onebyte_string(slaveaddress)
-        + _num_to_onebyte_string(4)
-        + payloaddata
-    )
-    request = first_part + _calculate_crc_string(first_part)
-
-    return request
-
-def _extract_payload(response, slaveaddress):
+def _extract_payload(response):
     """Extract the payload data part from the slave's response.
 
     Args:
         response (str): The raw response byte string from the slave.
         This is different for RTU and ASCII.
-        slaveaddress (int): The adress of the slave. Used here for error checking only.
 
     Returns:
         The payload part of the *response* string. Conversion from Modbus ASCII
@@ -290,16 +234,6 @@ def _extract_payload(response, slaveaddress):
         )
         raise InvalidResponseError(text)
 
-    # Check slave address
-    responseaddress = ord(response[_BYTEPOSITION_FOR_SLAVEADDRESS])
-
-    if responseaddress != slaveaddress:
-        raise InvalidResponseError(
-            f"Wrong return slave address: {responseaddress} instead of"
-            + f" {slaveaddress}. "
-            + f"The response is: {response!r}"
-        )
-
     # Read data payload
     first_databyte_number = 2
 
@@ -307,22 +241,6 @@ def _extract_payload(response, slaveaddress):
 
     payload = response[first_databyte_number:last_databyte_number]
     return payload
-
-def _num_to_onebyte_string(inputvalue):
-    """Convert a numerical value to a one-byte string.
-
-    Args:
-        inputvalue (int): The value to be converted. Should be >=0 and <=255.
-
-    Returns:
-        A one-byte string created by chr(inputvalue).
-
-    Raises:
-        TypeError, ValueError
-
-    """
-
-    return chr(inputvalue)
 
 def _num_to_twobyte_string(value, numberOfDecimals=0, lsb_first=False, signed=False):
     r"""Convert a numerical value to a two-byte string, possibly scaling it.
@@ -340,31 +258,6 @@ def _num_to_twobyte_string(value, numberOfDecimals=0, lsb_first=False, signed=Fa
     Raises:
         TypeError, ValueError. Gives DeprecationWarning instead of ValueError
         for some values in Python 2.6.
-
-    Use ``numberOfDecimals=1`` to multiply ``value`` by 10 before sending it to
-    the slave register. Similarly ``numberOfDecimals=2`` will multiply ``value``
-    by 100 before sending it to the slave register.
-
-    Use the parameter ``signed=True`` if making a bytestring that can hold
-    negative values. Then negative input will be automatically converted into
-    upper range data (two's complement).
-
-    The byte order is controlled by the ``lsb_first`` parameter, as seen here:
-
-    ======================= ============= ====================================
-    ``lsb_first`` parameter Endianness    Description
-    ======================= ============= ====================================
-    False (default)         Big-endian    Most significant byte is sent first
-    True                    Little-endian Least significant byte is sent first
-    ======================= ============= ====================================
-
-    For example:
-        To store for example value=77.0, use ``numberOfDecimals = 1`` if the
-        register will hold it as 770 internally. The value 770 (dec) is 0302 (hex),
-        where the most significant byte is 03 (hex) and the least significant byte
-        is 02 (hex). With ``lsb_first = False``, the most significant byte is given
-        first
-        why the resulting string is ``\x03\x02``, which has the length 2.
 
     """
     multiplier = 10 ** numberOfDecimals
@@ -397,16 +290,6 @@ def _twobyte_string_to_num(bytestring, numberOfDecimals=0, signed=False):
 
     Raises:
         TypeError, ValueError
-
-    Use the parameter ``signed=True`` if converting a bytestring that can hold
-    negative values. Then upper range data will be automatically converted into
-    negative return values (two's complement).
-
-    Use ``numberOfDecimals=1`` to divide the received data by 10 before returning
-    the value. Similarly ``numberOfDecimals=2`` will divide the received data by
-    100 before returning the value.
-
-    The byte order is big-endian, meaning that the most significant byte is sent first.
 
     """
     formatcode = ">"  # Big-endian
@@ -464,30 +347,6 @@ def _bytestring_to_long(
     divisor = 10 ** numberOfDecimals
     return fullregister / float(divisor)
 
-#def _bytestring_to_valuelist(bytestring, number_of_registers):
-#    """Convert a bytestring to a list of numerical values.
-
-#    The bytestring is interpreted as 'unsigned INT16'.
-
-#    Args:
-#        bytestring (str): The string from the slave. Length = 2*number_of_registers
-#        number_of_registers (int): The number of registers. For error checking.
-
-#    Returns:
-#        A list of integers.
-
-#    Raises:
-#        TypeError, ValueError
-
-#    """
-#    values = []
-#    for i in range(number_of_registers):
-#        offset = 2 * i
-#        substring = bytestring[offset : (offset + 2)]
-#        values.append(_twobyte_string_to_num(substring))
-
-#    return values
-
 def _pack(formatstring, value):
     """Pack a value into a bytestring.
 
@@ -504,9 +363,6 @@ def _pack(formatstring, value):
     Raises:
         ValueError
 
-    Note that the :mod:`struct` module produces byte buffers for Python3,
-    but bytestrings for Python2. This is compensated for automatically.
-
     """
 
     try:
@@ -519,12 +375,10 @@ def _pack(formatstring, value):
         + f"Struct format code is: {formatstring}"
         raise ValueError(errortext)
 
-#    if sys.version_info[0] > 2:
     return str(
         result, encoding="latin1"
-    )  # Convert types to make it Python3 compatible
- #   return result
-
+    )
+    
 def _unpack(formatstring, packed):
     """Unpack a bytestring into a value.
 
@@ -541,16 +395,11 @@ def _unpack(formatstring, packed):
     Raises:
         ValueError
 
-    Note that the :mod:`struct` module wants byte buffers for Python3,
-    but bytestrings for Python2. This is compensated for automatically.
-
     """
 
-    #if sys.version_info[0] > 2:
     packed = bytes(
         packed, encoding="latin1"
-    )  # Convert types to make it Python3 compatible
-
+    )
     try:
         value = struct.unpack(formatstring, packed)[0]
     except Exception:
@@ -584,80 +433,6 @@ def _swap(bytestring):
         templist[1:length:2],
     )
     return "".join(templist)
-
-#def _hexencode(bytestring, insert_spaces=False):
-#    """Convert a byte string to a hex encoded string.
-
-#    For example 'J' will return '4A', and ``'\x04'`` will return '04'.
-
-#    Args:
-#        bytestring (str): Can be for example ``'A\x01B\x45'``.
-#        insert_spaces (bool): Insert space characters between pair of characters
-#        to increase readability.
-
-#    Returns:
-#        A string of twice the length, with characters in the range '0' to '9' and
-#        'A' to 'F'. The string will be longer if spaces are inserted.
-
-#    Raises:
-#        TypeError, ValueError
-
-#    """
-#    separator = "" if not insert_spaces else " "
-
-#    # Use plain string formatting instead of binhex.hexlify,
-#    # in order to have it Python 2.x and 3.x compatible
-
-#    byte_representions = []
-#    for char in bytestring:
-#        byte_representions.append(f"{ord(char):02X}")
-#    return separator.join(byte_representions).strip()
-
-#def _hexdecode(hexstring):
-#    """Convert a hex encoded string to a byte string.
-
-#    For example '4A' will return 'J', and '04' will return ``'\x04'`` (which has
-#    length 1).
-
-#    Args:
-#        hexstring (str): Can be for example 'A3' or 'A3B4'. Must be of even length.
-#        Allowed characters are '0' to '9', 'a' to 'f' and 'A' to 'F' (not space).
-
-#    Returns:
-#        A string of half the length, with characters corresponding to all 0-255
-#        values for each byte.
-
-#    Raises:
-#        TypeError, ValueError
-
-#    """
-#    # Note: For Python3 the appropriate would be: raise TypeError(new_error_message)
-#    # from err but the Python2 interpreter will indicate SyntaxError.
-#    # Thus we need to live with this warning in Python3:
-#    # 'During handling of the above exception, another exception occurred'
-
-#    if len(hexstring) % 2 != 0:
-#        raise ValueError(
-#            f"The input hexstring must be of even length. Given: {hexstring!r}"
-#        )
-
-#    #if sys.version_info[0] > 2:
-#    converted_bytes = bytes(hexstring, "latin1")
-#    try:
-#        return str(binascii.unhexlify(converted_bytes), encoding="latin1")
-#    except binascii.Error as err:
-#        new_error_message = f"Hexdecode reported an error: {err.args[0]!s}. "
-#        + f"Input hexstring: {hexstring}"
-#        raise TypeError(new_error_message)
-
-#    else:
-#        try:
-#            return hexstring.decode("hex")
-#        except TypeError:
-#            # TODO When Python3 only, show info from first exception
-#            raise TypeError(
-#                f"Hexdecode reported an error. Input hexstring: {hexstring}"
-#            )
 
 _CRC16TABLE = (
     0,
@@ -958,32 +733,3 @@ def _calculate_crc_string(inputstring):
         register = (register >> 8) ^ _CRC16TABLE[(register ^ ord(char)) & 0xFF]
 
     return _num_to_twobyte_string(register, lsb_first=True)
-
-
-#def _calculate_lrc_string(inputstring):
-#    """Calculate LRC for Modbus.
-
-#    Args:
-#        inputstring (str): An arbitrary-length message (without the beginning
-#        colon and terminating CRLF). It should already be decoded from hex-string.
-
-#    Returns:
-#        A one-byte LRC bytestring (not encoded to hex-string)
-
-#    Algorithm from the document 'MODBUS over serial line specification and
-#    implementation guide V1.02'.
-
-#    The LRC is calculated as 8 bits (one byte).
-
-#    For example a LRC 0110 0001 (bin) = 61 (hex) = 97 (dec) = 'a'. This function will
-#    then return 'a'.
-
-#    """
-
-#    register = 0
-#    for character in inputstring:
-#        register += ord(character)
-
-#    lrc = ((register ^ 0xFF) + 1) & 0xFF
-
-#    return _num_to_onebyte_string(lrc)
