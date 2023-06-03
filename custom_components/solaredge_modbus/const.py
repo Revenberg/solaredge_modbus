@@ -35,6 +35,14 @@ class ConfDefaultInt(IntEnum):
     SCAN_INTERVAL = 60
     PORT = 8899
 
+class SunSpecNotImpl(IntEnum):
+    INT16 = 0x8000
+    UINT16 = 0xFFFF
+    INT32 = 0x80000000
+    UINT32 = 0xFFFFFFFF
+    FLOAT32 = 0x7FC00000
+
+
 # parameter names per sunspec
 DEVICE_STATUS = {
     1: "I_STATUS_OFF",
@@ -146,4 +154,4 @@ METER_EVENTS = {
     30: "M_EVENT_OEM15",
 }
 
-#LIMIT_CONTROL = {0: "Total", 1: "Per Phase"}
+LIMIT_CONTROL = {0: "Total", 1: "Per Phase"}
