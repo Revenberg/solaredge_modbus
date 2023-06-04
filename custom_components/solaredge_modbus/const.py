@@ -15,7 +15,7 @@ else:
         class StrEnum(str, Enum):
             pass
 
-DOMAIN = "solaredge_modbus"
+DOMAIN = "solaredge_rs485"
 DEFAULT_NAME = "SolarEdge"
 
 # units missing in homeassistant core

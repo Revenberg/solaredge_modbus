@@ -2,12 +2,12 @@
   "config": {
     "step": {
       "user": {
-        "title": "Konfiguracja SolarEdge Modbus",
+        "title": "Konfiguracja SolarEdge rs485",
         "data": {
           "name": "Prefix sensora",
           "host": "Adres IP inwertera",
-          "port": "Modbus/TCP Port",
-          "device_id": "Adres Modbus Inwertera (Device ID)",
+          "port": "rs485/TCP Port",
+          "device_id": "Adres rs485 Inwertera (Device ID)",
           "number_of_inverters": "Ilość inwerterów"
         }
       }
@@ -29,7 +29,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "Opcje SolarEdge Modbus",
+        "title": "Opcje SolarEdge rs485",
         "data": {
           "scan_interval": "Częstotliwość odczytu (sekundy)"
         }

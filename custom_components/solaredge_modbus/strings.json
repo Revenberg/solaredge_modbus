@@ -2,11 +2,11 @@
   "config": {
     "step": {
       "user": {
-        "title": "SolarEdge Modbus Configuration",
+        "title": "SolarEdge rs485 Configuration",
         "data": {
           "name": "Sensor Prefix",
           "host": "Inverter IP Address",
-          "port": "Modbus/TCP Port"
+          "port": "rs485/TCP Port"
         }
       }
     },
@@ -22,7 +22,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "SolarEdge Modbus Options",
+        "title": "SolarEdge rs485 Options",
         "data": {
           "scan_interval": "Polling Frequency (seconds)"
         }

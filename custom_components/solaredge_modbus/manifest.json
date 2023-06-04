@@ -1,14 +1,14 @@
 {
-  "domain": "solaredge_modbus",
-  "name": "SolarEdge Modbus",
+  "domain": "solaredge_rs485",
+  "name": "SolarEdge rs485",
   "codeowners": ["@Sander"],
   "config_flow": true,
   "dependencies": ["utility_meter", "energy"],
-  "documentation": "https://github.com/Revenberg/solaredge_modbus/wiki",
+  "documentation": "https://github.com/Revenberg/solaredge_rs485/wiki",
   "integration_type": "hub",
   "iot_class": "local_polling",
-  "issue_tracker": "https://github.com/Revenberg/solaredge_modbus/issues",
-  "loggers": ["custom_components.solaredge_modbus"],
-  "requirements": ["pymodbus>=3.1.1"],
+  "issue_tracker": "https://github.com/Revenberg/solaredge_rs485/issues",
+  "loggers": ["custom_components.solaredge_rs485"],
+  "requirements": ["pyrs485>=3.1.1"],
   "version": "0.0.2"
 }

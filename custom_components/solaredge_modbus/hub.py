@@ -8,18 +8,18 @@ from homeassistant.core import HomeAssistant
 from .rs485eth import Instrument
 
 try:
-    #from pymodbus.client import ModbusTcpClient
-    #from pymodbus.constants import Endian
-    from pymodbus.exceptions import ConnectionException
-    ##, ModbusIOException
-    #from pymodbus.payload import BinaryPayloadDecoder
-    ## from pymodbus.pdu import ExceptionResponse, ModbusExceptions
+    #from pyrs485.client import rs485TcpClient
+    #from pyrs485.constants import Endian
+    from pyrs485.exceptions import ConnectionException
+    ##, rs485IOException
+    #from pyrs485.payload import BinaryPayloadDecoder
+    ## from pyrs485.pdu import ExceptionResponse, rs485Exceptions
 except ImportError:
-    raise ImportError("pymodbus is not installed, or pymodbus version is not supported")
+    raise ImportError("pyrs485 is not installed, or pyrs485 version is not supported")
 
 from .const import DOMAIN
 #, SunSpecNotImpl
-#from .helpers import float_to_hex, parse_modbus_string
+#from .helpers import float_to_hex, parse_rs485_string
 
 _LOGGER = logging.getLogger(__name__)
 _LOGGER.setLevel(logging.DEBUG)
@@ -41,14 +41,14 @@ class DeviceInitFailed(SolarEdgeException):
 
     pass
 
-class ModbusReadError(SolarEdgeException):
-    """Raised when a modbus read fails"""
+class rs485ReadError(SolarEdgeException):
+    """Raised when a rs485 read fails"""
 
     pass
 
 
-class ModbusWriteError(SolarEdgeException):
-    """Raised when a modbus write fails"""
+class rs485WriteError(SolarEdgeException):
+    """Raised when a rs485 write fails"""
 
     pass
 
@@ -65,7 +65,7 @@ class DeviceInvalid(SolarEdgeException):
     pass
 
 
-class SolarEdgeModbusMultiHub:
+class SolarEdgers485MultiHub:
     def __init__(
         self,
         hass: HomeAssistant,
@@ -80,7 +80,7 @@ class SolarEdgeModbusMultiHub:
         #sleep_after_write: int = 3,
         #battery_rating_adjust: int = 0,
     ):
-        """Initialize the Modbus hub."""
+        """Initialize the rs485 hub."""
         self._hass = hass
         self._name = name
         self._host = host
@@ -117,7 +117,7 @@ class SolarEdgeModbusMultiHub:
             await self._hass.async_add_executor_job(new_inverter.init_device)
             self.inverters.append(new_inverter)
 
-        except ModbusReadError as e:
+        except rs485ReadError as e:
             ##await self.disconnect()
             _LOGGER.debug("---------------1---------------------------")
             raise HubInitFailed(f"{e}")
@@ -129,9 +129,9 @@ class SolarEdgeModbusMultiHub:
 
         try:
             for inverter in self.inverters:
-                await self._hass.async_add_executor_job(inverter.read_modbus_data)
+                await self._hass.async_add_executor_job(inverter.read_rs485_data)
 
-        except ModbusReadError as e:
+        except rs485ReadError as e:
             self._online = False
             raise HubInitFailed(f"Read error: {e}")
 
@@ -145,7 +145,7 @@ class SolarEdgeModbusMultiHub:
 
         self.initalized = True
 
-    async def async_refresh_modbus_data(self, _now: Optional[int] = None) -> bool:
+    async def async_refresh_rs485_data(self, _now: Optional[int] = None) -> bool:
         if not self.is_socket_open():
             await self.connect()
 
@@ -159,9 +159,9 @@ class SolarEdgeModbusMultiHub:
         self._online = True
         try:
             for inverter in self.inverters:
-                await self._hass.async_add_executor_job(inverter.read_modbus_data)
+                await self._hass.async_add_executor_job(inverter.read_rs485_data)
 
-        except ModbusReadError as e:
+        except rs485ReadError as e:
             self._online = False
             raise DataUpdateFailed(f"Update failed: {e}")
 
@@ -210,13 +210,13 @@ class SolarEdgeModbusMultiHub:
         return self._coordinator_timeout
 
     async def connect(self) -> None:
-        """Connect modbus client."""
+        """Connect rs485 client."""
         if self._client is None:
             self._client = Instrument(eth_address=self._host,
                                       eth_port=self._port)
 
     def is_socket_open(self) -> bool:
-#        """Check modbus client connection status."""
+#        """Check rs485 client connection status."""
         #with self._lock:
         if self._client is None:
             return False
@@ -231,7 +231,7 @@ class SolarEdgeModbusMultiHub:
 
 class SolarEdgeInverter:
     _delta_energy = 0
-    def __init__(self, device_id: int, hub: SolarEdgeModbusMultiHub) -> None:
+    def __init__(self, device_id: int, hub: SolarEdgers485MultiHub) -> None:
         self.inverter_unit_id = device_id
         self.hub = hub
         self.decoded_common = []
@@ -247,7 +247,7 @@ class SolarEdgeInverter:
     def init_device(self) -> None:
 
         _LOGGER.debug("init_device")
-        self.read_modbus_data_common()
+        self.read_rs485_data_common()
 
         #self.manufacturer = self.decoded_common["C_Manufacturer"]
         self.manufacturer = "SolarEdge"
@@ -321,8 +321,8 @@ class SolarEdgeInverter:
     def round(self, floatval):
         return round(floatval, 2)
 
-    def read_modbus_data_common(self) -> None:
-        #_LOGGER.debug("read_modbus_data")
+    def read_rs485_data_common(self) -> None:
+        #_LOGGER.debug("read_rs485_data")
 
         try:
             C_SunSpec_DID = self.getValueRegister(3000,
@@ -331,7 +331,7 @@ class SolarEdgeInverter:
         except ConnectionException as e:
             _LOGGER.error(f"Connection error: {e}")
             self._online = False
-            raise ModbusReadError(f"{e}")
+            raise rs485ReadError(f"{e}")
 
         self.decoded_common = OrderedDict(
             [
@@ -340,8 +340,8 @@ class SolarEdgeInverter:
             ]
         )
 
-    def read_modbus_data(self) -> None:
-        # _LOGGER.debug("read_modbus_data")
+    def read_rs485_data(self) -> None:
+        # _LOGGER.debug("read_rs485_data")
 
         # https://ginlongsolis.freshdesk.com/helpdesk/attachments/36112313359
 

@@ -1,6 +1,6 @@
 {
-    "name": "SolarEdge Modbus",
-    "filename": "solaredge_modbus.zip",
+    "name": "SolarEdge rs485",
+    "filename": "solaredge_rs485.zip",
     "hide_default_branch": true,
     "homeassistant": "2023.3.0",
     "render_readme": true,

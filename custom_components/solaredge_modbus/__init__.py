@@ -1,4 +1,4 @@
-"""The SolarEdge Modbus Integration."""
+"""The SolarEdge rs485 Integration."""
 import asyncio
 import logging
 from datetime import timedelta
@@ -21,7 +21,7 @@ from .const import DOMAIN,  ConfDefaultInt
 # ConfDefaultFlag,
 from .const import RetrySettings
 #ConfName, 
-from .hub import DataUpdateFailed, HubInitFailed, SolarEdgeModbusMultiHub
+from .hub import DataUpdateFailed, HubInitFailed, SolarEdgers485MultiHub
 
 _LOGGER = logging.getLogger(__name__)
 _LOGGER.setLevel(logging.DEBUG)
@@ -48,7 +48,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if entry_updates:
         hass.config_entries.async_update_entry(entry, **entry_updates)
 
-    solaredge_hub = SolarEdgeModbusMultiHub(
+    solaredge_hub = SolarEdgers485MultiHub(
         hass,
         entry.data[CONF_NAME],
         entry.data[CONF_HOST],
@@ -160,7 +160,7 @@ async def async_remove_config_entry_device(
 
 class SolarEdgeCoordinator(DataUpdateCoordinator):
     def __init__(
-        self, hass: HomeAssistant, hub: SolarEdgeModbusMultiHub, scan_interval: int
+        self, hass: HomeAssistant, hub: SolarEdgers485MultiHub, scan_interval: int
     ):
         super().__init__(
             hass,
@@ -173,7 +173,7 @@ class SolarEdgeCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self):
         try:
             async with async_timeout.timeout(self._hub.coordinator_timeout):
-                return await self._refresh_modbus_data_with_retry(
+                return await self._refresh_rs485_data_with_retry(
                     ex_type=DataUpdateFailed,
                     limit=RetrySettings.Limit,
                     wait_ms=RetrySettings.Time,
@@ -186,7 +186,7 @@ class SolarEdgeCoordinator(DataUpdateCoordinator):
         except DataUpdateFailed as e:
             raise UpdateFailed(f"{e}")
 
-    async def _refresh_modbus_data_with_retry(
+    async def _refresh_rs485_data_with_retry(
         self,
         ex_type=Exception,
         limit=0,
@@ -206,7 +206,7 @@ class SolarEdgeCoordinator(DataUpdateCoordinator):
         attempt = 1
         while True:
             try:
-                return await self._hub.async_refresh_modbus_data()
+                return await self._hub.async_refresh_rs485_data()
             except Exception as ex:
                 if not isinstance(ex, ex_type):
                     raise ex

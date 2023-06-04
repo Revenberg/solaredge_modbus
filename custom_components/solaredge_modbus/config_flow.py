@@ -24,15 +24,15 @@ def host_valid(host):
 
 
 @callback
-def solaredge_modbus_multi_entries(hass: HomeAssistant):
+def solaredge_rs485_multi_entries(hass: HomeAssistant):
     """Return the hosts already configured."""
     return set(
         entry.data[CONF_HOST] for entry in hass.config_entries.async_entries(DOMAIN)
     )
 
 
-class SolaredgeModbusMultiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Solaredge Modbus configflow."""
+class Solaredgers485MultiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+    """Solaredge rs485 configflow."""
 
     VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
@@ -40,11 +40,11 @@ class SolaredgeModbusMultiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     @staticmethod
     @callback
     def async_get_options_flow(config_entry: ConfigEntry):
-        return SolaredgeModbusMultiOptionsFlowHandler(config_entry)
+        return Solaredgers485MultiOptionsFlowHandler(config_entry)
 
     def _host_in_configuration_exists(self, host) -> bool:
         """Return True if host exists in configuration."""
-        if host in solaredge_modbus_multi_entries(self.hass):
+        if host in solaredge_rs485_multi_entries(self.hass):
             return True
         return False
 
@@ -111,7 +111,7 @@ class SolaredgeModbusMultiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
 
-class SolaredgeModbusMultiOptionsFlowHandler(config_entries.OptionsFlow):
+class Solaredgers485MultiOptionsFlowHandler(config_entries.OptionsFlow):
     def __init__(self, config_entry: ConfigEntry):
         """Initialize options flow."""
         self.config_entry = config_entry

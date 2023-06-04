@@ -2,12 +2,12 @@
   "config": {
     "step": {
       "user": {
-        "title": "SolarEdge Modbus-konfigurasjon",
+        "title": "SolarEdge rs485-konfigurasjon",
         "data": {
           "name": "Sensorvoorvoegsel",
           "host": "IP-adres van omvormer",
-          "port": "Modbus/TCP-poort",
-          "device_id": "Inverter Modbus-adresse (enhets-ID)",
+          "port": "rs485/TCP-poort",
+          "device_id": "Inverter rs485-adresse (enhets-ID)",
           "number_of_inverters": "Antall omformere koblet sammen"
         }
       }
@@ -29,7 +29,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "SolarEdge Modbus-alternativer",
+        "title": "SolarEdge rs485-alternativer",
         "data": {
           "scan_interval": "Avstemningsfrekvens (sekunder)"
         }

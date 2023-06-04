@@ -2,11 +2,11 @@
   "config": {
     "step": {
       "user": {
-        "title": "SolarEdge Modbus-configuratie",
+        "title": "SolarEdge rs485-configuratie",
         "data": {
           "name": "Sensor prefix",
           "host": "omvormer IP-adres",
-          "port": "Modbus/TCP Port"
+          "port": "rs485/TCP Port"
         }
       }
     },
@@ -22,7 +22,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "SolarEdge Modbus Instellingen",
+        "title": "SolarEdge rs485 Instellingen",
         "data": {
           "scan_interval": "Oproepfrequentie (seconden)"
         }

@@ -36,7 +36,7 @@ _PAYLOADFORMAT_REGISTER = "register"
 class Instrument:
     """Instrument class for talking to instruments (slaves).
 
-    Uses the Modbus RTU or ASCII protocols (via RS485).
+    Uses the rs485 RTU or ASCII protocols (via RS485).
 
     Args:
         port (str): The port number
@@ -84,7 +84,7 @@ class Instrument:
             1 (int), or ``None``.
 
         Raises:
-            TypeError, ValueError, ModbusException,
+            TypeError, ValueError, rs485Exception,
             serial.SerialException (inherited from IOError)
 
         """
@@ -124,7 +124,7 @@ class Instrument:
             The raw data (string) returned from the slave.
 
         Raises:
-            TypeError, ValueError, ModbusException,
+            TypeError, ValueError, rs485Exception,
             serial.SerialException (inherited from IOError)
 
         """
@@ -152,20 +152,20 @@ class Instrument:
 
         return answer
 
-class ModbusException(IOError):
-    """Base class for Modbus communication exceptions.
+class rs485Exception(IOError):
+    """Base class for rs485 communication exceptions.
 
     Inherits from IOError, which is an alias for OSError in Python3.
     """
 
-class MasterReportedException(ModbusException):
+class MasterReportedException(rs485Exception):
     """Base class for exceptions that the master (computer) detects."""
 
 class NoResponseError(MasterReportedException):
     """No response from the slave."""
 
 class InvalidResponseError(MasterReportedException):
-    """The response does not fulfill the Modbus standad, for example wrong checksum."""
+    """The response does not fulfill the rs485 standad, for example wrong checksum."""
 
 def _parse_payload(
     payload,
@@ -199,11 +199,11 @@ def _extract_payload(response):
         This is different for RTU and ASCII.
 
     Returns:
-        The payload part of the *response* string. Conversion from Modbus ASCII
+        The payload part of the *response* string. Conversion from rs485 ASCII
         has been done if applicable.
 
     Raises:
-        ValueError, TypeError, ModbusException (or subclasses).
+        ValueError, TypeError, rs485Exception (or subclasses).
 
     Raises an exception if there is any problem with the received address,
     the 4 or the CRC.
@@ -215,7 +215,7 @@ def _extract_payload(response):
     # Validate response length
     if len(response) < MINIMAL_RESPONSE_LENGTH_RTU:
         raise InvalidResponseError(
-            "Too short Modbus RTU response (minimum length "
+            "Too short rs485 RTU response (minimum length "
             + f"{MINIMAL_RESPONSE_LENGTH_RTU} bytes). Response: {response!r}"
         )
 
@@ -717,7 +717,7 @@ Built with this code::
 """
 
 def _calculate_crc_string(inputstring):
-    """Calculate CRC-16 for Modbus.
+    """Calculate CRC-16 for rs485.
 
     Args:
         inputstring (str): An arbitrary-length message (without the CRC).

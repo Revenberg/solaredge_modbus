@@ -2,12 +2,12 @@
   "config": {
     "step": {
       "user": {
-        "title": "SolarEdge Modbus-Konfiguration",
+        "title": "SolarEdge rs485-Konfiguration",
         "data": {
           "name": "Sensorpräfix",
           "host": "Wechselrichter-IP-Adresse",
-          "port": "Modbus/TCP-Port",
-          "device_id": "Wechselrichter-Modbus-Adresse (Geräte-ID)",
+          "port": "rs485/TCP-Port",
+          "device_id": "Wechselrichter-rs485-Adresse (Geräte-ID)",
           "number_of_inverters": "Anzahl Wechselrichter"
         }
       }
@@ -29,7 +29,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "SolarEdge Modbus Optionen",
+        "title": "SolarEdge rs485 Optionen",
         "data": {
           "scan_interval": "Abfragehäufigkeit (Sekunden)"
         }

@@ -2,23 +2,23 @@
   "config": {
     "step": {
       "user": {
-        "title": "Configuration SolarEdge Modbus",
+        "title": "Configuration SolarEdge rs485",
         "data": {
           "name": "Prefix du capteur",
           "host": "Adresse IP de l'onduleur",
-          "port": "Port Modbus/TCP",
-          "device_id": "L'adresse Modbus de l'onduleur (Device ID)",
+          "port": "Port rs485/TCP",
+          "device_id": "L'adresse rs485 de l'onduleur (Device ID)",
           "number_of_inverters": "Nombre d'onduleurs"
         }
       }
     },
     "error": {
       "already_configured": "L'appareil est déjà configuré!",
-      "max_device_id": "L'adresse Modbus doit être entre 1 et 247.",
-      "min_device_id": "L'adresse Modbus doit être entre 1 et 247.",
+      "max_device_id": "L'adresse rs485 doit être entre 1 et 247.",
+      "min_device_id": "L'adresse rs485 doit être entre 1 et 247.",
       "max_inverters": "Doit être entre 1 et 32 onduleurs.",
       "min_inverters": "Doit être entre 1 et 32 onduleurs.",
-      "too_many_inverters": "Nombre d'onduleurs trop important pour l'adresse Modbus.",
+      "too_many_inverters": "Nombre d'onduleurs trop important pour l'adresse rs485.",
       "invalid_host": "Adresse IP invalide.",
       "invalid_tcp_port": "La plage de ports valide est comprise entre 1 et 65535."
     },
@@ -29,7 +29,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "Options SolarEdge Modbus",
+        "title": "Options SolarEdge rs485",
         "data": {
           "scan_interval": "Fréquence de rafraichissement (en secondes)"
         }

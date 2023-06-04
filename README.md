@@ -4,9 +4,9 @@
 
 [Octopus.Energy 🐙](https://share.octopus.energy/wise-boar-813) referral code. You get £50 credit for joining and I get £50 credit.
 
-# homsassistant-SolarEdge-modbus
-SolarEdge Modbus custom_component for Home Assistant
-Support Modbus TCP
+# homsassistant-SolarEdge-rs485
+SolarEdge rs485 custom_component for Home Assistant
+Support rs485 TCP
 
 Firmware version >= 75.82
 
@@ -26,11 +26,11 @@ Supports:
 <B>Alternatively</B>
 
 Download the zip / tar.gz from the release page.
-- Extract the contents of solax_modbus into to your home-assistant config/custom_components folder.
+- Extract the contents of solax_rs485 into to your home-assistant config/custom_components folder.
 
 If you manually clone the repository you may end up mid code update!
 
-~~Copy the folder and contents of solax_modbus into to your home-assistant config/custom_components folder.~~
+~~Copy the folder and contents of solax_rs485 into to your home-assistant config/custom_components folder.~~
 
 
 <B>Post Installation</B>
