@@ -7,15 +7,15 @@ from homeassistant.core import HomeAssistant
 
 from .rs485eth import Instrument
 
-try:
+#try:
     #from pyrs485.client import rs485TcpClient
     #from pyrs485.constants import Endian
-    from pyrs485.exceptions import ConnectionException
+#    from pyrs485.exceptions import ConnectionException
     ##, rs485IOException
     #from pyrs485.payload import BinaryPayloadDecoder
     ## from pyrs485.pdu import ExceptionResponse, rs485Exceptions
-except ImportError:
-    raise ImportError("pyrs485 is not installed, or pyrs485 version is not supported")
+#except ImportError:
+#    raise ImportError("pyrs485 is not installed, or pyrs485 version is not supported")
 
 from .const import DOMAIN
 #, SunSpecNotImpl
@@ -23,6 +23,11 @@ from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 _LOGGER.setLevel(logging.DEBUG)
+
+class ConnectionException(Exception):
+    """Base class for other exceptions"""
+
+    pass
 
 class SolarEdgeException(Exception):
     """Base class for other exceptions"""
