@@ -7,19 +7,7 @@ from homeassistant.core import HomeAssistant
 
 from .rs485eth import Instrument
 
-#try:
-    #from pyrs485.client import rs485TcpClient
-    #from pyrs485.constants import Endian
-#    from pyrs485.exceptions import ConnectionException
-    ##, rs485IOException
-    #from pyrs485.payload import BinaryPayloadDecoder
-    ## from pyrs485.pdu import ExceptionResponse, rs485Exceptions
-#except ImportError:
-#    raise ImportError("pyrs485 is not installed, or pyrs485 version is not supported")
-
 from .const import DOMAIN
-#, SunSpecNotImpl
-#from .helpers import float_to_hex, parse_rs485_string
 
 _LOGGER = logging.getLogger(__name__)
 _LOGGER.setLevel(logging.DEBUG)
@@ -77,24 +65,12 @@ class SolarEdgers485MultiHub:
         name: str,
         host: str,
         port: int,
-#        number_of_inverters: int = 1,
-#        start_device_id: int = 1,
-#        adv_storage_control: bool = False,
-#        adv_site_limit_control: bool = False,
-#        allow_battery_energy_reset: bool = False,
-        #sleep_after_write: int = 3,
-        #battery_rating_adjust: int = 0,
     ):
         """Initialize the rs485 hub."""
         self._hass = hass
         self._name = name
         self._host = host
         self._port = port
-#        self._adv_storage_control = adv_storage_control
-#        self._adv_site_limit_control = adv_site_limit_control
-#        self._allow_battery_energy_reset = allow_battery_energy_reset
-#        self._sleep_after_write = sleep_after_write
-#        self._battery_rating_adjust = battery_rating_adjust
         self._lock = threading.Lock()
         self._id = name.lower()
         self._coordinator_timeout = 30
@@ -102,14 +78,6 @@ class SolarEdgers485MultiHub:
         self._id = name.lower()
         self._lock = threading.Lock()
         self.inverters = []
-        self.meters = []
-        self.batteries = []
-        self.inverter_common = {}
-        self.mmppt_common = {}
-
-        self._wr_unit = None
-        self._wr_address = None
-        self._wr_payload = None
 
         self.initalized = False
         self._online = False
@@ -123,7 +91,6 @@ class SolarEdgers485MultiHub:
             self.inverters.append(new_inverter)
 
         except rs485ReadError as e:
-            ##await self.disconnect()
             _LOGGER.debug("---------------1---------------------------")
             raise HubInitFailed(f"{e}")
 
