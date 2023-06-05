@@ -104,6 +104,9 @@ class Instrument:
         response = self._communicate(request)
         # Extract payload
         payload_from_slave = _extract_payload( response )
+        
+        if payload_from_slave == "":
+            return None
 
         # Parse response payload
         return _parse_payload(
